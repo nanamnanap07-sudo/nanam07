@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Budget Tracker (Auto Start & Flexible End)</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text-main: #1f2937;
+            --bg-body: #f3f4f6;
+            --card-bg: #ffffff;
+            --info: #0284c7;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1050px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 20px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        input[type="number"], input[type="text"], input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-view {
+            background-color: var(--info);
+            color: white;
+            padding: 6px 12px;
+            font-size: 13px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-view:hover { background-color: #0369a1; }
+
+        .btn-edit {
+            background-color: var(--warning);
+            color: white;
+            padding: 6px 10px;
+            font-size: 13px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-edit:hover { background-color: #d97706; }
+
+        .btn-delete-row {
+            background-color: var(--danger);
+            color: white;
+            padding: 6px 10px;
+            font-size: 13px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-delete-row:hover { background-color: #b91c1c; }
+
+        /* Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .stat-box h3 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .stat-box p {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .stat-sub-details {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #4b5563;
+            text-align: left;
+            background: #f8fafc;
+            padding: 6px 10px;
+            border-radius: 4px;
+            line-height: 1.5;
+        }
+
+        /* Alert System */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .alert-danger { background-color: #fee2e2; color: var(--danger); border: 1px solid #fca5a5; }
+        .alert-warning { background-color: #fef3c7; color: var(--warning); border: 1px solid #fcd34d; }
+
+        /* Table Design */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background-color: #f9fafb;
+            color: #4b5563;
+            font-weight: 600;
+        }
+
+        .text-success { color: var(--success); font-weight: 600; }
+        .text-danger { color: var(--danger); font-weight: 600; }
+        .text-income { color: #059669; font-weight: 600; }
+        
+        .hidden { display: none !important; }
+        
+        .edit-mode-active {
+            border: 2px dashed #f59e0b !important;
+            background-color: #fffbeb !important;
+        }
+
+        .system-buttons {
+            margin-top: 25px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .system-buttons button {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        /* ตะกร้าพักข้อมูล */
+        .basket-zone {
+            background-color: #f9fafb;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .basket-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #475569;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .basket-item {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            margin-bottom: 6px;
+            font-size: 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .btn-delete-item {
+            background: none;
+            color: var(--danger);
+            width: auto;
+            padding: 0;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn-delete-item:hover { text-decoration: underline; background: none; color: #b91c1c; }
+
+        /* POPUP WINDOW (MODAL) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-card {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: scale(0.9);
+            transition: transform 0.2s ease;
+        }
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+        }
+        .modal-header h3 { margin: 0; color: var(--primary); }
+        .modal-close-x {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #9ca3af;
+            cursor: pointer;
+            width: auto;
+            padding: 0;
+        }
+        .modal-close-x:hover { color: var(--text-main); }
+        .modal-body-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .modal-row-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 6px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 15px;
+        }
+        .modal-row-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📅 Daily Budget Tracker</h1>
+
+    <div id="restore-shortcut-zone" class="card" style="border: 2px solid #34d399; background: #ecfdf5; margin-bottom: 20px; text-align: center;">
+        <span style="font-weight: bold; color: #065f46;">💡 ข้อมูลหายหลังจากลบประวัติ Chrome?</span>
+        <button onclick="document.getElementById('file-input-backup').click()" style="background-color: #059669; max-width: 250px; margin: 10px auto 0 auto; display: block; padding: 6px 12px; font-size: 14px;">📂 เลือกไฟล์ Backup เพื่อกู้ข้อมูลคืน</button>
+        <input type="file" id="file-input-backup" accept=".txt" onchange="importDataFromFile(event)" style="display: none;">
+    </div>
+
+    <div id="setup-card" class="card">
+        <h3>⚙️ ตั้งค่าเป้าหมายการเงินเบื้องต้น</h3>
+        <div class="grid-2">
+            <div class="form-group">
+                <label for="total-money">จำนวนเงินเริ่มต้นทั้งหมด (บาท)</label>
+                <input type="number" id="total-money" placeholder="เช่น 2000" min="1" step="any">
+            </div>
+            <div class="form-group">
+                <label for="end-date-setup">🏁 วันที่สิ้นสุดโครงการ</label>
+                <input type="date" id="end-date-setup">
+            </div>
+        </div>
+        <button onclick="startTracker()">เริ่มบันทึกเงินรายวัน</button>
+    </div>
+
+    <div id="main-tracker" class="hidden">
+        
+        <div class="card" style="border-left: 5px solid var(--info); padding: 15px 20px; margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <span style="font-weight: bold; color: var(--info);">📅 ปรับแต่งช่วงเวลาแผนเงินของคุณ</span>
+                    <div style="font-size: 13px; color: #6b7280; margin-top: 2px;">(วันเริ่มต้นจะอิงจากข้อมูลบรรทัดแรกในตารางสรุปโดยอัตโนมัติ)</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label for="end-date-runtime" style="margin: 0; font-size: 14px;">เปลี่ยนวันสิ้นสุด:</label>
+                    <input type="date" id="end-date-runtime" onchange="updateEndDateFromRuntime(this.value)" style="width: 170px; padding: 6px 10px; font-size: 14px;">
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <div class="stat-box">
+                <h3>💰 งบตั้งต้นต่อวัน</h3>
+                <p id="stat-base-budget" style="color: var(--primary);">0.00</p>
+            </div>
+            <div class="stat-box">
+                <h3>💵 เงินคงเหลือจริงในกระเป๋า</h3>
+                <p id="stat-wallet-remaining">0.00</p>
+            </div>
+            <div class="stat-box" style="border: 1px solid #cbd5e1; background-color: #f8fafc;">
+                <h3>📅 สถานะจำนวนวันและภาพรวม</h3>
+                <p id="stat-days-status">0 / 0 วัน</p>
+                <div class="stat-sub-details" id="stat-days-rich-details">
+                    📌 เริ่มเมื่อ: -<br>
+                    🏁 สิ้นสุด: -<br>
+                    ⏳ บันทึกแล้ว: 0 วัน<br>
+                    💸 ใช้รวมแล้ว: 0.00 บาท
+                </div>
+            </div>
+            <div class="stat-box" style="border: 2px solid #e0f2fe; background-color: #f0f9ff;">
+                <h3>📉 งบเฉลี่ยที่เหลือจริงต่อวัน</h3>
+                <p id="stat-future-avg" style="color: var(--info);">0.00</p>
+            </div>
+        </div>
+
+        <div id="alert-zone" class="alert"></div>
+
+        <div id="daily-form-card" class="card">
+            <h3 id="current-day-title">📝 บันทึกยอดการเงิน วันที่ ...</h3>
+            <div id="allowed-budget-label" style="margin-bottom: 15px; font-size: 16px;">งบประมาณวันนี้: 0.00 บาท</div>
+            
+            <div style="background-color: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px;">
+                <h4 style="margin: 0 0 10px 0; color: #334155;">🛒 รายการใช้จ่ายย่อย (สะสมระหว่างวัน)</h4>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="draft-spent-amount" style="font-size: 14px; color: var(--danger);">💸 ยอดเงินใช้จ่าย (บาท)</label>
+                        <input type="number" id="draft-spent-amount" placeholder="เช่น 60" min="0" step="any">
+                    </div>
+                    <div class="form-group">
+                        <label for="draft-spent-detail" style="font-size: 14px; color: #4b5563;">💬 รายละเอียด/ชื่อรายการ</label>
+                        <input type="text" id="draft-spent-detail" placeholder="เช่น ข้าวมันไก่">
+                    </div>
+                </div>
+                <button onclick="addExpenseToBasket()" style="background-color: #64748b; padding: 8px; font-size: 14px; max-width: 180px; display: block; margin-left: auto;">➕ ใส่ตะกร้าพักไว้</button>
+            </div>
+
+            <div class="form-group">
+                <label for="daily-income" style="color: #059669;">➕ ได้เงินเพิ่มมาวันนี้ (ถ้ามี)</label>
+                <input type="number" id="daily-income" placeholder="เช่น เงินคืน, โบนัส (ไม่เพิ่มกรอก 0)" min="0" value="0" step="any">
+            </div>
+
+            <div class="basket-zone">
+                <div class="basket-title">
+                    <span>📋 รายการในตะกร้าชั่วคราว</span>
+                    <span id="basket-total-summary" style="color: var(--danger);">รวมในตะกร้า: 0.00 บาท</span>
+                </div>
+                <div id="basket-items-list">
+                    <div style="color: #94a3b8; font-size: 13px; text-align: center; padding: 10px;">ยังไม่มีรายการในตะกร้า</div>
+                </div>
+            </div>
+
+            <button id="btn-submit-finance" onclick="submitDailySummary()" style="margin-top: 15px; background-color: var(--success);">💾 กดสรุปยอดและบันทึกประจำวัน</button>
+            <button id="btn-cancel-edit" onclick="cancelEditMode()" style="background-color: #9ca3af; margin-top: 10px;" class="hidden">ยกเลิกการแก้ไข</button>
+        </div>
+
+        <div class="card">
+            <h3>📋 ตารางสรุปรายวัน</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">วันที่บันทึก</th>
+                            <th style="width: 15%;">งบก่อนใช้ (สะสม)</th>
+                            <th style="width: 12%;">ได้เพิ่ม</th>
+                            <th style="width: 12%;">ใช้จริงรวม</th>
+                            <th style="width: 16%;">รายละเอียดรายการ</th>
+                            <th style="width: 15%;">คงเหลือวันนี้</th>
+                            <th style="width: 15%;">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="system-buttons">
+                <button onclick="exportDataToFile()" style="background-color: #0284c7;">📥 ดาวน์โหลดไฟล์ Backup (เซฟข้อมูลลงเครื่อง)</button>
+                <button onclick="resetTracker()" style="background-color: #6b7280;">🚨 ล้างข้อมูลทั้งหมดและเริ่มใหม่</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="detail-modal" class="modal-overlay" onclick="closeDetailModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 id="modal-date-title">📋 รายการย่อยประจำวัน</h3>
+            <button class="modal-close-x" onclick="closeDetailModal()">✕</button>
+        </div>
+        <div class="modal-body-list" id="modal-items-container">
+        </div>
+        <button onclick="closeDetailModal()" style="background-color: #64748b;">ปิดหน้าต่าง</button>
+    </div>
+</div>
+
+<script>
+    let totalMoneyInitial = 0; 
+    let totalMoney = 0; 
+    let totalDays = 1; // จะคำนวณแบบไดนามิก
+    let baseDailyBudget = 0;
+    let reserveFund = 0; 
+    let totalSpent = 0;
+    let totalIncomeEarned = 0;
+    
+    // เปลี่ยนระบบการจัดการเวลา
+    let startDateProjectIso = ""; // เก็บค่า ISO วันแรกสุดที่ได้จากตารางจริง
+    let endDateProjectIso = "";   // วันที่สิ้นสุดแบบมือกดเลือก
+    let rawInputDateForToday = ""; // ตัวช่วยจำวันแบบ ISO
+    
+    let historyData = []; 
+    let currentDayBasket = []; 
+
+    let isEditMode = false;
+    let editTargetIndex = null;
+
+    window.onload = function() {
+        if (localStorage.getItem('budget_tracker_saved') === 'true') {
+            document.getElementById('restore-shortcut-zone').style.display = 'none';
+            loadFromLocalStorage();
+        } else {
+            let todayObj = new Date();
+            let todayIso = todayObj.toISOString().split('T')[0];
+            document.getElementById('end-date-setup').value = todayIso;
+            rawInputDateForToday = todayIso;
+            updateFormDateTitle();
+        }
+        setInterval(updateFormDateTitle, 30000);
+    }
+
+    function getTodayThaiDateStr() {
+        let options = { day: 'numeric', month: 'short', year: 'numeric' };
+        return new Date().toLocaleDateString('th-TH', options);
+    }
+
+    function getThaiDateStrFromIso(isoStr) {
+        if(!isoStr) return "-";
+        let parts = isoStr.split('-');
+        let d = new Date(parts[0], parts[1] - 1, parts[2]);
+        let options = { day: 'numeric', month: 'short', year: 'numeric' };
+        return d.toLocaleDateString('th-TH', options);
+    }
+
+    function convertThaiStrToIso(thaiStr) {
+        // ฟังก์ชันช่วยเดาค่าแปลงกลับหากเป็นข้อมูลดิบเก่าเพื่อไม่ให้ระเบิด
+        try {
+            if(!thaiStr) return new Date().toISOString().split('T')[0];
+            return new Date().toISOString().split('T')[0]; 
+        } catch(e) {
+            return new Date().toISOString().split('T')[0];
+        }
+    }
+
+    function updateFormDateTitle() {
+        if (isEditMode) return;
+        const currentTitle = document.getElementById('current-day-title');
+        if (currentTitle) {
+            currentTitle.innerText = `📝 บันทึกยอดการเงิน วันที่ ${getTodayThaiDateStr()} (วันนี้)`;
+        }
+    }
+
+    function startTracker() {
+        const moneyInput = document.getElementById('total-money').value;
+        const endInput = document.getElementById('end-date-setup').value;
+
+        if (!moneyInput || moneyInput <= 0) {
+            alert('❌ กรุณากรอกจำนวนเงินเริ่มต้นให้ถูกต้องครับ');
+            return;
+        }
+        if (!endInput) {
+            alert('❌ กรุณาเลือกวันที่สิ้นสุดโครงการครับ');
+            return;
+        }
+
+        totalMoneyInitial = parseFloat(moneyInput);
+        totalMoney = totalMoneyInitial;
+        
+        // เซ็ตวันเริ่มต้นจากวันปัจจุบัน ณ ตอนเปิดบิลครั้งแรกสุดไปก่อน
+        let todayIso = new Date().toISOString().split('T')[0];
+        startDateProjectIso = todayIso;
+        endDateProjectIso = endInput;
+        
+        document.getElementById('end-date-runtime').value = endInput;
+
+        reserveFund = 0;
+        totalSpent = 0;
+        totalIncomeEarned = 0;
+        historyData = [];
+        currentDayBasket = [];
+
+        showMainInterface();
+        saveToLocalStorage();
+        recalculateAllChain(); 
+    }
+
+    function updateEndDateFromRuntime(val) {
+        if(!val) return;
+        endDateProjectIso = val;
+        recalculateAllChain();
+    }
+
+    function showMainInterface() {
+        document.getElementById('setup-card').classList.add('hidden');
+        document.getElementById('main-tracker').classList.remove('hidden');
+        document.getElementById('restore-shortcut-zone').style.display = 'none';
+    }
+
+    function prepareNextDay() {
+        if (isEditMode) return; 
+        updateFormDateTitle();
+        
+        let currentDayBudget = baseDailyBudget + reserveFund;
+        document.getElementById('allowed-budget-label').innerHTML = `งบประมาณประจำวันนี้: <strong style="color:var(--primary); font-size:18px;">${formatMoney(currentDayBudget)}</strong> บาท`;
+        
+        document.getElementById('draft-spent-amount').value = '';
+        document.getElementById('draft-spent-detail').value = '';
+        document.getElementById('daily-income').value = '0'; 
+        
+        renderBasket();
+    }
+
+    function addExpenseToBasket() {
+        const amtInput = document.getElementById('draft-spent-amount').value;
+        let detInput = document.getElementById('draft-spent-detail').value.trim();
+
+        if(!amtInput || parseFloat(amtInput) < 0) {
+            alert('❌ กรุณากรอกจำนวนเงินให้ถูกต้องครับ');
+            return;
+        }
+        if(!detInput) detInput = 'ไม่ระบุชื่อ';
+
+        currentDayBasket.push({
+            amount: parseFloat(amtInput),
+            detail: detInput
+        });
+
+        document.getElementById('draft-spent-amount').value = '';
+        document.getElementById('draft-spent-detail').value = '';
+        
+        renderBasket();
+        saveToLocalStorage();
+    }
+
+    function removeBasketItem(idx) {
+        currentDayBasket.splice(idx, 1);
+        renderBasket();
+        saveToLocalStorage();
+    }
+
+    function renderBasket() {
+        const listContainer = document.getElementById('basket-items-list');
+        const summaryText = document.getElementById('basket-total-summary');
+        
+        if(currentDayBasket.length === 0) {
+            listContainer.innerHTML = `<div style="color: #94a3b8; font-size: 13px; text-align: center; padding: 10px;">ยังไม่มีรายการในตะกร้า</div>`;
+            summaryText.innerText = "รวมในตะกร้า: 0.00 บาท";
+            return;
+        }
+
+        listContainer.innerHTML = '';
+        let totalDraftSpent = 0;
+
+        currentDayBasket.forEach((item, index) => {
+            totalDraftSpent += item.amount;
+            const div = document.createElement('div');
+            div.className = 'basket-item';
+            div.innerHTML = `
+                <span>🛒 <strong>${item.detail}</strong> - ${formatMoney(item.amount)} บาท</span>
+                <button class="btn-delete-item" onclick="removeBasketItem(${index})">❌ ลบ</button>
+            `;
+            listContainer.appendChild(div);
+        });
+
+        summaryText.innerText = `รวมในตะกร้า: ${formatMoney(totalDraftSpent)} บาท`;
+    }
+
+    function submitDailySummary() {
+        let incomeInput = document.getElementById('daily-income').value;
+        if (incomeInput === '') incomeInput = '0';
+        const income = parseFloat(incomeInput);
+
+        if (income < 0) {
+            alert('❌ ยอดรายได้ห้ามติดลบครับ');
+            return;
+        }
+
+        let totalSpentToday = currentDayBasket.reduce((sum, item) => sum + item.amount, 0);
+
+        if (isEditMode) {
+            historyData[editTargetIndex].income = income;
+            historyData[editTargetIndex].spent = totalSpentToday;
+            historyData[editTargetIndex].itemsArray = [...currentDayBasket]; 
+            cancelEditMode();
+        } else {
+            const todayStr = getTodayThaiDateStr();
+            const existingDayIdx = historyData.findIndex(item => item.dateStr === todayStr);
+
+            // จดจำค่า ISO วันปัจจุบันแฝงไว้สําหรับดึงเป็นจุดเริ่มแรกสุดของระบบ
+            let currentDayIso = new Date().toISOString().split('T')[0];
+
+            if (existingDayIdx !== -1) {
+                historyData[existingDayIdx].income += income;
+                historyData[existingDayIdx].spent += totalSpentToday;
+                historyData[existingDayIdx].itemsArray = historyData[existingDayIdx].itemsArray.concat(currentDayBasket);
+            } else {
+                historyData.push({
+                    dateStr: todayStr,
+                    dateIso: currentDayIso, // ฝังค่า ISO ปฏิทินจริงไว้
+                    budget: 0, 
+                    income: income,
+                    spent: totalSpentToday,
+                    itemsArray: [...currentDayBasket], 
+                    remaining: 0 
+                });
+            }
+            currentDayBasket = []; 
+        }
+
+        recalculateAllChain();
+    }
+    
+    function openDetailModal(index) {
+        const target = historyData[index];
+        document.getElementById('modal-date-title').innerText = `📋 รายการย่อยของวันที่ ${target.dateStr}`;
+        const container = document.getElementById('modal-items-container');
+        container.innerHTML = '';
+
+        if (!target.itemsArray || target.itemsArray.length === 0) {
+            container.innerHTML = `<div style="text-align:center; color:#94a3b8; padding:20px;">ไม่มีข้อมูลรายการใช้จ่ายย่อยของวันนี้</div>`;
+        } else {
+            target.itemsArray.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'modal-row-item';
+                div.innerHTML = `
+                    <span>🔹 ${item.detail}</span>
+                    <strong style="color:var(--danger);">${formatMoney(item.amount)} บาท</strong>
+                `;
+                container.appendChild(div);
+            });
+        }
+        document.getElementById('detail-modal').classList.add('active');
+    }
+
+    function closeDetailModal() {
+        document.getElementById('detail-modal').classList.remove('active');
+    }
+
+    function deleteHistoryRow(index) {
+        if(confirm(`🗑️ คุณแน่ใจใช่ไหมที่จะลบประวัติของวันที่ "${historyData[index].dateStr}" ทิ้ง?`)) {
+            historyData.splice(index, 1);
+            if (isEditMode && editTargetIndex === index) {
+                cancelEditMode();
+            }
+            recalculateAllChain();
+        }
+    }
+
+    function enterEditMode(index) {
+        if(currentDayBasket.length > 0 && !confirm('⚠️ คุณมีรายการค้างอยู่ในตะกร้า การแก้ไขจะล้างตะกร้าชั่วคราวทิ้ง ดำเนินการต่อไหม?')) {
+            return;
+        }
+
+        isEditMode = true;
+        editTargetIndex = index;
+        const targetData = historyData[index];
+
+        const formCard = document.getElementById('daily-form-card');
+        formCard.classList.add('edit-mode-active');
+        document.getElementById('btn-cancel-edit').classList.remove('hidden');
+        
+        document.getElementById('current-day-title').innerHTML = `✏️ กำลังแก้ไขข้อมูลของ: <span style="color:#d97706">${targetData.dateStr}</span>`;
+        document.getElementById('allowed-budget-label').innerHTML = `งบประมาณสะสมของวันนั้น: <strong>${formatMoney(targetData.budget)}</strong> บาท`;
+        
+        document.getElementById('daily-income').value = targetData.income;
+        currentDayBasket = targetData.itemsArray ? [...targetData.itemsArray] : [];
+        renderBasket();
+
+        document.getElementById('btn-submit-finance').innerText = "ยืนยันการบันทึกแก้ไขจุดนี้";
+        document.getElementById('btn-submit-finance').style.backgroundColor = "var(--warning)";
+        formCard.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelEditMode() {
+        isEditMode = false;
+        editTargetIndex = null;
+        currentDayBasket = [];
+        const formCard = document.getElementById('daily-form-card');
+        formCard.classList.remove('edit-mode-active');
+        document.getElementById('btn-cancel-edit').classList.add('hidden');
+        document.getElementById('btn-submit-finance').innerText = "💾 กดสรุปยอดและบันทึกประจำวัน";
+        document.getElementById('btn-submit-finance').style.backgroundColor = "var(--success)";
+        prepareNextDay();
+    }
+
+    function recalculateAllChain() {
+        // --- ส่วนสำคัญ: ค้นหาและตั้งค่าวันเริ่มต้นอัตโนมัติจากข้อมูลแถวแรกสุดที่มีในตาราง ---
+        if (historyData.length > 0) {
+            if (historyData[0].dateIso) {
+                startDateProjectIso = historyData[0].dateIso;
+            } else {
+                // หากไม่มีฟิลด์ dateIso (ข้อมูลดั้งเดิมมาก) ให้ใช้ค่าเริ่มต้นสำรอง
+                startDateProjectIso = new Date().toISOString().split('T')[0];
+            }
+        } else {
+            // หากไม่มีข้อมูลในตารางเลย ให้ใช้วันปัจจุบันเป็นตัวตั้งต้น
+            startDateProjectIso = new Date().toISOString().split('T')[0];
+        }
+
+        // คำนวณจำนวนวันจากวันเริ่มต้นจริงในตาราง ไปจนถึงวันสิ้นสุดที่กำหนดไว้
+        if (startDateProjectIso && endDateProjectIso) {
+            let d1 = new Date(startDateProjectIso);
+            let d2 = new Date(endDateProjectIso);
+            let diffTime = d2.getTime() - d1.getTime();
+            let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            totalDays = diffDays > 0 ? diffDays : 1;
+        } else {
+            totalDays = 1;
+        }
+
+        baseDailyBudget = totalMoneyInitial / totalDays;
+
+        totalMoney = totalMoneyInitial;
+        totalSpent = 0;
+        totalIncomeEarned = 0;
+        let currentReserve = 0;
+
+        for (let i = 0; i < historyData.length; i++) {
+            let item = historyData[i];
+            if (item.income > 0) {
+                totalMoney += item.income;
+                totalIncomeEarned += item.income;
+            }
+            item.budget = baseDailyBudget + currentReserve;
+            item.remaining = (item.budget + item.income) - item.spent;
+            totalSpent += item.spent;
+            currentReserve = item.remaining;
+        }
+        
+        reserveFund = currentReserve;
+
+        saveToLocalStorage();
+        renderTable();
+        updateDashboard();
+        checkAlerts();
+        prepareNextDay();
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('history-table-body');
+        tbody.innerHTML = '';
+
+        if(historyData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:20px;">ยังไม่มีข้อมูลสรุปรายวันในตารางใหญ่</td></tr>`;
+            return;
+        }
+
+        historyData.forEach((item, index) => {
+            const row = document.createElement('tr');
+            let statusClass = item.remaining >= 0 ? 'text-success' : 'text-danger';
+            let statusText = item.remaining >= 0 ? `+${formatMoney(item.remaining)}` : `เกินงบ ${formatMoney(Math.abs(item.remaining))}`;
+            let incomeText = item.income > 0 ? `+${formatMoney(item.income)}` : '0.00';
+            let incomeClass = item.income > 0 ? 'text-income' : '';
+            let itemsCount = item.itemsArray ? item.itemsArray.length : 0;
+
+            row.innerHTML = `
+                <td><strong>${item.dateStr}</strong></td>
+                <td>${formatMoney(item.budget)} บาท</td>
+                <td class="${incomeClass}">${incomeText} บาท</td>
+                <td>${formatMoney(item.spent)} บาท</td>
+                <td>
+                    <button class="btn-view" onclick="openDetailModal(${index})">👁️ ดูรายการย่อย (${itemsCount})</button>
+                </td>
+                <td class="${statusClass}">${statusText} บาท</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-edit" onclick="enterEditMode(${index})">✏️ แก้</button>
+                        <button class="btn-delete-row" onclick="deleteHistoryRow(${index})">🗑️ ลบ</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function updateDashboard() {
+        let walletRemaining = totalMoney - totalSpent;
+        let currentWallet = walletRemaining < 0 ? 0 : walletRemaining; 
+        let remainingDays = totalDays - historyData.length;
+
+        document.getElementById('stat-base-budget').innerText = `${formatMoney(baseDailyBudget)} บาท`;
+        document.getElementById('stat-wallet-remaining').innerText = `${formatMoney(currentWallet)} บาท`;
+        
+        document.getElementById('stat-days-status').innerText = `${historyData.length} / ${totalDays} วัน`;
+
+        const richDetailsContainer = document.getElementById('stat-days-rich-details');
+        
+        // ดึงฟอร์แมตภาษาไทยมาแสดงผล
+        let startThaiStr = historyData.length > 0 ? historyData[0].dateStr : getThaiDateStrFromIso(startDateProjectIso);
+        let endThaiStr = getThaiDateStrFromIso(endDateProjectIso);
+
+        richDetailsContainer.innerHTML = `
+            📌 เริ่มเมื่อ: <strong>${startThaiStr}</strong><br>
+            🏁 สิ้นสุด: <strong>${endThaiStr}</strong><br>
+            ⏳ บันทึกแล้ว: <strong>${historyData.length} วัน</strong><br>
+            💸 ใช้รวมแล้ว: <strong style="color:var(--danger);">${formatMoney(totalSpent)} บาท</strong>
+        `;
+
+        if(currentWallet <= 0 && totalSpent > 0) {
+            document.getElementById('stat-wallet-remaining').style.color = 'var(--danger)';
+        } else {
+            document.getElementById('stat-wallet-remaining').style.color = 'var(--success)';
+        }
+
+        const futureAvgElement = document.getElementById('stat-future-avg');
+        if (remainingDays > 0) {
+            let futureAvgBudget = walletRemaining / remainingDays;
+            futureAvgElement.innerText = `${formatMoney(futureAvgBudget)} บาท`;
+
+            if (futureAvgBudget <= 0) {
+                futureAvgElement.style.color = 'var(--danger)';
+            } else if (futureAvgBudget < baseDailyBudget) {
+                futureAvgElement.style.color = 'var(--warning)';
+            } else {
+                futureAvgElement.style.color = 'var(--success)';
+            }
+        } else {
+            futureAvgElement.innerText = "🏁 ครบตามแผนวัน";
+            futureAvgElement.style.color = '#6b7280';
+        }
+    }
+
+    function checkAlerts() {
+        const alertZone = document.getElementById('alert-zone');
+        let walletRemaining = totalMoney - totalSpent;
+        let remainingDays = totalDays - historyData.length;
+
+        if (remainingDays <= 0) {
+            alertZone.style.display = 'none';
+            return;
+        }
+
+        let futureAvgBudget = walletRemaining / remainingDays;
+
+        if (futureAvgBudget <= 0) {
+            alertZone.className = 'alert alert-danger';
+            alertZone.innerHTML = `🚨 <strong>วิกฤต! เงินหมดแผนแล้ว</strong> โควตาวันที่เหลือของคุณจะไม่มีงบใช้จ่ายสอยแล้ว!`;
+            alertZone.style.display = 'block';
+        } else if (futureAvgBudget < baseDailyBudget) {
+            alertZone.className = 'alert alert-warning';
+            alertZone.innerHTML = `⚠️ <strong>แจ้งเตือน:</strong> ตอนนี้งบเฉลี่ยวันถัดๆ ไปลดลงเหลือ <strong>${formatMoney(futureAvgBudget)} บาท/วัน</strong> ควรประหยัดขึ้นครับ`;
+            alertZone.style.display = 'block';
+        } else {
+            alertZone.style.display = 'none';
+        }
+    }
+
+    // ==========================================
+    // 💾 LOCAL STORAGE & BACKUP SYSTEM
+    // ==========================================
+    function saveToLocalStorage() {
+        localStorage.setItem('budget_tracker_saved', 'true');
+        localStorage.setItem('totalMoneyInitial', totalMoneyInitial);
+        localStorage.setItem('totalMoney', totalMoney);
+        localStorage.setItem('totalDays', totalDays);
+        localStorage.setItem('baseDailyBudget', baseDailyBudget);
+        localStorage.setItem('reserveFund', reserveFund);
+        localStorage.setItem('totalSpent', totalSpent);
+        localStorage.setItem('totalIncomeEarned', totalIncomeEarned);
+        localStorage.setItem('startDateProjectIso', startDateProjectIso); 
+        localStorage.setItem('endDateProjectIso', endDateProjectIso); 
+        localStorage.setItem('historyData', JSON.stringify(historyData));
+        localStorage.setItem('currentDayBasket', JSON.stringify(currentDayBasket));
+    }
+
+    function loadFromLocalStorage() {
+        totalMoneyInitial = parseFloat(localStorage.getItem('totalMoneyInitial') || 0);
+        totalMoney = parseFloat(localStorage.getItem('totalMoney') || 0);
+        totalDays = parseInt(localStorage.getItem('totalDays') || 1);
+        baseDailyBudget = parseFloat(localStorage.getItem('baseDailyBudget') || 0);
+        reserveFund = parseFloat(localStorage.getItem('reserveFund') || 0);
+        totalSpent = parseFloat(localStorage.getItem('totalSpent') || 0);
+        totalIncomeEarned = parseFloat(localStorage.getItem('totalIncomeEarned') || 0);
+        startDateProjectIso = localStorage.getItem('startDateProjectIso') || "";
+        endDateProjectIso = localStorage.getItem('endDateProjectIso') || "";
+        historyData = JSON.parse(localStorage.getItem('historyData') || '[]');
+        currentDayBasket = JSON.parse(localStorage.getItem('currentDayBasket') || '[]');
+
+        if(endDateProjectIso) {
+            document.getElementById('end-date-runtime').value = endDateProjectIso;
+        }
+
+        showMainInterface();
+        recalculateAllChain();
+    }
+
+    function exportDataToFile() {
+        if(historyData.length === 0 && currentDayBasket.length === 0) {
+            alert('❌ ไม่มีข้อมูลสำหรับสำรองไฟล์ครับ');
+            return;
+        }
+
+        const backupObj = {
+            totalMoneyInitial, totalMoney, totalDays, baseDailyBudget,
+            reserveFund, totalSpent, totalIncomeEarned, startDateProjectIso, endDateProjectIso, historyData, currentDayBasket
+        };
+
+        const jsonString = JSON.stringify(backupObj);
+        const blob = new Blob([jsonString], {type: "text/plain;charset=utf-8"});
+        const downloadUrl = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        const dateNow = new Date().toISOString().split('T')[0];
+        a.href = downloadUrl;
+        a.download = `budget_tracker_dashboard_backup_${dateNow}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        alert('📥 ดาวน์โหลดไฟล์สำรองเรียบร้อยแล้ว!');
+    }
+
+    function importDataFromFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                
+                if(!data.historyData || !data.totalMoneyInitial) {
+                    throw new Error("โครงสร้างไฟล์ไม่ถูกต้อง");
+                }
+
+                totalMoneyInitial = data.totalMoneyInitial;
+                totalMoney = data.totalMoney;
+                totalDays = data.totalDays;
+                baseDailyBudget = data.baseDailyBudget;
+                reserveFund = data.reserveFund;
+                totalSpent = data.totalSpent;
+                totalIncomeEarned = data.totalIncomeEarned || 0;
+                startDateProjectIso = data.startDateProjectIso || "";
+                endDateProjectIso = data.endDateProjectIso || "";
+                historyData = data.historyData;
+                currentDayBasket = data.currentDayBasket || [];
+
+                if(endDateProjectIso) {
+                    document.getElementById('end-date-runtime').value = endDateProjectIso;
+                }
+
+                showMainInterface();
+                recalculateAllChain();
+
+                alert('✅ กู้คืนข้อมูลสำเร็จเรียบร้อยแล้วครับ!');
+            } catch (err) {
+                alert('❌ ไฟล์ชำรุดหรือไม่ใช่ไฟล์สําหรับโปรแกรมนี้ครับ');
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function formatMoney(num) {
+        return num.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function resetTracker() {
+        if(confirm('🚨 คุณต้องการล้างข้อมูลทั้งหมดและเริ่มต้นใหม่ใช่หรือไม่?')) {
+            localStorage.clear(); 
+            location.reload();
+        }
+    }
+</script>
+
+</body>
+</html>
