@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- ข้อความที่จะไปโชว์บน Google -->
     <title>BearWallet</title>
-    <meta name="description" content="เว็บแอปพลิเคชันสำหรับคำนวณและบันทึกงบประมาณรายวันอัตโนมัติ ช่วยวางแผนการเงินได้อย่างมีประสิทธิภาพ">
-    <meta name="keywords" content="บันทึกรายรับรายจ่าย, คำนวณงบรายวัน, BearWallet, กระเป๋าตังค์หมี, วางแผนการเงิน">
     
-    <!-- บอก Google ว่าอนุญาตให้เก็บข้อมูลไปแสดงในผลการค้นหา -->
+    <!-- แท็กข้อมูลสำหรับ Google Search Console และ SEO -->
+    <meta name="description" content="เว็บแอปพลิเคชันสำหรับคำนวณและบันทึกงบประมาณรายวันอัตโนมัติ ช่วยวางแผนการเงินได้อย่างมีประสิทธิภาพ">
+    <meta name="keywords" content="บันทึกรายรับรายจ่าย, คำนวณรายวัน, BearWallet, กระเป๋าคิดหมี, วางแผนการเงิน">
     <meta name="robots" content="index, follow">
-    <meta name="google-site-verification" content="_x1VdmTKdUB6xEjiVNnlBJG_GvLKyjM2DrsMC8N-E2E" />
-  <style>
+    <meta name="google-site-verification" content="_x1VdmTkDuB6xEjiWnnlBJG_GvlKyjM2DrsMC8N-E2E" />
+
+    <style>
         :root {
             --primary: #4f46e5;
             --primary-hover: #4338ca;
@@ -137,7 +136,6 @@
         }
         .btn-delete-row:hover { background-color: #b91c1c; }
 
-        /* Dashboard */
         .dashboard {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -179,7 +177,6 @@
             line-height: 1.5;
         }
 
-        /* Alert System */
         .alert {
             padding: 12px 16px;
             border-radius: 6px;
@@ -190,7 +187,6 @@
         .alert-danger { background-color: #fee2e2; color: var(--danger); border: 1px solid #fca5a5; }
         .alert-warning { background-color: #fef3c7; color: var(--warning); border: 1px solid #fcd34d; }
 
-        /* Table Design */
         .table-responsive {
             overflow-x: auto;
         }
@@ -235,7 +231,6 @@
             min-width: 180px;
         }
 
-        /* ตะกร้าพักข้อมูล */
         .basket-zone {
             background-color: #f9fafb;
             border: 1px dashed #cbd5e1;
@@ -271,7 +266,6 @@
         }
         .btn-delete-item:hover { text-decoration: underline; background: none; color: #b91c1c; }
 
-        /* POPUP WINDOW (MODAL) */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -343,17 +337,17 @@
 <div class="container">
     <h1>📅 Daily Budget Tracker</h1>
 
-    <div id="restore-shortcut-zone" class="card" style="border: 2px solid #34d399; background: #ecfdf5; margin-bottom: 20px; text-align: center;">
-        <span style="font-weight: bold; color: #065f46;">💡 ข้อมูลหายหลังจากลบประวัติ Chrome?</span>
-        <button onclick="document.getElementById('file-input-backup').click()" style="background-color: #059669; max-width: 250px; margin: 10px auto 0 auto; display: block; padding: 6px 12px; font-size: 14px;">📂 เลือกไฟล์ Backup เพื่อกู้ข้อมูลคืน</button>
-        <input type="file" id="file-input-backup" accept=".txt" onchange="importDataFromFile(event)" style="display: none;">
+    <div class="card" style="border: 2px solid #34d399; background: #ecfdf5; margin-bottom: 20px; text-align: center;">
+        <span style="font-weight: bold; color: #065f46;">📂 ต้องการดึงข้อมูลเก่ากลับมาทำต่อ?</span>
+        <button onclick="document.getElementById('file-input-backup').click()" style="background-color: #059669; max-width: 250px; margin: 10px auto 0 auto; display: block; padding: 6px 12px; font-size: 14px;">เลือกไฟล์ Backup (.json / .txt)</button>
+        <input type="file" id="file-input-backup" accept=".json,.txt" onchange="importDataFromFile(event)" style="display: none;">
     </div>
 
     <div id="setup-card" class="card">
         <h3>⚙️ ตั้งค่าเป้าหมายการเงินเบื้องต้น</h3>
         <div class="grid-2">
             <div class="form-group">
-                <label for="total-money">จำนวนเงินเริ่มต้นทั้งหมด (บาท)</label>
+                <label for="total-money">固定金額 เริ่มต้นทั้งหมด (บาท)</label>
                 <input type="number" id="total-money" placeholder="เช่น 2000" min="1" step="any">
             </div>
             <div class="form-group">
@@ -389,7 +383,7 @@
                 <p id="stat-wallet-remaining">0.00</p>
             </div>
             <div class="stat-box" style="border: 1px solid #cbd5e1; background-color: #f8fafc;">
-                <h3>📅 สถานะจำนวนวันและภาพรวม</h3>
+                <h3>📅 Status จำนวนวันและภาพรวม</h3>
                 <p id="stat-days-status">0 / 0 วัน</p>
                 <div class="stat-sub-details" id="stat-days-rich-details">
                     📌 เริ่มเมื่อ: -<br>
@@ -465,7 +459,7 @@
             </div>
 
             <div class="system-buttons">
-                <button onclick="exportDataToFile()" style="background-color: #0284c7;">📥 ดาวน์โหลดไฟล์ Backup (เซฟข้อมูลลงเครื่อง)</button>
+                <button onclick="exportDataToFile()" style="background-color: #0284c7;">📥 ดาวน์โหลดไฟล์ Backup (.json ลงเครื่อง)</button>
                 <button onclick="resetTracker()" style="background-color: #6b7280;">🚨 ล้างข้อมูลทั้งหมดและเริ่มใหม่</button>
             </div>
         </div>
@@ -488,16 +482,15 @@
 <script>
     let totalMoneyInitial = 0; 
     let totalMoney = 0; 
-    let totalDays = 1; // จะคำนวณแบบไดนามิก
+    let totalDays = 1; 
     let baseDailyBudget = 0;
     let reserveFund = 0; 
     let totalSpent = 0;
     let totalIncomeEarned = 0;
     
-    // เปลี่ยนระบบการจัดการเวลา
-    let startDateProjectIso = ""; // เก็บค่า ISO วันแรกสุดที่ได้จากตารางจริง
-    let endDateProjectIso = "";   // วันที่สิ้นสุดแบบมือกดเลือก
-    let rawInputDateForToday = ""; // ตัวช่วยจำวันแบบ ISO
+    let startDateProjectIso = ""; 
+    let endDateProjectIso = "";   
+    let rawInputDateForToday = ""; 
     
     let historyData = []; 
     let currentDayBasket = []; 
@@ -507,7 +500,6 @@
 
     window.onload = function() {
         if (localStorage.getItem('budget_tracker_saved') === 'true') {
-            document.getElementById('restore-shortcut-zone').style.display = 'none';
             loadFromLocalStorage();
         } else {
             let todayObj = new Date();
@@ -517,6 +509,10 @@
             updateFormDateTitle();
         }
         setInterval(updateFormDateTitle, 30000);
+    }
+
+    function formatMoney(num) {
+        return parseFloat(num).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     }
 
     function getTodayThaiDateStr() {
@@ -532,22 +528,99 @@
         return d.toLocaleDateString('th-TH', options);
     }
 
-    function convertThaiStrToIso(thaiStr) {
-        // ฟังก์ชันช่วยเดาค่าแปลงกลับหากเป็นข้อมูลดิบเก่าเพื่อไม่ให้ระเบิด
-        try {
-            if(!thaiStr) return new Date().toISOString().split('T')[0];
-            return new Date().toISOString().split('T')[0]; 
-        } catch(e) {
-            return new Date().toISOString().split('T')[0];
-        }
-    }
-
     function updateFormDateTitle() {
         if (isEditMode) return;
         const currentTitle = document.getElementById('current-day-title');
         if (currentTitle) {
             currentTitle.innerText = `📝 บันทึกยอดการเงิน วันที่ ${getTodayThaiDateStr()} (วันนี้)`;
         }
+    }
+
+    function exportDataToFile() {
+        if (historyData.length === 0 && currentDayBasket.length === 0 && totalMoneyInitial === 0) {
+            alert("❌ ไม่มีข้อมูลที่จะสำรองในระบบครับ");
+            return;
+        }
+
+        const backupPackage = {
+            appName: "BearWallet_DailyBudgetTracker",
+            exportedAt: new Date().toLocaleString('th-TH'),
+            config: {
+                totalMoneyInitial: totalMoneyInitial,
+                startDateProjectIso: startDateProjectIso,
+                endDateProjectIso: endDateProjectIso
+            },
+            historyData: historyData
+        };
+
+        const jsonString = JSON.stringify(backupPackage, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json;charset=utf-8' });
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `bearwallet_backup_${new Date().toISOString().split('T')[0]}.json`;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+    }
+
+    function importDataFromFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const rawContent = e.target.result;
+                const parsed = JSON.parse(rawContent);
+
+                // ตรวจสอบและดึงค่าโครงสร้างยืดหยุ่น (รองรับทุกแบบรวมถึง nanam.txt)
+                if (parsed && parsed.appName && parsed.appName.includes("BearWallet")) {
+                    totalMoneyInitial = parsed.config.totalMoneyInitial || 0;
+                    startDateProjectIso = parsed.config.startDateProjectIso || "";
+                    endDateProjectIso = parsed.config.endDateProjectIso || "";
+                    historyData = parsed.historyData || [];
+                } 
+                else if (parsed && parsed.historyData && Array.isArray(parsed.historyData)) {
+                    totalMoneyInitial = parsed.totalMoneyInitial || 0;
+                    startDateProjectIso = parsed.startDateProjectIso || "";
+                    endDateProjectIso = parsed.endDateProjectIso || "";
+                    historyData = parsed.historyData || [];
+                }
+                else if (Array.isArray(parsed)) {
+                    historyData = parsed;
+                } else {
+                    throw new Error("โครงสร้างตัวแปรในไฟล์ไม่เข้าเงื่อนไข");
+                }
+
+                if (historyData.length > 0) {
+                    // หากแถวแรกไม่มี dateIso ให้พยายามดึงจาก config ด้านบน หรือกำหนดค่าเริ่มต้นให้ปลอดภัย
+                    if (!historyData[0].dateIso) {
+                        historyData[0].dateIso = startDateProjectIso || "2026-07-11"; 
+                    }
+                    if (!startDateProjectIso) {
+                        startDateProjectIso = historyData[0].dateIso;
+                    }
+                }
+
+                if (!endDateProjectIso) {
+                    let defaultEndDate = new Date();
+                    defaultEndDate.setDate(defaultEndDate.getDate() + 14);
+                    endDateProjectIso = defaultEndDate.toISOString().split('T')[0];
+                }
+
+                document.getElementById('end-date-runtime').value = endDateProjectIso;
+                
+                showMainInterface();
+                recalculateAllChain();
+                alert("🎉 นำเข้าข้อมูลและเชื่อมตารางประวัติสำเร็จเรียบร้อยแล้วครับ!");
+            } catch (err) {
+                alert("❌ ระบบไม่สามารถอ่านไฟล์นี้ได้ กรุณาตรวจสอบเนื้อหาด้านในไฟล์อีกครั้งครับ (" + err.message + ")");
+            }
+        };
+        reader.readAsText(file);
     }
 
     function startTracker() {
@@ -566,7 +639,6 @@
         totalMoneyInitial = parseFloat(moneyInput);
         totalMoney = totalMoneyInitial;
         
-        // เซ็ตวันเริ่มต้นจากวันปัจจุบัน ณ ตอนเปิดบิลครั้งแรกสุดไปก่อน
         let todayIso = new Date().toISOString().split('T')[0];
         startDateProjectIso = todayIso;
         endDateProjectIso = endInput;
@@ -593,7 +665,6 @@
     function showMainInterface() {
         document.getElementById('setup-card').classList.add('hidden');
         document.getElementById('main-tracker').classList.remove('hidden');
-        document.getElementById('restore-shortcut-zone').style.display = 'none';
     }
 
     function prepareNextDay() {
@@ -685,8 +756,6 @@
         } else {
             const todayStr = getTodayThaiDateStr();
             const existingDayIdx = historyData.findIndex(item => item.dateStr === todayStr);
-
-            // จดจำค่า ISO วันปัจจุบันแฝงไว้สําหรับดึงเป็นจุดเริ่มแรกสุดของระบบ
             let currentDayIso = new Date().toISOString().split('T')[0];
 
             if (existingDayIdx !== -1) {
@@ -696,7 +765,7 @@
             } else {
                 historyData.push({
                     dateStr: todayStr,
-                    dateIso: currentDayIso, // ฝังค่า ISO ปฏิทินจริงไว้
+                    dateIso: currentDayIso, 
                     budget: 0, 
                     income: income,
                     spent: totalSpentToday,
@@ -784,20 +853,17 @@
     }
 
     function recalculateAllChain() {
-        // --- ส่วนสำคัญ: ค้นหาและตั้งค่าวันเริ่มต้นอัตโนมัติจากข้อมูลแถวแรกสุดที่มีในตาราง ---
+        // แก้ไขดักข้อผิดพลาด: หากแถวแรกไม่มี dateIso ให้ไปใช้ตัวแปรส่วนกลางแทน เพื่อป้องกันวันที่หลุดพัง
         if (historyData.length > 0) {
             if (historyData[0].dateIso) {
                 startDateProjectIso = historyData[0].dateIso;
-            } else {
-                // หากไม่มีฟิลด์ dateIso (ข้อมูลดั้งเดิมมาก) ให้ใช้ค่าเริ่มต้นสำรอง
+            } else if (!startDateProjectIso) {
                 startDateProjectIso = new Date().toISOString().split('T')[0];
             }
-        } else {
-            // หากไม่มีข้อมูลในตารางเลย ให้ใช้วันปัจจุบันเป็นตัวตั้งต้น
+        } else if (!startDateProjectIso) {
             startDateProjectIso = new Date().toISOString().split('T')[0];
         }
 
-        // คำนวณจำนวนวันจากวันเริ่มต้นจริงในตาราง ไปจนถึงวันสิ้นสุดที่กำหนดไว้
         if (startDateProjectIso && endDateProjectIso) {
             let d1 = new Date(startDateProjectIso);
             let d2 = new Date(endDateProjectIso);
@@ -874,192 +940,85 @@
     }
 
     function updateDashboard() {
-        let walletRemaining = totalMoney - totalSpent;
-        let currentWallet = walletRemaining < 0 ? 0 : walletRemaining; 
-        let remainingDays = totalDays - historyData.length;
-
-        document.getElementById('stat-base-budget').innerText = `${formatMoney(baseDailyBudget)} บาท`;
-        document.getElementById('stat-wallet-remaining').innerText = `${formatMoney(currentWallet)} บาท`;
+        document.getElementById('stat-base-budget').innerText = formatMoney(baseDailyBudget);
         
-        document.getElementById('stat-days-status').innerText = `${historyData.length} / ${totalDays} วัน`;
+        let actualRemainingWallet = totalMoney - totalSpent;
+        const walletEl = document.getElementById('stat-wallet-remaining');
+        walletEl.innerText = formatMoney(actualRemainingWallet);
+        if(actualRemainingWallet < 0) {
+            walletEl.style.color = "var(--danger)";
+        } else {
+            walletEl.style.color = "var(--success)";
+        }
 
-        const richDetailsContainer = document.getElementById('stat-days-rich-details');
-        
-        // ดึงฟอร์แมตภาษาไทยมาแสดงผล
-        let startThaiStr = historyData.length > 0 ? historyData[0].dateStr : getThaiDateStrFromIso(startDateProjectIso);
-        let endThaiStr = getThaiDateStrFromIso(endDateProjectIso);
+        let recordedDays = historyData.length;
+        document.getElementById('stat-days-status').innerText = `${recordedDays} / ${totalDays} วัน`;
 
-        richDetailsContainer.innerHTML = `
-            📌 เริ่มเมื่อ: <strong>${startThaiStr}</strong><br>
-            🏁 สิ้นสุด: <strong>${endThaiStr}</strong><br>
-            ⏳ บันทึกแล้ว: <strong>${historyData.length} วัน</strong><br>
-            💸 ใช้รวมแล้ว: <strong style="color:var(--danger);">${formatMoney(totalSpent)} บาท</strong>
+        let richDetailsText = `
+            📌 เริ่มเมื่อ: ${getThaiDateStrFromIso(startDateProjectIso)}<br>
+            🏁 สิ้นสุด: ${getThaiDateStrFromIso(endDateProjectIso)}<br>
+            ⏳ บันทึกแล้ว: ${recordedDays} วัน<br>
+            💸 ใช้รวมแล้ว: ${formatMoney(totalSpent)} บาท
         `;
+        document.getElementById('stat-days-rich-details').innerHTML = richDetailsText;
 
-        if(currentWallet <= 0 && totalSpent > 0) {
-            document.getElementById('stat-wallet-remaining').style.color = 'var(--danger)';
-        } else {
-            document.getElementById('stat-wallet-remaining').style.color = 'var(--success)';
-        }
-
-        const futureAvgElement = document.getElementById('stat-future-avg');
-        if (remainingDays > 0) {
-            let futureAvgBudget = walletRemaining / remainingDays;
-            futureAvgElement.innerText = `${formatMoney(futureAvgBudget)} บาท`;
-
-            if (futureAvgBudget <= 0) {
-                futureAvgElement.style.color = 'var(--danger)';
-            } else if (futureAvgBudget < baseDailyBudget) {
-                futureAvgElement.style.color = 'var(--warning)';
-            } else {
-                futureAvgElement.style.color = 'var(--success)';
-            }
-        } else {
-            futureAvgElement.innerText = "🏁 ครบตามแผนวัน";
-            futureAvgElement.style.color = '#6b7280';
-        }
+        let futureDaysLeft = totalDays - recordedDays;
+        if(futureDaysLeft < 1) futureDaysLeft = 1;
+        let futureAvgBudget = actualRemainingWallet / futureDaysLeft;
+        
+        document.getElementById('stat-future-avg').innerText = formatMoney(futureAvgBudget);
     }
 
     function checkAlerts() {
         const alertZone = document.getElementById('alert-zone');
-        let walletRemaining = totalMoney - totalSpent;
-        let remainingDays = totalDays - historyData.length;
+        let actualRemainingWallet = totalMoney - totalSpent;
 
-        if (remainingDays <= 0) {
-            alertZone.style.display = 'none';
-            return;
-        }
-
-        let futureAvgBudget = walletRemaining / remainingDays;
-
-        if (futureAvgBudget <= 0) {
-            alertZone.className = 'alert alert-danger';
-            alertZone.innerHTML = `🚨 <strong>วิกฤต! เงินหมดแผนแล้ว</strong> โควตาวันที่เหลือของคุณจะไม่มีงบใช้จ่ายสอยแล้ว!`;
-            alertZone.style.display = 'block';
-        } else if (futureAvgBudget < baseDailyBudget) {
-            alertZone.className = 'alert alert-warning';
-            alertZone.innerHTML = `⚠️ <strong>แจ้งเตือน:</strong> ตอนนี้งบเฉลี่ยวันถัดๆ ไปลดลงเหลือ <strong>${formatMoney(futureAvgBudget)} บาท/วัน</strong> ควรประหยัดขึ้นครับ`;
-            alertZone.style.display = 'block';
+        if (actualRemainingWallet < 0) {
+            alertZone.className = "alert alert-danger";
+            alertZone.innerText = `🚨 เตือนภัย: ตอนนี้กระเป๋าเงินรวมของคุณติดลบอยู่ ${formatMoney(Math.abs(actualRemainingWallet))} บาท! กรุณาเติมเงินเข้าระบบ หรือประหยัดการใช้จ่ายขั้นสุด`;
+            alertZone.style.display = "block";
+        } else if (reserveFund < 0) {
+            alertZone.className = "alert alert-warning";
+            alertZone.innerText = `⚠️ ข้อควรระวัง: วันนี้คุณใช้เงินเกินงบสะสมเดิมติดลบอยู่ ${formatMoney(Math.abs(reserveFund))} บาท ส่งผลให้งบวันพรุ่งนี้ถูกดึงไปใช้ชดเชยล่วงหน้า`;
+            alertZone.style.display = "block";
         } else {
-            alertZone.style.display = 'none';
+            alertZone.style.display = "none";
         }
     }
 
-    // ==========================================
-    // 💾 LOCAL STORAGE & BACKUP SYSTEM
-    // ==========================================
     function saveToLocalStorage() {
         localStorage.setItem('budget_tracker_saved', 'true');
-        localStorage.setItem('totalMoneyInitial', totalMoneyInitial);
-        localStorage.setItem('totalMoney', totalMoney);
-        localStorage.setItem('totalDays', totalDays);
-        localStorage.setItem('baseDailyBudget', baseDailyBudget);
-        localStorage.setItem('reserveFund', reserveFund);
-        localStorage.setItem('totalSpent', totalSpent);
-        localStorage.setItem('totalIncomeEarned', totalIncomeEarned);
-        localStorage.setItem('startDateProjectIso', startDateProjectIso); 
-        localStorage.setItem('endDateProjectIso', endDateProjectIso); 
-        localStorage.setItem('historyData', JSON.stringify(historyData));
-        localStorage.setItem('currentDayBasket', JSON.stringify(currentDayBasket));
+        localStorage.setItem('budget_totalMoneyInitial', totalMoneyInitial);
+        localStorage.setItem('budget_startDateProjectIso', startDateProjectIso);
+        localStorage.setItem('budget_endDateProjectIso', endDateProjectIso);
+        localStorage.setItem('budget_historyData', JSON.stringify(historyData));
+        localStorage.setItem('budget_currentDayBasket', JSON.stringify(currentDayBasket));
     }
 
     function loadFromLocalStorage() {
-        totalMoneyInitial = parseFloat(localStorage.getItem('totalMoneyInitial') || 0);
-        totalMoney = parseFloat(localStorage.getItem('totalMoney') || 0);
-        totalDays = parseInt(localStorage.getItem('totalDays') || 1);
-        baseDailyBudget = parseFloat(localStorage.getItem('baseDailyBudget') || 0);
-        reserveFund = parseFloat(localStorage.getItem('reserveFund') || 0);
-        totalSpent = parseFloat(localStorage.getItem('totalSpent') || 0);
-        totalIncomeEarned = parseFloat(localStorage.getItem('totalIncomeEarned') || 0);
-        startDateProjectIso = localStorage.getItem('startDateProjectIso') || "";
-        endDateProjectIso = localStorage.getItem('endDateProjectIso') || "";
-        historyData = JSON.parse(localStorage.getItem('historyData') || '[]');
-        currentDayBasket = JSON.parse(localStorage.getItem('currentDayBasket') || '[]');
-
-        if(endDateProjectIso) {
-            document.getElementById('end-date-runtime').value = endDateProjectIso;
+        totalMoneyInitial = parseFloat(localStorage.getItem('budget_totalMoneyInitial')) || 0;
+        startDateProjectIso = localStorage.getItem('budget_startDateProjectIso') || "";
+        endDateProjectIso = localStorage.getItem('budget_endDateProjectIso') || "";
+        
+        try {
+            historyData = JSON.parse(localStorage.getItem('budget_historyData')) || [];
+            currentDayBasket = JSON.parse(localStorage.getItem('budget_currentDayBasket')) || [];
+        } catch(e) {
+            historyData = [];
+            currentDayBasket = [];
         }
 
+        document.getElementById('end-date-runtime').value = endDateProjectIso;
         showMainInterface();
         recalculateAllChain();
     }
 
-    function exportDataToFile() {
-        if(historyData.length === 0 && currentDayBasket.length === 0) {
-            alert('❌ ไม่มีข้อมูลสำหรับสำรองไฟล์ครับ');
-            return;
-        }
-
-        const backupObj = {
-            totalMoneyInitial, totalMoney, totalDays, baseDailyBudget,
-            reserveFund, totalSpent, totalIncomeEarned, startDateProjectIso, endDateProjectIso, historyData, currentDayBasket
-        };
-
-        const jsonString = JSON.stringify(backupObj);
-        const blob = new Blob([jsonString], {type: "text/plain;charset=utf-8"});
-        const downloadUrl = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        const dateNow = new Date().toISOString().split('T')[0];
-        a.href = downloadUrl;
-        a.download = `budget_tracker_dashboard_backup_${dateNow}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        alert('📥 ดาวน์โหลดไฟล์สำรองเรียบร้อยแล้ว!');
-    }
-
-    function importDataFromFile(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                
-                if(!data.historyData || !data.totalMoneyInitial) {
-                    throw new Error("โครงสร้างไฟล์ไม่ถูกต้อง");
-                }
-
-                totalMoneyInitial = data.totalMoneyInitial;
-                totalMoney = data.totalMoney;
-                totalDays = data.totalDays;
-                baseDailyBudget = data.baseDailyBudget;
-                reserveFund = data.reserveFund;
-                totalSpent = data.totalSpent;
-                totalIncomeEarned = data.totalIncomeEarned || 0;
-                startDateProjectIso = data.startDateProjectIso || "";
-                endDateProjectIso = data.endDateProjectIso || "";
-                historyData = data.historyData;
-                currentDayBasket = data.currentDayBasket || [];
-
-                if(endDateProjectIso) {
-                    document.getElementById('end-date-runtime').value = endDateProjectIso;
-                }
-
-                showMainInterface();
-                recalculateAllChain();
-
-                alert('✅ กู้คืนข้อมูลสำเร็จเรียบร้อยแล้วครับ!');
-            } catch (err) {
-                alert('❌ ไฟล์ชำรุดหรือไม่ใช่ไฟล์สําหรับโปรแกรมนี้ครับ');
-            }
-        };
-        reader.readAsText(file);
-    }
-
-    function formatMoney(num) {
-        return num.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-
     function resetTracker() {
-        if(confirm('🚨 คุณต้องการล้างข้อมูลทั้งหมดและเริ่มต้นใหม่ใช่หรือไม่?')) {
-            localStorage.clear(); 
+        if(confirm("🚨 คุณต้องการล้างข้อมูลการเงินทั้งหมด และเริ่มตั้งค่าระบบใหม่ใช่หรือไม่? (แนะนำให้ดาวน์โหลดไฟล์ Backup ก่อนคลิกตกลง)")) {
+            localStorage.clear();
             location.reload();
         }
     }
 </script>
-
 </body>
 </html>
