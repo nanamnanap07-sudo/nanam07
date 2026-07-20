@@ -99,7 +99,7 @@
             box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
         }
 
-        /* 🏆 Hero Section (เงินคงเหลือ & ใช้ได้เฉลี่ย) - จุดที่เด่นที่สุดตามหลัก UX/UI */
+        /* 🏆 Hero Section */
         .hero-section {
             display: grid;
             grid-template-columns: 1.5fr 1fr;
@@ -126,7 +126,6 @@
             letter-spacing: 1px;
             font-weight: 600;
         }
-        /* ตัวเลขเงินคงเหลือ (ใหญ่ที่สุด) */
         .hero-balance {
             font-size: 46px;
             font-weight: 800;
@@ -136,7 +135,6 @@
         }
         .hero-balance span { font-size: 24px; color: var(--text-muted); font-weight: normal; }
         
-        /* กล่องงบเฉลี่ยวันนี้ (เด่นด้วยสีเขียว) */
         .hero-daily-card {
             background: linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(5,150,105,0.05) 100%);
             border: 1px solid rgba(16, 185, 129, 0.3);
@@ -205,7 +203,6 @@
         .auth-toggle span { color: var(--primary); cursor: pointer; font-weight: 600; }
         .auth-toggle span:hover { text-decoration: underline; }
 
-        /* Layout Grid */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
         
@@ -299,7 +296,6 @@
     <!-- Main App Zone -->
     <div id="app-zone" class="hidden">
         
-        <!-- Top Nav (โลโก้ + โปรไฟล์ + Logout เล็กๆ) -->
         <div class="top-nav">
             <div class="logo-text">🐻 <span>BearWallet</span></div>
             <div class="user-widget">
@@ -327,7 +323,6 @@
             
             <div id="alert-zone" class="alert"></div>
 
-            <!-- 🏆 Hero Section: จุดสนใจหลัก (เงินคงเหลือ & งบรายวัน) -->
             <div class="hero-section">
                 <div class="hero-card">
                     <p>💰 เงินคงเหลือจริงในกระเป๋า</p>
@@ -484,6 +479,42 @@
     let isEditMode = false;
     let editTargetIndex = null;
 
+    // 🌐 Dynamic User Locale: ตรวจจับภาษาและพื้นที่ของผู้ใช้อัตโนมัติ (เช่น 'th-TH', 'en-US')
+    const userLocale = navigator.language || 'th-TH';
+
+    // Helper: แปลงวันที่ฝั่ง Local Timezone ป้องกันบัค Timezone ถอยหลังสำหรับทุกประเทศ
+    function getTodayIso() {
+        let now = new Date();
+        let y = now.getFullYear();
+        let m = String(now.getMonth() + 1).padStart(2, '0');
+        let d = String(now.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    function parseIsoToLocalDate(isoStr) {
+        if (!isoStr) return new Date();
+        let parts = isoStr.split('-');
+        return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    }
+
+    function formatLocalDateToIso(dateObj) {
+        let y = dateObj.getFullYear();
+        let m = String(dateObj.getMonth() + 1).padStart(2, '0');
+        let d = String(dateObj.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    // 🌐 ฟังก์ชันแปลงวันที่ตามภาษาของเครื่องผู้ใช้งาน
+    function getTodayLocaleDateStr() {
+        return new Date().toLocaleDateString(userLocale, { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function getLocaleDateStrFromIso(isoStr) {
+        if(!isoStr) return "-";
+        let d = parseIsoToLocalDate(isoStr);
+        return d.toLocaleDateString(userLocale, { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
     window.handleAuth = handleAuth;
     window.toggleAuthMode = toggleAuthMode;
     window.logoutUser = logoutUser;
@@ -549,21 +580,10 @@
         return parseFloat(num).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     }
 
-    function getTodayThaiDateStr() {
-        return new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
-    }
-
-    function getThaiDateStrFromIso(isoStr) {
-        if(!isoStr) return "-";
-        let parts = isoStr.split('-');
-        let d = new Date(parts[0], parts[1] - 1, parts[2]);
-        return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
-    }
-
     function updateFormDateTitle() {
         if (isEditMode) return;
         const t = document.getElementById('current-day-title');
-        if (t) t.innerText = `📝 บันทึกรายจ่าย วันที่ ${getTodayThaiDateStr()}`;
+        if (t) t.innerText = `📝 บันทึกรายจ่าย วันที่ ${getTodayLocaleDateStr()}`;
     }
 
     function startTracker() {
@@ -574,7 +594,7 @@
         if (!endInput) { alert('❌ เลือกวันที่สิ้นสุด'); return; }
 
         totalMoneyInitial = parseFloat(moneyInput);
-        startDateProjectIso = new Date().toISOString().split('T')[0];
+        startDateProjectIso = getTodayIso();
         endDateProjectIso = endInput;
         document.getElementById('end-date-runtime').value = endInput;
 
@@ -650,9 +670,9 @@
             historyData[editTargetIndex].itemsArray = [...currentDayBasket]; 
             cancelEditMode();
         } else {
-            const todayStr = getTodayThaiDateStr();
+            const todayStr = getTodayLocaleDateStr();
             const existingDayIdx = historyData.findIndex(item => item.dateStr === todayStr);
-            let currentDayIso = new Date().toISOString().split('T')[0];
+            let currentDayIso = getTodayIso();
 
             if (existingDayIdx !== -1) {
                 historyData[existingDayIdx].income += income;
@@ -722,53 +742,59 @@
         prepareNextDay();
     }
 
-    // 🤖 ฟังก์ชันช่วยเติมวันที่ไม่ได้บันทึกให้อัตโนมัติเป็น "ไม่ได้ใช้เงิน" (ยอด 0 บาท)
+    // 🤖 ระบบเติมวันว่างอัตโนมัติ (รองรับผู้ใช้ต่างชาติและแสดงผลแบบ Dynamic)
     function autoFillMissingDays() {
         if (!startDateProjectIso) return;
 
-        let today = new Date();
-        today.setHours(0, 0, 0, 0); // รีเซ็ตเวลาเพื่อเทียบเฉพาะวันที่
+        let todayIso = getTodayIso();
+        let today = parseIsoToLocalDate(todayIso);
 
         let nextDate;
         if (historyData.length === 0) {
-            nextDate = new Date(startDateProjectIso);
-            nextDate.setHours(0, 0, 0, 0);
+            nextDate = parseIsoToLocalDate(startDateProjectIso);
         } else {
-            let lastRecord = historyData[historyData.length - 1];
-            nextDate = new Date(lastRecord.dateIso);
-            nextDate.setHours(0, 0, 0, 0);
-            nextDate.setDate(nextDate.getDate() + 1); 
+            let sorted = [...historyData].sort((a, b) => a.dateIso.localeCompare(b.dateIso));
+            let lastRecord = sorted[sorted.length - 1];
+            nextDate = parseIsoToLocalDate(lastRecord.dateIso);
+            nextDate.setDate(nextDate.getDate() + 1);
         }
 
-        // วนลูปเติมวันที่ฟันหลอจนถึงเมื่อวาน
-        while (nextDate < today) {
-            let isoString = nextDate.toISOString().split('T')[0];
-            let thaiDateStr = nextDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+        // สลับภาษาข้อความอัตโนมัติหากเครื่องไม่ใช่ภาษาไทย
+        const isThai = userLocale.startsWith('th');
+        const autoFillDetailStr = isThai ? '✨ ไม่ได้ใช้เงิน (ระบบบันทึกอัตโนมัติ)' : '✨ No expenses (Auto-saved)';
 
-            historyData.push({
-                dateStr: thaiDateStr,
-                dateIso: isoString,
-                budget: 0,
-                income: 0,
-                spent: 0,
-                itemsArray: [{ detail: '✨ ไม่ได้ใช้เงิน (ระบบบันทึกอัตโนมัติ)', amount: 0 }],
-                remaining: 0
-            });
+        while (nextDate < today) {
+            let isoString = formatLocalDateToIso(nextDate);
+
+            if (!historyData.some(item => item.dateIso === isoString)) {
+                let formattedDateStr = nextDate.toLocaleDateString(userLocale, { day: 'numeric', month: 'short', year: 'numeric' });
+                historyData.push({
+                    dateStr: formattedDateStr,
+                    dateIso: isoString,
+                    budget: 0,
+                    income: 0,
+                    spent: 0,
+                    itemsArray: [{ detail: autoFillDetailStr, amount: 0 }],
+                    remaining: 0
+                });
+            }
 
             nextDate.setDate(nextDate.getDate() + 1);
         }
+
+        historyData.sort((a, b) => a.dateIso.localeCompare(b.dateIso));
     }
 
     function recalculateAllChain() {
         if (historyData.length > 0) {
-            startDateProjectIso = historyData[0].dateIso || new Date().toISOString().split('T')[0];
+            startDateProjectIso = historyData[0].dateIso || getTodayIso();
         } else if (!startDateProjectIso) {
-            startDateProjectIso = new Date().toISOString().split('T')[0];
+            startDateProjectIso = getTodayIso();
         }
 
         if (startDateProjectIso && endDateProjectIso) {
-            let d1 = new Date(startDateProjectIso);
-            let d2 = new Date(endDateProjectIso);
+            let d1 = parseIsoToLocalDate(startDateProjectIso);
+            let d2 = parseIsoToLocalDate(endDateProjectIso);
             let diffDays = Math.ceil((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
             totalDays = diffDays > 0 ? diffDays : 1;
         } else { totalDays = 1; }
@@ -827,8 +853,8 @@
         document.getElementById('stat-days-status').innerText = `${recordedDays} / ${totalDays} วัน`;
 
         document.getElementById('stat-days-rich-details').innerHTML = `
-            📌 เริ่ม: ${getThaiDateStrFromIso(startDateProjectIso)}<br>
-            🏁 สิ้นสุด: ${getThaiDateStrFromIso(endDateProjectIso)}<br>
+            📌 เริ่ม: ${getLocaleDateStrFromIso(startDateProjectIso)}<br>
+            🏁 สิ้นสุด: ${getLocaleDateStrFromIso(endDateProjectIso)}<br>
             💸 ใช้รวมไปแล้ว: <span style="color:white; font-weight:bold;">${formatMoney(totalSpent)} บาท</span>
         `;
 
@@ -879,9 +905,7 @@
                     document.getElementById('setup-card').classList.add('hidden');
                     document.getElementById('main-tracker').classList.remove('hidden');
                     
-                    // เช็กและเติมวันที่ไม่ได้กดบันทึกให้อัตโนมัติ ก่อนคำนวณงบใหม่
                     autoFillMissingDays();
-
                     recalculateAllChain();
                 } else {
                     document.getElementById('setup-card').classList.remove('hidden');
@@ -890,7 +914,7 @@
             } else {
                 document.getElementById('setup-card').classList.remove('hidden');
                 document.getElementById('main-tracker').classList.add('hidden');
-                document.getElementById('end-date-setup').value = new Date().toISOString().split('T')[0];
+                document.getElementById('end-date-setup').value = getTodayIso();
                 prepareNextDay();
             }
         });
