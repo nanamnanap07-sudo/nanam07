@@ -99,7 +99,7 @@
             box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
         }
 
-        /* 🏆 Hero Section (เงินคงเหลือ & ใช้ได้เฉลี่ย) - จุดที่เด่นที่สุดในเว็บ */
+        /* 🏆 Hero Section (เงินคงเหลือ & ใช้ได้เฉลี่ย) - จุดที่เด่นที่สุดตามหลัก UX/UI */
         .hero-section {
             display: grid;
             grid-template-columns: 1.5fr 1fr;
@@ -278,6 +278,7 @@
 
 <div class="container">
 
+    <!-- Auth Zone -->
     <div id="auth-zone" class="card auth-container">
         <h1>🐻 BearWallet</h1>
         <h3 id="auth-title" style="margin-bottom: 24px; font-size: 16px;">🔑 เข้าสู่ระบบกระเป๋าเงิน</h3>
@@ -295,8 +296,10 @@
         </div>
     </div>
 
+    <!-- Main App Zone -->
     <div id="app-zone" class="hidden">
         
+        <!-- Top Nav (โลโก้ + โปรไฟล์ + Logout เล็กๆ) -->
         <div class="top-nav">
             <div class="logo-text">🐻 <span>BearWallet</span></div>
             <div class="user-widget">
@@ -324,6 +327,7 @@
             
             <div id="alert-zone" class="alert"></div>
 
+            <!-- 🏆 Hero Section: จุดสนใจหลัก (เงินคงเหลือ & งบรายวัน) -->
             <div class="hero-section">
                 <div class="hero-card">
                     <p>💰 เงินคงเหลือจริงในกระเป๋า</p>
@@ -337,6 +341,7 @@
 
             <div class="dashboard-layout">
                 
+                <!-- Left: Form Zone -->
                 <div class="card" id="daily-form-card" style="margin-bottom: 0;">
                     <h3 id="current-day-title" style="margin-top:0; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">📝 บันทึกรายจ่ายวันนี้</h3>
                     
@@ -373,6 +378,7 @@
                     <button id="btn-cancel-edit" onclick="cancelEditMode()" style="background: #4b5563; margin-top: 10px;" class="hidden">ยกเลิกการแก้ไข</button>
                 </div>
 
+                <!-- Right: Secondary Stats -->
                 <div style="display: flex; flex-direction: column; gap: 16px;">
                     <div class="card" style="padding: 20px; margin: 0;">
                         <p style="margin:0 0 5px 0; font-size:13px; color:var(--text-muted);">งบตั้งต้นต่อวัน (ไม่รวมเงินเก็บ)</p>
@@ -395,6 +401,7 @@
 
             </div>
 
+            <!-- Table History -->
             <div class="card" style="margin-top: 24px;">
                 <h3 style="margin-top:0;">📋 ประวัติการเงินรายวัน</h3>
                 <div class="table-responsive">
@@ -424,6 +431,7 @@
     </div>
 </div>
 
+<!-- Modal -->
 <div id="detail-modal" class="modal-overlay" onclick="closeDetailModal()">
     <div class="modal-card" onclick="event.stopPropagation()">
         <div style="display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 12px;">
@@ -714,6 +722,43 @@
         prepareNextDay();
     }
 
+    // 🤖 ฟังก์ชันช่วยเติมวันที่ไม่ได้บันทึกให้อัตโนมัติเป็น "ไม่ได้ใช้เงิน" (ยอด 0 บาท)
+    function autoFillMissingDays() {
+        if (!startDateProjectIso) return;
+
+        let today = new Date();
+        today.setHours(0, 0, 0, 0); // รีเซ็ตเวลาเพื่อเทียบเฉพาะวันที่
+
+        let nextDate;
+        if (historyData.length === 0) {
+            nextDate = new Date(startDateProjectIso);
+            nextDate.setHours(0, 0, 0, 0);
+        } else {
+            let lastRecord = historyData[historyData.length - 1];
+            nextDate = new Date(lastRecord.dateIso);
+            nextDate.setHours(0, 0, 0, 0);
+            nextDate.setDate(nextDate.getDate() + 1); 
+        }
+
+        // วนลูปเติมวันที่ฟันหลอจนถึงเมื่อวาน
+        while (nextDate < today) {
+            let isoString = nextDate.toISOString().split('T')[0];
+            let thaiDateStr = nextDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+
+            historyData.push({
+                dateStr: thaiDateStr,
+                dateIso: isoString,
+                budget: 0,
+                income: 0,
+                spent: 0,
+                itemsArray: [{ detail: '✨ ไม่ได้ใช้เงิน (ระบบบันทึกอัตโนมัติ)', amount: 0 }],
+                remaining: 0
+            });
+
+            nextDate.setDate(nextDate.getDate() + 1);
+        }
+    }
+
     function recalculateAllChain() {
         if (historyData.length > 0) {
             startDateProjectIso = historyData[0].dateIso || new Date().toISOString().split('T')[0];
@@ -833,6 +878,10 @@
                     document.getElementById('end-date-runtime').value = endDateProjectIso;
                     document.getElementById('setup-card').classList.add('hidden');
                     document.getElementById('main-tracker').classList.remove('hidden');
+                    
+                    // เช็กและเติมวันที่ไม่ได้กดบันทึกให้อัตโนมัติ ก่อนคำนวณงบใหม่
+                    autoFillMissingDays();
+
                     recalculateAllChain();
                 } else {
                     document.getElementById('setup-card').classList.remove('hidden');
