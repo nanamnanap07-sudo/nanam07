@@ -304,7 +304,7 @@
             </div>
         </div>
 
-        <div id="setup-card" class="card hidden">
+        <div id="setup-card" class="card">
             <h3 style="margin-top:0;">⚙️ ตั้งค่าเป้าหมายการเงินเบื้องต้น (บัญชีใหม่)</h3>
             <div class="grid-2">
                 <div class="form-group">
@@ -479,10 +479,8 @@
     let isEditMode = false;
     let editTargetIndex = null;
 
-    // 🌐 Dynamic User Locale: ตรวจจับภาษาและพื้นที่ของผู้ใช้อัตโนมัติ (เช่น 'th-TH', 'en-US')
     const userLocale = navigator.language || 'th-TH';
 
-    // Helper: แปลงวันที่ฝั่ง Local Timezone ป้องกันบัค Timezone ถอยหลังสำหรับทุกประเทศ
     function getTodayIso() {
         let now = new Date();
         let y = now.getFullYear();
@@ -504,7 +502,6 @@
         return `${y}-${m}-${d}`;
     }
 
-    // 🌐 ฟังก์ชันแปลงวันที่ตามภาษาของเครื่องผู้ใช้งาน
     function getTodayLocaleDateStr() {
         return new Date().toLocaleDateString(userLocale, { day: 'numeric', month: 'short', year: 'numeric' });
     }
@@ -536,6 +533,9 @@
             document.getElementById('user-display-email').innerText = user.email;
             document.getElementById('auth-zone').classList.add('hidden');
             document.getElementById('app-zone').classList.remove('hidden');
+            
+            // ตั้งค่าเริ่มต้นวันที่ในช่อง Input
+            document.getElementById('end-date-setup').value = getTodayIso();
             loadDataFromFirebase();
         } else {
             currentUserId = null;
@@ -742,7 +742,6 @@
         prepareNextDay();
     }
 
-    // 🤖 ระบบเติมวันว่างอัตโนมัติ (รองรับผู้ใช้ต่างชาติและแสดงผลแบบ Dynamic)
     function autoFillMissingDays() {
         if (!startDateProjectIso) return;
 
@@ -759,7 +758,6 @@
             nextDate.setDate(nextDate.getDate() + 1);
         }
 
-        // สลับภาษาข้อความอัตโนมัติหากเครื่องไม่ใช่ภาษาไทย
         const isThai = userLocale.startsWith('th');
         const autoFillDetailStr = isThai ? '✨ ไม่ได้ใช้เงิน (ระบบบันทึกอัตโนมัติ)' : '✨ No expenses (Auto-saved)';
 
@@ -891,6 +889,11 @@
 
     function loadDataFromFirebase() {
         if (!currentUserId) return;
+
+        // ป้องกันหน้าจอค้างว่างเปล่าขณะรอดึงข้อมูล
+        document.getElementById('setup-card').classList.remove('hidden');
+        document.getElementById('main-tracker').classList.add('hidden');
+
         get(child(ref(db), `users/${currentUserId}`)).then((snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
@@ -914,9 +917,13 @@
             } else {
                 document.getElementById('setup-card').classList.remove('hidden');
                 document.getElementById('main-tracker').classList.add('hidden');
-                document.getElementById('end-date-setup').value = getTodayIso();
                 prepareNextDay();
             }
+        }).catch((err) => {
+            console.error("Firebase error:", err);
+            // กรณีเกิด Error ในการเชื่อมต่อ ให้เปิดหน้าตั้งค่าไว้ใช้งานต่อได้
+            document.getElementById('setup-card').classList.remove('hidden');
+            document.getElementById('main-tracker').classList.add('hidden');
         });
     }
 
