@@ -316,7 +316,13 @@
                     <input type="date" id="end-date-setup">
                 </div>
             </div>
-            <button onclick="startTracker()">เริ่มบันทึกเงินรายวัน</button>
+            
+            <div class="form-group" style="margin-top: 16px;">
+                <label for="setup-target-budget" style="color: var(--info);">🎯 ตั้งเป้าหมายงบต่อวัน (บาท) *ถ้าไม่กรอกระบบจะหารเฉลี่ยให้</label>
+                <input type="number" id="setup-target-budget" placeholder="เช่น 300" min="1" step="any">
+            </div>
+
+            <button onclick="startTracker()" style="margin-top: 10px;">เริ่มบันทึกเงินรายวัน</button>
         </div>
 
         <div id="main-tracker" class="hidden">
@@ -351,7 +357,8 @@
                                 <input type="text" id="draft-spent-detail" placeholder="เช่น ข้าวมันไก่">
                             </div>
                         </div>
-                        <button onclick="addExpenseToBasket()" style="background: var(--bg-input); border: 1px solid var(--border-color); color: white;">➕ ใส่ตะกร้าพักไว้</button>
+
+                        <button type="button" onclick="addExpenseToBasket()" style="margin-top: 4px; background: var(--bg-input); border: 1px solid var(--border-color); color: white;">➕ ใส่ตะกร้าพักไว้</button>
                     </div>
 
                     <div class="basket-zone">
@@ -366,18 +373,24 @@
 
                     <div class="form-group" style="margin-top: 20px;">
                         <label for="daily-income" style="color: var(--success);">➕ มีรายได้เข้ามาเพิ่มวันนี้ไหม?</label>
-                        <input type="number" id="daily-income" placeholder="ไม่มีให้ป้อน 0" min="0" value="0" step="any">
+                        <input type="number" id="daily-income" placeholder="ไม่มีให้ป้อน 0" min="0" value="0" step="any" oninput="saveDataToFirebase()">
                     </div>
 
-                    <button id="btn-submit-finance" onclick="submitDailySummary()" style="margin-top: 10px;">💾 สรุปยอดและบันทึกของวันนี้</button>
+                    <button id="btn-submit-finance" onclick="submitDailySummary()" style="margin-top: 10px;">💾 สรุปยอดและบันทึกตะกร้าทั้งหมดของวันนี้</button>
                     <button id="btn-cancel-edit" onclick="cancelEditMode()" style="background: #4b5563; margin-top: 10px;" class="hidden">ยกเลิกการแก้ไข</button>
                 </div>
 
                 <!-- Right: Secondary Stats -->
                 <div style="display: flex; flex-direction: column; gap: 16px;">
                     <div class="card" style="padding: 20px; margin: 0;">
-                        <p style="margin:0 0 5px 0; font-size:13px; color:var(--text-muted);">งบตั้งต้นต่อวัน (ไม่รวมเงินเก็บ)</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <p style="margin:0; font-size:13px; color:var(--text-muted);">🎯 เป้าหมายงบต่อวัน (ตั้งไว้)</p>
+                            <button onclick="editTargetBudget()" style="background: none; border: 1px solid var(--border-color); color: var(--info); font-size: 11px; padding: 4px 8px; border-radius: 6px; width: auto; box-shadow: none; cursor: pointer;">✏️ แก้ไข</button>
+                        </div>
                         <h3 id="stat-base-budget" style="margin:0; font-size:24px; color: white;">0.00</h3>
+                        
+                        <!-- กล่องแจ้งเตือนคำนวณเงินเติม -->
+                        <div id="target-budget-alert" style="margin-top: 12px; font-size: 13px; display: none; padding: 10px; border-radius: 8px; line-height: 1.5;"></div>
                     </div>
                     
                     <div class="card" style="padding: 20px; margin: 0; flex-grow: 1;">
@@ -466,6 +479,7 @@
     let totalMoneyInitial = 0; 
     let totalMoney = 0; 
     let totalDays = 1; 
+    let targetDailyBudget = 0; 
     let baseDailyBudget = 0;
     let reserveFund = 0; 
     let totalSpent = 0;
@@ -478,6 +492,9 @@
 
     let isEditMode = false;
     let editTargetIndex = null;
+
+    // คิวสำหรับ Firebase: ป้องกันการบันทึกคำขอเก่าทับข้อมูลล่าสุด
+    let firebaseSaveQueue = Promise.resolve();
 
     const userLocale = navigator.language || 'th-TH';
 
@@ -526,6 +543,8 @@
     window.cancelEditMode = cancelEditMode;
     window.updateEndDateFromRuntime = updateEndDateFromRuntime;
     window.resetTracker = resetTracker;
+    window.saveDataToFirebase = saveDataToFirebase;
+    window.editTargetBudget = editTargetBudget;
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -534,7 +553,6 @@
             document.getElementById('auth-zone').classList.add('hidden');
             document.getElementById('app-zone').classList.remove('hidden');
             
-            // ตั้งค่าเริ่มต้นวันที่ในช่อง Input
             document.getElementById('end-date-setup').value = getTodayIso();
             loadDataFromFirebase();
         } else {
@@ -573,7 +591,10 @@
     }
 
     function logoutUser() {
-        signOut(auth).then(() => { historyData = []; currentDayBasket = []; location.reload(); });
+        signOut(auth).then(() => { 
+            if (currentUserId) localStorage.removeItem('bearwallet_cache_' + currentUserId);
+            historyData = []; currentDayBasket = []; location.reload(); 
+        });
     }
 
     function formatMoney(num) {
@@ -589,6 +610,7 @@
     function startTracker() {
         const moneyInput = document.getElementById('total-money').value;
         const endInput = document.getElementById('end-date-setup').value;
+        const targetInput = document.getElementById('setup-target-budget').value;
 
         if (!moneyInput || moneyInput <= 0) { alert('❌ ระบุเงินเริ่มต้นให้ถูกต้อง'); return; }
         if (!endInput) { alert('❌ เลือกวันที่สิ้นสุด'); return; }
@@ -597,6 +619,12 @@
         startDateProjectIso = getTodayIso();
         endDateProjectIso = endInput;
         document.getElementById('end-date-runtime').value = endInput;
+
+        if (targetInput && parseFloat(targetInput) > 0) {
+            targetDailyBudget = parseFloat(targetInput);
+        } else {
+            targetDailyBudget = 0; 
+        }
 
         historyData = []; currentDayBasket = [];
         document.getElementById('setup-card').classList.add('hidden');
@@ -607,13 +635,21 @@
     function updateEndDateFromRuntime(val) {
         if(!val) return; endDateProjectIso = val; recalculateAllChain();
     }
+    
+    function editTargetBudget() {
+        let newVal = prompt("🎯 ตั้งเป้าหมายงบใช้จ่ายต่อวันใหม่ (บาท):", targetDailyBudget);
+        if (newVal !== null && !isNaN(newVal) && newVal.trim() !== "") {
+            targetDailyBudget = parseFloat(newVal);
+            recalculateAllChain();
+            saveDataToFirebase();
+        }
+    }
 
     function prepareNextDay() {
         if (isEditMode) return; 
         updateFormDateTitle();
         document.getElementById('draft-spent-amount').value = '';
         document.getElementById('draft-spent-detail').value = '';
-        document.getElementById('daily-income').value = '0'; 
         renderBasket();
     }
 
@@ -627,11 +663,14 @@
         currentDayBasket.push({ amount: parseFloat(amtInput), detail: detInput });
         document.getElementById('draft-spent-amount').value = '';
         document.getElementById('draft-spent-detail').value = '';
-        renderBasket(); saveDataToFirebase();
+        renderBasket(); 
+        saveDataToFirebase();
     }
 
     function removeBasketItem(idx) {
-        currentDayBasket.splice(idx, 1); renderBasket(); saveDataToFirebase();
+        currentDayBasket.splice(idx, 1); 
+        renderBasket(); 
+        saveDataToFirebase();
     }
 
     function renderBasket() {
@@ -659,37 +698,100 @@
     function submitDailySummary() {
         let incomeInput = document.getElementById('daily-income').value;
         if (incomeInput === '') incomeInput = '0';
-        const income = parseFloat(incomeInput);
-        if (income < 0) { alert('❌ ยอดห้ามติดลบ'); return; }
 
-        let totalSpentToday = currentDayBasket.reduce((sum, item) => sum + item.amount, 0);
+        const income = parseFloat(incomeInput);
+        if (isNaN(income) || income < 0) {
+            alert('❌ ยอดรายรับห้ามติดลบ');
+            return;
+        }
+
+        // รองรับการกดปุ่มสรุปยอดทันทีทั้งที่ยังไม่ได้กด "ใส่ตะกร้า"
+        // รายการที่พิมพ์อยู่ในช่องกรอกจะถูกนำไปบันทึกพร้อมกับรายการในตะกร้า
+        const amtInputEl = document.getElementById('draft-spent-amount');
+        const detailInputEl = document.getElementById('draft-spent-detail');
+
+        const typedAmountRaw = amtInputEl.value.trim();
+        const typedDetailRaw = detailInputEl.value.trim();
+
+        if (typedAmountRaw !== '') {
+            const typedAmount = parseFloat(typedAmountRaw);
+
+            if (isNaN(typedAmount) || typedAmount < 0) {
+                alert('❌ กรอกยอดใช้จ่ายให้ถูกต้อง');
+                amtInputEl.focus();
+                return;
+            }
+
+            currentDayBasket.push({
+                amount: typedAmount,
+                detail: typedDetailRaw || 'ไม่ระบุชื่อ'
+            });
+        }
+
+        // รวมรายการที่พิมพ์ไว้ + รายการที่อยู่ในตะกร้า
+        const itemsToSave = [...currentDayBasket];
+        const totalSpentToday = itemsToSave.reduce((sum, item) => {
+            return sum + (parseFloat(item.amount) || 0);
+        }, 0);
 
         if (isEditMode) {
-            historyData[editTargetIndex].income = income;
-            historyData[editTargetIndex].spent = totalSpentToday;
-            historyData[editTargetIndex].itemsArray = [...currentDayBasket]; 
+            const target = historyData[editTargetIndex];
+
+            if (!target) {
+                alert('❌ ไม่พบข้อมูลวันที่กำลังแก้ไข');
+                return;
+            }
+
+            target.income = income;
+            target.spent = parseFloat(target.spent) || 0;
+            target.spent += totalSpentToday;
+
+            if (!target.itemsArray) target.itemsArray = [];
+            target.itemsArray = target.itemsArray.concat(itemsToSave);
+
+            // ล้างข้อมูลชั่วคราวก่อนออกจากโหมดแก้ไข
+            currentDayBasket = [];
+            amtInputEl.value = '';
+            detailInputEl.value = '';
+
             cancelEditMode();
         } else {
             const todayStr = getTodayLocaleDateStr();
-            const existingDayIdx = historyData.findIndex(item => item.dateStr === todayStr);
-            let currentDayIso = getTodayIso();
+            const currentDayIso = getTodayIso();
+            const existingDayIdx = historyData.findIndex(
+                item => item.dateStr === todayStr || item.dateIso === currentDayIso
+            );
 
             if (existingDayIdx !== -1) {
-                historyData[existingDayIdx].income += income;
-                historyData[existingDayIdx].spent += totalSpentToday;
-                historyData[existingDayIdx].itemsArray = historyData[existingDayIdx].itemsArray.concat(currentDayBasket);
+                const todayData = historyData[existingDayIdx];
+
+                todayData.income = (parseFloat(todayData.income) || 0) + income;
+                todayData.spent = (parseFloat(todayData.spent) || 0) + totalSpentToday;
+
+                if (!todayData.itemsArray) todayData.itemsArray = [];
+                todayData.itemsArray = todayData.itemsArray.concat(itemsToSave);
             } else {
                 historyData.push({
-                    dateStr: todayStr, dateIso: currentDayIso, budget: 0, 
-                    income: income, spent: totalSpentToday,
-                    itemsArray: [...currentDayBasket], remaining: 0 
+                    dateStr: todayStr,
+                    dateIso: currentDayIso,
+                    budget: 0,
+                    income: income,
+                    spent: totalSpentToday,
+                    itemsArray: [...itemsToSave],
+                    remaining: 0
                 });
             }
-            currentDayBasket = []; 
+
+            // หลังบันทึกแล้ว เคลียร์ตะกร้าและช่องกรอก
+            currentDayBasket = [];
+            amtInputEl.value = '';
+            detailInputEl.value = '';
+            document.getElementById('daily-income').value = '0';
         }
+
         recalculateAllChain();
     }
-    
+
     function openDetailModal(index) {
         const target = historyData[index];
         document.getElementById('modal-date-title').innerText = `รายการของ ${target.dateStr}`;
@@ -712,34 +814,75 @@
     function closeDetailModal() { document.getElementById('detail-modal').classList.remove('active'); }
 
     function deleteHistoryRow(index) {
-        if(confirm(`🗑️ ลบประวัติวันที่ "${historyData[index].dateStr}"?`)) {
-            historyData.splice(index, 1);
-            if (isEditMode && editTargetIndex === index) cancelEditMode();
-            recalculateAllChain();
+        const target = historyData[index];
+        if (!target) {
+            alert('❌ ไม่พบข้อมูลประวัติรายการนี้');
+            return;
         }
+
+        if (!confirm(`🗑️ ลบประวัติวันที่ "${target.dateStr}"?`)) return;
+
+        // ลบออกจากข้อมูลหลักก่อนทันที
+        historyData.splice(index, 1);
+
+        // ถ้ากำลังแก้ไขวันที่ที่ลบ ให้ยกเลิกโหมดแก้ไขอย่างปลอดภัย
+        if (isEditMode) {
+            if (editTargetIndex === index) {
+                isEditMode = false;
+                editTargetIndex = null;
+                currentDayBasket = [];
+                document.getElementById('daily-income').value = '0';
+                document.getElementById('draft-spent-amount').value = '';
+                document.getElementById('draft-spent-detail').value = '';
+                document.getElementById('btn-cancel-edit').classList.add('hidden');
+            } else if (editTargetIndex > index) {
+                // เมื่อรายการก่อนหน้าถูกลบ index ของรายการที่กำลังแก้ต้องเลื่อนลง 1
+                editTargetIndex--;
+            }
+        }
+
+        // รีเฟรชหน้าตาราง/ยอดรวม และบันทึกสถานะใหม่ทันที
+        recalculateAllChain();
+
+        // ย้ำการบันทึกข้อมูลล่าสุดเพื่อไม่ให้ข้อมูลเก่ากลับมา
+        saveDataToFirebase();
+    }
+
+    function restoreEditModeUI(dateStr) {
+        document.getElementById('btn-cancel-edit').classList.remove('hidden');
+        document.getElementById('current-day-title').innerHTML = `✏️ แก้ไขข้อมูล: <span style="color:var(--warning)">${dateStr}</span>`;
+        let btn = document.getElementById('btn-submit-finance');
+        btn.innerText = "ยืนยันการบันทึกแก้ไข"; 
+        btn.style.backgroundColor = "var(--warning)"; 
+        btn.style.color = "#000";
     }
 
     function enterEditMode(index) {
         if(currentDayBasket.length > 0 && !confirm('⚠️ ตะกร้าชั่วคราวจะถูกลบ ดำเนินการต่อไหม?')) return;
-        isEditMode = true; editTargetIndex = index;
+        isEditMode = true; 
+        editTargetIndex = index;
         const targetData = historyData[index];
-        document.getElementById('btn-cancel-edit').classList.remove('hidden');
-        document.getElementById('current-day-title').innerHTML = `✏️ แก้ไขข้อมูล: <span style="color:var(--warning)">${targetData.dateStr}</span>`;
         document.getElementById('daily-income').value = targetData.income;
         currentDayBasket = targetData.itemsArray ? [...targetData.itemsArray] : [];
+        
+        restoreEditModeUI(targetData.dateStr);
         renderBasket();
-
-        let btn = document.getElementById('btn-submit-finance');
-        btn.innerText = "ยืนยันการบันทึกแก้ไข"; btn.style.backgroundColor = "var(--warning)"; btn.style.color = "#000";
+        saveDataToFirebase();
         document.getElementById('daily-form-card').scrollIntoView({ behavior: 'smooth' });
     }
 
     function cancelEditMode() {
-        isEditMode = false; editTargetIndex = null; currentDayBasket = [];
+        isEditMode = false; 
+        editTargetIndex = null; 
+        currentDayBasket = [];
+        document.getElementById('daily-income').value = '0';
         document.getElementById('btn-cancel-edit').classList.add('hidden');
         let btn = document.getElementById('btn-submit-finance');
-        btn.innerText = "💾 สรุปยอดและบันทึกของวันนี้"; btn.style.backgroundColor = "var(--success)"; btn.style.color = "white";
+        btn.innerText = "💾 สรุปยอดและบันทึกตะกร้าทั้งหมดของวันนี้"; 
+        btn.style.backgroundColor = "var(--success)"; 
+        btn.style.color = "white";
         prepareNextDay();
+        saveDataToFirebase();
     }
 
     function autoFillMissingDays() {
@@ -797,7 +940,9 @@
             totalDays = diffDays > 0 ? diffDays : 1;
         } else { totalDays = 1; }
 
-        baseDailyBudget = totalMoneyInitial / totalDays;
+        baseDailyBudget = targetDailyBudget > 0 ? targetDailyBudget : (totalMoneyInitial / totalDays);
+        if(targetDailyBudget === 0) targetDailyBudget = baseDailyBudget;
+        
         totalMoney = totalMoneyInitial; totalSpent = 0; totalIncomeEarned = 0;
         let currentReserve = 0;
 
@@ -840,7 +985,7 @@
     }
 
     function updateDashboard() {
-        document.getElementById('stat-base-budget').innerText = `${formatMoney(baseDailyBudget)} ฿`;
+        document.getElementById('stat-base-budget').innerText = `${formatMoney(targetDailyBudget)} ฿`;
         
         let actualRemainingWallet = totalMoney - totalSpent;
         const walletEl = document.getElementById('stat-wallet-remaining');
@@ -863,6 +1008,32 @@
         const avgEl = document.getElementById('stat-future-avg');
         avgEl.innerHTML = `${formatMoney(futureAvgBudget)} <span>/ วัน</span>`;
         avgEl.style.color = futureAvgBudget < 0 ? 'var(--danger)' : 'var(--success)';
+        
+        // ตรวจสอบและแจ้งเตือนงบเป้าหมาย
+        const alertBox = document.getElementById('target-budget-alert');
+        if (targetDailyBudget > 0) {
+            let requiredMoneyForFuture = targetDailyBudget * futureDaysLeft;
+            
+            if (futureAvgBudget < targetDailyBudget - 0.01) { 
+                let moneyNeeded = requiredMoneyForFuture - actualRemainingWallet;
+                alertBox.style.display = 'block';
+                alertBox.style.backgroundColor = 'rgba(245, 158, 11, 0.1)';
+                alertBox.style.border = '1px solid rgba(245, 158, 11, 0.3)';
+                alertBox.style.color = '#fcd34d'; 
+                alertBox.innerHTML = `⚠️ งบเฉลี่ยลดต่ำกว่าเป้า<br>ต้องเติมเงินเพิ่ม <strong>${formatMoney(moneyNeeded)} ฿</strong> ถึงจะกลับมาใช้ได้ ${formatMoney(targetDailyBudget)}/วัน`;
+            } else if (futureAvgBudget > targetDailyBudget + 5) {
+                let surplus = actualRemainingWallet - requiredMoneyForFuture;
+                alertBox.style.display = 'block';
+                alertBox.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+                alertBox.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+                alertBox.style.color = 'var(--success)';
+                alertBox.innerHTML = `✅ เงินเหลือเฟือตามเป้าหมาย<br>สามารถดึงไปเป็นเงินเก็บได้ <strong>${formatMoney(surplus)} ฿</strong>`;
+            } else {
+                alertBox.style.display = 'none';
+            }
+        } else {
+            alertBox.style.display = 'none';
+        }
     }
 
     function checkAlerts() {
@@ -879,57 +1050,92 @@
         } else { alertZone.style.display = "none"; }
     }
 
+    function applyDataPayload(data) {
+        if (!data) return;
+        totalMoneyInitial = data.totalMoneyInitial || 0;
+        startDateProjectIso = data.startDateProjectIso || "";
+        endDateProjectIso = data.endDateProjectIso || "";
+        historyData = data.historyData || [];
+        currentDayBasket = data.currentDayBasket || [];
+        
+        targetDailyBudget = data.targetDailyBudget || 0;
+        
+        const savedDraftIncome = data.draftIncome !== undefined ? data.draftIncome : 0;
+        isEditMode = data.isEditMode || false;
+        editTargetIndex = data.editTargetIndex !== undefined ? data.editTargetIndex : null;
+
+        if (totalMoneyInitial > 0) {
+            document.getElementById('end-date-runtime').value = endDateProjectIso;
+            document.getElementById('setup-card').classList.add('hidden');
+            document.getElementById('main-tracker').classList.remove('hidden');
+            
+            autoFillMissingDays();
+            recalculateAllChain();
+
+            document.getElementById('daily-income').value = savedDraftIncome;
+            if (isEditMode && editTargetIndex !== null && historyData[editTargetIndex]) {
+                restoreEditModeUI(historyData[editTargetIndex].dateStr);
+            }
+        }
+    }
+
     function saveDataToFirebase() {
         if (!currentUserId) return;
-        set(ref(db, 'users/' + currentUserId), {
-            totalMoneyInitial: totalMoneyInitial, startDateProjectIso: startDateProjectIso,
-            endDateProjectIso: endDateProjectIso, historyData: historyData, currentDayBasket: currentDayBasket
-        });
+        const draftIncome = parseFloat(document.getElementById('daily-income')?.value || 0);
+        
+        const payload = {
+            totalMoneyInitial: totalMoneyInitial,
+            startDateProjectIso: startDateProjectIso,
+            endDateProjectIso: endDateProjectIso,
+            historyData: historyData,
+            currentDayBasket: currentDayBasket,
+            draftIncome: draftIncome,
+            isEditMode: isEditMode,
+            editTargetIndex: editTargetIndex,
+            targetDailyBudget: targetDailyBudget
+        };
+
+        // บันทึกลงเบราว์เซอร์ LocalStorage ทันที
+        localStorage.setItem('bearwallet_cache_' + currentUserId, JSON.stringify(payload));
+
+        // ส่งไปเก็บคลาวด์ Firebase แบบเข้าคิว เพื่อป้องกันคำขอเก่าทับข้อมูลล่าสุด
+        firebaseSaveQueue = firebaseSaveQueue
+            .catch(() => {})
+            .then(() => set(ref(db, 'users/' + currentUserId), payload))
+            .catch((err) => {
+                console.error("Firebase Sync Error:", err);
+            });
     }
 
     function loadDataFromFirebase() {
         if (!currentUserId) return;
 
-        // ป้องกันหน้าจอค้างว่างเปล่าขณะรอดึงข้อมูล
-        document.getElementById('setup-card').classList.remove('hidden');
-        document.getElementById('main-tracker').classList.add('hidden');
+        // 1. ดึงข้อมูลจาก Cache ในเบราว์เซอร์ขึ้นมาก่อนทันที
+        const cachedData = localStorage.getItem('bearwallet_cache_' + currentUserId);
+        if (cachedData) {
+            try {
+                applyDataPayload(JSON.parse(cachedData));
+            } catch(e) { console.error(e); }
+        }
 
+        // 2. ดึงข้อมูลล่าสุดจาก Firebase มาซิงค์ทับ
         get(child(ref(db), `users/${currentUserId}`)).then((snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
-                totalMoneyInitial = data.totalMoneyInitial || 0;
-                startDateProjectIso = data.startDateProjectIso || "";
-                endDateProjectIso = data.endDateProjectIso || "";
-                historyData = data.historyData || [];
-                currentDayBasket = data.currentDayBasket || [];
-                
-                if (totalMoneyInitial > 0) {
-                    document.getElementById('end-date-runtime').value = endDateProjectIso;
-                    document.getElementById('setup-card').classList.add('hidden');
-                    document.getElementById('main-tracker').classList.remove('hidden');
-                    
-                    autoFillMissingDays();
-                    recalculateAllChain();
-                } else {
-                    document.getElementById('setup-card').classList.remove('hidden');
-                    document.getElementById('main-tracker').classList.add('hidden');
-                }
-            } else {
-                document.getElementById('setup-card').classList.remove('hidden');
-                document.getElementById('main-tracker').classList.add('hidden');
-                prepareNextDay();
+                applyDataPayload(data);
+                localStorage.setItem('bearwallet_cache_' + currentUserId, JSON.stringify(data));
             }
         }).catch((err) => {
-            console.error("Firebase error:", err);
-            // กรณีเกิด Error ในการเชื่อมต่อ ให้เปิดหน้าตั้งค่าไว้ใช้งานต่อได้
-            document.getElementById('setup-card').classList.remove('hidden');
-            document.getElementById('main-tracker').classList.add('hidden');
+            console.error("Firebase Fetch Error:", err);
         });
     }
 
     function resetTracker() {
         if(confirm("🚨 ต้องการล้างข้อมูลทั้งหมดแล้วเริ่มโครงใหม่หรือไม่? (กู้คืนไม่ได้)")) {
-            if (currentUserId) set(ref(db, 'users/' + currentUserId), null).then(() => location.reload());
+            if (currentUserId) {
+                localStorage.removeItem('bearwallet_cache_' + currentUserId);
+                set(ref(db, 'users/' + currentUserId), null).then(() => location.reload());
+            }
         }
     }
     setInterval(updateFormDateTitle, 30000);
