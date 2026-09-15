@@ -417,11 +417,11 @@
                         <thead>
                             <tr>
                                 <th style="width: 14%;">วันที่</th>
-                                <th style="width: 15%;">งบสะสมต้นวัน</th>
+                                <th style="width: 15%;">งบที่ใช้ได้วันนี้</th>
                                 <th style="width: 13%;">รายรับเพิ่ม</th>
                                 <th style="width: 13%;">ใช้จริงรวม</th>
                                 <th style="width: 15%;">รายการย่อย</th>
-                                <th style="width: 15%;">สถานะสิ้นวัน</th>
+                                <th style="width: 15%;">วันนี้เหลือ</th>
                                 <th style="width: 15%;">จัดการ</th>
                             </tr>
                         </thead>
@@ -695,6 +695,63 @@
         summaryText.innerText = `${formatMoney(totalDraftSpent)} บาท`;
     }
 
+    // ⌨️ การทำงานปุ่ม Enter แบบเป็นลำดับ
+    // 1) ช่องยอดใช้จ่าย -> Enter -> ไปช่องชื่อรายการ
+    // 2) ช่องชื่อรายการ -> Enter -> ใส่ตะกร้าพักไว้ แล้วกลับไปช่องยอดใช้จ่าย
+    // 3) ถ้าทั้งยอดใช้จ่ายและชื่อรายการว่าง -> Enter -> สรุปและบันทึก
+    function setupEnterToSubmit() {
+        const amountInput = document.getElementById('draft-spent-amount');
+        const detailInput = document.getElementById('draft-spent-detail');
+
+        if (!amountInput || !detailInput) return;
+
+        amountInput.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter') return;
+            event.preventDefault();
+
+            const amount = amountInput.value.trim();
+            const detail = detailInput.value.trim();
+
+            // ไม่มีข้อมูลทั้ง 2 ช่อง = สรุปยอด
+            if (amount === '' && detail === '') {
+                document.getElementById('btn-submit-finance').click();
+                return;
+            }
+
+            // มีจำนวนเงินแล้ว = ไปช่องชื่อรายการ
+            if (amount !== '') {
+                detailInput.focus();
+            } else {
+                // ถ้าจำนวนเงินว่าง แต่ชื่อรายการมีข้อมูล ให้กลับไปกรอกจำนวนเงิน
+                amountInput.focus();
+            }
+        });
+
+        detailInput.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter') return;
+            event.preventDefault();
+
+            const amount = amountInput.value.trim();
+            const detail = detailInput.value.trim();
+
+            // ถ้าทั้ง 2 ช่องว่าง = สรุปยอด
+            if (amount === '' && detail === '') {
+                document.getElementById('btn-submit-finance').click();
+                return;
+            }
+
+            // มีจำนวนเงิน = ทำงานเหมือนกด "➕ ใส่ตะกร้าพักไว้"
+            if (amount !== '') {
+                addExpenseToBasket();
+                amountInput.focus();
+            } else {
+                // มีแต่รายละเอียด แต่ไม่มีจำนวนเงิน = แจ้งเตือนผ่านฟังก์ชันเดิม
+                addExpenseToBasket();
+                amountInput.focus();
+            }
+        });
+    }
+
     function submitDailySummary() {
         let incomeInput = document.getElementById('daily-income').value;
         if (incomeInput === '') incomeInput = '0';
@@ -742,12 +799,11 @@
                 return;
             }
 
+            // โหมดแก้ไขต้อง "แทนที่" ข้อมูลเดิมด้วยข้อมูลที่อยู่ในตะกร้าปัจจุบัน
+            // ไม่ใช่บวก/concat ซ้ำ เพราะตะกร้าถูกโหลดรายการเดิมมาให้แก้ไขตั้งแต่ตอนกด "แก้"
             target.income = income;
-            target.spent = parseFloat(target.spent) || 0;
-            target.spent += totalSpentToday;
-
-            if (!target.itemsArray) target.itemsArray = [];
-            target.itemsArray = target.itemsArray.concat(itemsToSave);
+            target.spent = totalSpentToday;
+            target.itemsArray = [...itemsToSave];
 
             // ล้างข้อมูลชั่วคราวก่อนออกจากโหมดแก้ไข
             currentDayBasket = [];
@@ -928,6 +984,7 @@
 
     function recalculateAllChain() {
         if (historyData.length > 0) {
+            historyData.sort((a, b) => a.dateIso.localeCompare(b.dateIso));
             startDateProjectIso = historyData[0].dateIso || getTodayIso();
         } else if (!startDateProjectIso) {
             startDateProjectIso = getTodayIso();
@@ -938,23 +995,54 @@
             let d2 = parseIsoToLocalDate(endDateProjectIso);
             let diffDays = Math.ceil((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
             totalDays = diffDays > 0 ? diffDays : 1;
-        } else { totalDays = 1; }
+        } else {
+            totalDays = 1;
+        }
 
-        baseDailyBudget = targetDailyBudget > 0 ? targetDailyBudget : (totalMoneyInitial / totalDays);
-        if(targetDailyBudget === 0) targetDailyBudget = baseDailyBudget;
-        
-        totalMoney = totalMoneyInitial; totalSpent = 0; totalIncomeEarned = 0;
-        let currentReserve = 0;
+        // เป้าหมายรายวันยังคงมีไว้สำหรับการแจ้งเตือน/เปรียบเทียบเท่านั้น
+        // ไม่ได้นำมาใช้คำนวณ "งบสะสมต้นวัน"
+        baseDailyBudget = totalMoneyInitial / totalDays;
+
+        totalMoney = totalMoneyInitial;
+        totalSpent = 0;
+        totalIncomeEarned = 0;
+
+        // "งบสะสมต้นวัน" จะอิงจากหลักเดียวกับ
+        // "✨ วันนี้ใช้ได้อีก (งบเฉลี่ย)"
+        // คือ เงินที่มีอยู่จริง ณ ต้นวัน ÷ จำนวนวันที่เหลือทั้งหมด (นับวันนั้นด้วย)
+        let walletAtStartOfDay = totalMoneyInitial;
 
         for (let i = 0; i < historyData.length; i++) {
             let item = historyData[i];
-            if (item.income > 0) { totalMoney += item.income; totalIncomeEarned += item.income; }
-            item.budget = baseDailyBudget + currentReserve;
-            item.remaining = (item.budget + item.income) - item.spent;
-            totalSpent += item.spent; currentReserve = item.remaining;
+            const daysRemainingAtStart = Math.max(1, totalDays - i);
+
+            // งบต้นวัน = เงินที่มีจริงก่อนเริ่มวันนั้น ÷ วันที่เหลือของโครงการ
+            item.budget = walletAtStartOfDay / daysRemainingAtStart;
+
+            const incomeToday = parseFloat(item.income) || 0;
+            const spentToday = parseFloat(item.spent) || 0;
+
+            // สถานะสิ้นวันของ "งบประจำวัน" รวมรายรับที่เข้ามาในวันนั้นด้วย
+            item.remaining = (item.budget + incomeToday) - spentToday;
+
+            // อัปเดตเงินในกระเป๋าจริงเพื่อใช้คำนวณงบต้นวันของวันถัดไป
+            walletAtStartOfDay += incomeToday - spentToday;
+            totalMoney += incomeToday;
+            totalIncomeEarned += incomeToday;
+            totalSpent += spentToday;
         }
-        reserveFund = currentReserve;
-        renderTable(); updateDashboard(); checkAlerts(); prepareNextDay(); saveDataToFirebase();
+
+        // เงินส่วนต่างของวันล่าสุด ใช้สำหรับการแจ้งเตือนว่าเกิน/เหลืองบ
+        // แต่ไม่ถูกนำไปเป็นงบก้อนใหม่โดยตรงอีกแล้ว
+        reserveFund = historyData.length > 0
+            ? historyData[historyData.length - 1].remaining
+            : 0;
+
+        renderTable();
+        updateDashboard();
+        checkAlerts();
+        prepareNextDay();
+        saveDataToFirebase();
     }
 
     function renderTable() {
@@ -1138,6 +1226,8 @@
             }
         }
     }
+    setupEnterToSubmit();
+
     setInterval(updateFormDateTitle, 30000);
 </script>
 </body>
