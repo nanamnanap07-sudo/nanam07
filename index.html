@@ -417,11 +417,11 @@
                         <thead>
                             <tr>
                                 <th style="width: 14%;">วันที่</th>
-                                <th style="width: 15%;">งบที่ใช้ได้วันนี้</th>
+                                <th style="width: 15%;">งบสะสมต้นวัน</th>
                                 <th style="width: 13%;">รายรับเพิ่ม</th>
                                 <th style="width: 13%;">ใช้จริงรวม</th>
                                 <th style="width: 15%;">รายการย่อย</th>
-                                <th style="width: 15%;">วันนี้เหลือ</th>
+                                <th style="width: 15%;">สถานะสิ้นวัน</th>
                                 <th style="width: 15%;">จัดการ</th>
                             </tr>
                         </thead>
@@ -495,6 +495,7 @@
 
     // คิวสำหรับ Firebase: ป้องกันการบันทึกคำขอเก่าทับข้อมูลล่าสุด
     let firebaseSaveQueue = Promise.resolve();
+    let isLoadingFromFirebase = false;
 
     const userLocale = navigator.language || 'th-TH';
 
@@ -1042,7 +1043,7 @@
         updateDashboard();
         checkAlerts();
         prepareNextDay();
-        saveDataToFirebase();
+        if (!isLoadingFromFirebase) saveDataToFirebase();
     }
 
     function renderTable() {
@@ -1167,11 +1168,9 @@
         }
     }
 
-    function saveDataToFirebase() {
-        if (!currentUserId) return;
+    function buildDataPayload() {
         const draftIncome = parseFloat(document.getElementById('daily-income')?.value || 0);
-        
-        const payload = {
+        return {
             totalMoneyInitial: totalMoneyInitial,
             startDateProjectIso: startDateProjectIso,
             endDateProjectIso: endDateProjectIso,
@@ -1182,40 +1181,55 @@
             editTargetIndex: editTargetIndex,
             targetDailyBudget: targetDailyBudget
         };
+    }
 
-        // บันทึกลงเบราว์เซอร์ LocalStorage ทันที
+    function saveDataToFirebase() {
+        if (!currentUserId || isLoadingFromFirebase) return;
+
+        const payload = buildDataPayload();
+
+        // LocalStorage เป็นเพียง cache ของเครื่องนี้ ไม่ใช่ฐานข้อมูลหลัก
         localStorage.setItem('bearwallet_cache_' + currentUserId, JSON.stringify(payload));
 
-        // ส่งไปเก็บคลาวด์ Firebase แบบเข้าคิว เพื่อป้องกันคำขอเก่าทับข้อมูลล่าสุด
+        // Firebase เป็นแหล่งข้อมูลกลางเพียงแห่งเดียวสำหรับทุกอุปกรณ์
         firebaseSaveQueue = firebaseSaveQueue
             .catch(() => {})
             .then(() => set(ref(db, 'users/' + currentUserId), payload))
+            .then(() => {
+                // อัปเดต cache หลังเขียน Firebase สำเร็จเท่านั้น
+                localStorage.setItem('bearwallet_cache_' + currentUserId, JSON.stringify(payload));
+            })
             .catch((err) => {
                 console.error("Firebase Sync Error:", err);
             });
     }
 
-    function loadDataFromFirebase() {
+    async function loadDataFromFirebase() {
         if (!currentUserId) return;
 
-        // 1. ดึงข้อมูลจาก Cache ในเบราว์เซอร์ขึ้นมาก่อนทันที
-        const cachedData = localStorage.getItem('bearwallet_cache_' + currentUserId);
-        if (cachedData) {
-            try {
-                applyDataPayload(JSON.parse(cachedData));
-            } catch(e) { console.error(e); }
-        }
+        // Firebase เป็นข้อมูลหลัก: ห้ามโหลด cache เก่ามาแสดงแล้วเขียนทับเซิร์ฟเวอร์
+        isLoadingFromFirebase = true;
 
-        // 2. ดึงข้อมูลล่าสุดจาก Firebase มาซิงค์ทับ
-        get(child(ref(db), `users/${currentUserId}`)).then((snapshot) => {
+        try {
+            const snapshot = await get(child(ref(db), `users/${currentUserId}`));
+
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 applyDataPayload(data);
+
+                // เก็บข้อมูลล่าสุดจาก Firebase เป็น cache ของเครื่องปัจจุบัน
                 localStorage.setItem('bearwallet_cache_' + currentUserId, JSON.stringify(data));
+            } else {
+                // ยังไม่มีข้อมูลบน Firebase: เริ่มเป็นบัญชีใหม่จริง ๆ
+                historyData = [];
+                currentDayBasket = [];
             }
-        }).catch((err) => {
+        } catch (err) {
             console.error("Firebase Fetch Error:", err);
-        });
+            alert("⚠️ ไม่สามารถโหลดข้อมูลจากเซิร์ฟเวอร์ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่");
+        } finally {
+            isLoadingFromFirebase = false;
+        }
     }
 
     function resetTracker() {
