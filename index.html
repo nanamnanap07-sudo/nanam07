@@ -114,24 +114,76 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+        .profile-menu-divider {
+            height:1px;
+            background:var(--border-color);
+            margin:8px 0;
+        }
+        .profile-data-btn,
+        .profile-trash-btn,
+        .profile-trash-action,
         .btn-logout-small {
-            width: 100%;
-            box-sizing: border-box;
-            background: transparent;
-            color: var(--danger);
-            border: 1px solid rgba(239, 68, 68, 0.4);
-            padding: 7px 10px;
-            border-radius: 9px;
-            font-size: 12px;
-            font-weight: 700;
-            line-height: 1.2;
-            cursor: pointer;
-            transition: var(--transition);
+            width:100%;
+            box-sizing:border-box;
+            padding:8px 10px;
+            border-radius:9px;
+            font-size:12px;
+            font-weight:600;
+            line-height:1.2;
+            box-shadow:none;
+            transform:none;
+            margin:0 0 6px 0;
+            cursor:pointer;
+            transition:var(--transition);
+        }
+        .profile-data-btn {
+            background:transparent;
+            color:var(--danger);
+            border:1px solid rgba(239,68,68,.4);
+        }
+        .profile-data-btn:hover { background:rgba(239,68,68,.10); }
+        .profile-trash-btn,
+        .profile-trash-action {
+            background:var(--bg-input);
+            color:var(--text-main);
+            border:1px solid var(--border-color);
+        }
+        .profile-trash-btn:hover,
+        .profile-trash-action:hover { border-color:var(--primary); }
+        .profile-trash-panel {
+            margin:4px 0 8px;
+            padding:8px;
+            border-radius:10px;
+            background:rgba(0,0,0,.12);
+            border:1px solid var(--border-color);
+        }
+        .profile-trash-item {
+            padding:7px 0;
+            border-bottom:1px solid rgba(148,163,184,.15);
+        }
+        .profile-trash-item:last-child { border-bottom:none; padding-bottom:2px; }
+        .profile-trash-meta {
+            color:var(--text-muted);
+            font-size:11px;
+            line-height:1.55;
+            margin-bottom:6px;
+        }
+        .profile-trash-status { color:var(--warning); font-weight:700; }
+        .profile-trash-status.ready { color:var(--success); }
+        .profile-trash-actions { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+        .profile-trash-actions .profile-trash-action { margin:0; }
+        .profile-trash-action.danger { color:var(--danger); border-color:rgba(239,68,68,.4); }
+        .profile-trash-action:disabled { opacity:.45; cursor:not-allowed; }
+        .btn-logout-small {
+            background:transparent;
+            color:var(--text-muted);
+            border:1px solid var(--border-color);
+            margin-bottom:0;
         }
         .btn-logout-small:hover {
-            background: var(--danger);
-            color: white;
-            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+            color:white;
+            border-color:var(--info);
+            background:rgba(56,189,248,.08);
         }
 
         /* 🏆 Hero Section */
@@ -387,6 +439,9 @@
             gap:8px;
             flex-wrap:wrap;
         }
+        .history-view-toggle { flex:0 0 auto; }
+        .history-actions { margin-left:auto; }
+        .history-actions.hidden { display:none; }
         .history-view-btn,
         .history-action-btn {
             width:auto;
@@ -406,26 +461,51 @@
             color:var(--success);
         }
         .history-chart-modebar {
-            display:flex;
+            display:grid;
+            grid-template-columns:repeat(3, minmax(0, 1fr));
             gap:8px;
             margin-bottom:12px;
-            flex-wrap:wrap;
         }
         .history-chart-mode-btn {
-            width:auto;
+            width:100%;
+            min-height:38px;
             padding:8px 12px;
             background:var(--bg-input);
             border:1px solid var(--border-color);
             color:var(--text-muted);
             font-size:12px;
             box-shadow:none;
+            margin:0;
         }
         .history-chart-mode-btn.active {
             background:rgba(56,189,248,.10);
             border-color:rgba(56,189,248,.45);
             color:var(--info);
         }
+        /* ปุ่มเปิด/ปิดกราฟทั้งหมดใช้สีปกติของปุ่มนี้เสมอ
+           ไม่รับสีเขียวจากกฎ button:hover ของเว็บหลัก */
+        #history-chart-all-btn,
+        #history-chart-all-btn:hover,
+        #history-chart-all-btn:focus,
+        #history-chart-all-btn:active {
+            background:var(--bg-input) !important;
+            border:1px solid var(--border-color) !important;
+            color:var(--text-muted) !important;
+            transform:none !important;
+            box-shadow:none !important;
+        }
 
+        /* สีเขียวนี้ใช้เฉพาะตอนปุ่มนี้เปิด "ดูกราฟทั้งหมด" เท่านั้น */
+        #history-chart-all-btn.is-all-open,
+        #history-chart-all-btn.is-all-open:hover,
+        #history-chart-all-btn.is-all-open:focus,
+        #history-chart-all-btn.is-all-open:active {
+            background:var(--success) !important;
+            border:1px solid var(--success) !important;
+            color:#ffffff !important;
+            transform:none !important;
+            box-shadow:none !important;
+        }
         .history-chart-search {
             display:flex;
             align-items:center;
@@ -712,13 +792,11 @@
             }
 
             .history-chart-modebar {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
+                display:grid;
+                grid-template-columns:1fr 1fr;
             }
-
-            .history-chart-mode-btn {
-                width: 100%;
-            }
+            .history-chart-mode-btn { width:100%; }
+            .history-chart-all-btn { grid-column:1 / -1; }
         }
 
         @media (max-width: 480px) {
@@ -746,6 +824,7 @@
             .history-view-toggle, .history-actions {
                 gap: 6px;
             }
+            .history-actions { margin-left:0; }
 
             .history-view-btn, .history-action-btn {
                 padding: 8px 9px;
@@ -826,6 +905,10 @@
                 <button class="profile-btn" id="profile-btn" type="button" aria-label="เปิดเมนูโปรไฟล์" onclick="toggleProfileMenu()">👤</button>
                 <div class="profile-menu hidden" id="profile-menu">
                     <div class="profile-email" id="user-display-email">-</div>
+                    <button id="profile-delete-data-btn" class="profile-data-btn" type="button" onclick="moveAllDataToTrash()">🗑️ ลบข้อมูลทั้งหมด</button>
+                    <button id="profile-trash-btn" class="profile-trash-btn" type="button" onclick="toggleTrashPanel()">♻️ ถังขยะ</button>
+                    <div id="profile-trash-panel" class="profile-trash-panel hidden"></div>
+                    <div class="profile-menu-divider"></div>
                     <button class="btn-logout-small" type="button" onclick="logoutUser()">ออก</button>
                 </div>
             </div>
@@ -955,9 +1038,8 @@
                         <button id="history-chart-view-btn" class="history-view-btn" onclick="setHistoryView('chart')">📊 แบบกราฟ</button>
                     </div>
 
-                    <div class="history-actions">
+                    <div class="history-actions" id="history-table-actions">
                         <button class="history-action-btn history-action-summary" onclick="openSummaryModal()">📄 ใบสรุปผล</button>
-                        <button class="history-action-btn history-action-reset" onclick="resetTracker()">🗑️ ลบข้อมูล</button>
                     </div>
                 </div>
 
@@ -985,7 +1067,7 @@
                     <div class="history-chart-modebar">
                         <button id="history-chart-balance-btn" class="history-chart-mode-btn active" onclick="setHistoryChartMode('balance')">📈 เงินคงเหลือ</button>
                         <button id="history-chart-overview-btn" class="history-chart-mode-btn" onclick="setHistoryChartMode('overview')">📊 ภาพรวม 3 เส้น</button>
-                        <button id="history-chart-all-btn" class="history-chart-mode-btn" onclick="setHistoryChartDisplay('all')">🔍 ดูกราฟทั้งหมด</button>
+                        <button id="history-chart-all-btn" class="history-chart-mode-btn" onclick="setHistoryChartDisplay('all')">เปิดดูกราฟทั้งหมด</button>
                     </div>
 <div class="history-chart-search" aria-label="ค้นหาวันที่ในกราฟ">
                         <label for="history-chart-date-search">🔎 ค้นหาวันที่</label>
@@ -1083,6 +1165,7 @@
     let historyChartMode = 'balance';
     let historyChartDisplayMode = 'scroll';
     let historyChart = null;
+    let trashData = null;
 
     // คิวสำหรับ Firebase: ป้องกันการบันทึกคำขอเก่าทับข้อมูลล่าสุด
     let firebaseSaveQueue = Promise.resolve();
@@ -1128,6 +1211,10 @@
     window.handleAuth = handleAuth;
     window.toggleAuthMode = toggleAuthMode;
     window.toggleProfileMenu = toggleProfileMenu;
+    window.toggleTrashPanel = toggleTrashPanel;
+    window.moveAllDataToTrash = moveAllDataToTrash;
+    window.restoreTrashData = restoreTrashData;
+    window.permanentlyDeleteTrash = permanentlyDeleteTrash;
     window.logoutUser = logoutUser;
     window.startTracker = startTracker;
     window.addExpenseToBasket = addExpenseToBasket;
@@ -1710,6 +1797,7 @@
         const chartView = document.getElementById('history-chart-view');
         const tableBtn = document.getElementById('history-table-view-btn');
         const chartBtn = document.getElementById('history-chart-view-btn');
+        const tableActions = document.getElementById('history-table-actions');
 
         if (!tableView || !chartView) return;
 
@@ -1717,6 +1805,7 @@
         chartView.classList.toggle('hidden', historyViewMode !== 'chart');
         tableBtn?.classList.toggle('active', historyViewMode === 'table');
         chartBtn?.classList.toggle('active', historyViewMode === 'chart');
+        tableActions?.classList.toggle('hidden', historyViewMode !== 'table');
 
         if (historyViewMode === 'chart') {
             setTimeout(renderHistoryChart, 0);
@@ -1734,6 +1823,19 @@
         }
     }
 
+    function updateHistoryChartAllButton() {
+        const allBtn = document.getElementById('history-chart-all-btn');
+        if (!allBtn) return;
+
+        const isAllMode = historyChartDisplayMode === 'all';
+
+        // สีเขียวผูกกับปุ่มนี้โดยตรงเท่านั้น และแสดงเฉพาะตอนเปิดโหมดดูกราฟทั้งหมด
+        allBtn.classList.remove('active', 'view-all-green', 'return-normal');
+        allBtn.classList.toggle('is-all-open', isAllMode);
+        allBtn.textContent = isAllMode ? 'ปิดดูกราฟทั้งหมด' : 'เปิดดูกราฟทั้งหมด';
+        allBtn.setAttribute('aria-pressed', String(isAllMode));
+    }
+
     function setHistoryChartDisplay(mode) {
         // ปุ่มเดียวใช้สลับระหว่างโหมดเลื่อนดู กับโหมดดูทั้งหมด
         const previousMode = historyChartDisplayMode;
@@ -1747,13 +1849,7 @@
             chartWrap.dataset.chartModeChanged = 'true';
         }
 
-        const allBtn = document.getElementById('history-chart-all-btn');
-        allBtn?.classList.toggle('active', historyChartDisplayMode === 'all');
-        if (allBtn) {
-            allBtn.textContent = historyChartDisplayMode === 'all'
-                ? '↔️ กลับไปแบบเลื่อน'
-                : '🔍 ดูกราฟทั้งหมด';
-        }
+        updateHistoryChartAllButton();
 
         if (historyViewMode === 'chart') {
             setTimeout(renderHistoryChart, 0);
@@ -1938,12 +2034,8 @@
         canvas.style.width = `${targetWidth}px`;
         canvas.style.height = '350px';
 
-        // Keep the selected graph mode visible after a full reset.
-        const allBtn = document.getElementById('history-chart-all-btn');
-        if (allBtn) {
-            allBtn.classList.toggle('active', !isScrollMode);
-            allBtn.textContent = !isScrollMode ? '↔️ กลับไปแบบเลื่อน' : '🔍 ดูกราฟทั้งหมด';
-        }
+        // Keep the selected graph mode visible after every chart rebuild.
+        updateHistoryChartAllButton();
 
         historyChart = new Chart(canvas.getContext('2d'), {
             type: 'line',
@@ -2137,6 +2229,7 @@
         currentDayBasket = data.currentDayBasket || [];
         
         targetDailyBudget = data.targetDailyBudget || 0;
+        trashData = data.trashData || null;
         
         const savedDraftIncome = data.draftIncome !== undefined ? data.draftIncome : 0;
         isEditMode = data.isEditMode || false;
@@ -2168,7 +2261,8 @@
             draftIncome: draftIncome,
             isEditMode: isEditMode,
             editTargetIndex: editTargetIndex,
-            targetDailyBudget: targetDailyBudget
+            targetDailyBudget: targetDailyBudget,
+            trashData: trashData
         };
     }
 
@@ -2208,6 +2302,7 @@
 
                 // เก็บข้อมูลล่าสุดจาก Firebase เป็น cache ของเครื่องปัจจุบัน
                 localStorage.setItem('bearwallet_cache_' + currentUserId, JSON.stringify(data));
+                updateTrashUI();
             } else {
                 // ยังไม่มีข้อมูลบน Firebase: เริ่มเป็นบัญชีใหม่จริง ๆ
                 historyData = [];
@@ -2396,14 +2491,188 @@
     updateSummaryDownloadButton();
     setHistoryView('table');
 
-    function resetTracker() {
-        if(confirm("🚨 ต้องการล้างข้อมูลทั้งหมดแล้วเริ่มโครงใหม่หรือไม่? (กู้คืนไม่ได้)")) {
-            if (currentUserId) {
-                localStorage.removeItem('bearwallet_cache_' + currentUserId);
-                set(ref(db, 'users/' + currentUserId), null).then(() => location.reload());
-            }
+    const TRASH_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
+
+    function formatTrashRemaining(ms) {
+        const totalHours = Math.max(0, Math.ceil(ms / (60 * 60 * 1000)));
+        const days = Math.floor(totalHours / 24);
+        const hours = totalHours % 24;
+        if (days > 0) return `${days} วัน${hours ? ` ${hours} ชม.` : ''}`;
+        return `${hours} ชม.`;
+    }
+
+    function updateTrashUI() {
+        const panel = document.getElementById('profile-trash-panel');
+        const btn = document.getElementById('profile-trash-btn');
+        const deleteBtn = document.getElementById('profile-delete-data-btn');
+        if (!panel || !btn || !deleteBtn) return;
+
+        if (!trashData || !trashData.deletedAt || !trashData.deleteAfter || !trashData.data) {
+            btn.textContent = '♻️ ถังขยะ';
+            deleteBtn.disabled = false;
+            panel.innerHTML = '<div class="profile-trash-meta">ไม่มีข้อมูลในถังขยะ</div>';
+            return;
+        }
+
+        const now = Date.now();
+        const ready = now >= Number(trashData.deleteAfter);
+        const date = new Date(Number(trashData.deletedAt)).toLocaleDateString(userLocale, {day:'numeric', month:'short', year:'numeric'});
+        btn.textContent = '♻️ ถังขยะ (1)';
+        deleteBtn.disabled = true;
+
+        panel.innerHTML = `
+            <div class="profile-trash-item">
+                <div class="profile-trash-meta">
+                    🗑️ ลบเมื่อ ${date}<br>
+                    <span class="profile-trash-status ${ready ? 'ready' : ''}">${ready ? '✅ ครบ 30 วันแล้ว ลบถาวรได้' : `⏳ ลบถาวรได้ใน ${formatTrashRemaining(Number(trashData.deleteAfter) - now)}`}</span>
+                </div>
+                <div class="profile-trash-actions">
+                    <button class="profile-trash-action" type="button" onclick="restoreTrashData()">↩️ กู้คืน</button>
+                    <button class="profile-trash-action danger" type="button" onclick="permanentlyDeleteTrash()" ${ready ? '' : 'disabled'}>ลบถาวร</button>
+                </div>
+            </div>`;
+    }
+
+    function toggleTrashPanel() {
+        const panel = document.getElementById('profile-trash-panel');
+        if (!panel) return;
+        const willOpen = panel.classList.contains('hidden');
+        if (willOpen) {
+            panel.classList.remove('hidden');
+            updateTrashUI();
+        } else {
+            panel.classList.add('hidden');
         }
     }
+
+    function getCurrentActiveDataForTrash() {
+        return {
+            totalMoneyInitial,
+            startDateProjectIso,
+            endDateProjectIso,
+            historyData: JSON.parse(JSON.stringify(historyData || [])),
+            currentDayBasket: JSON.parse(JSON.stringify(currentDayBasket || [])),
+            draftIncome: parseFloat(document.getElementById('daily-income')?.value || 0),
+            isEditMode: false,
+            editTargetIndex: null,
+            targetDailyBudget
+        };
+    }
+
+    async function persistCurrentPayload(payload) {
+        if (!currentUserId) return false;
+        localStorage.setItem('bearwallet_cache_' + currentUserId, JSON.stringify(payload));
+        firebaseSaveQueue = firebaseSaveQueue
+            .catch(() => {})
+            .then(() => set(ref(db, 'users/' + currentUserId), payload))
+            .then(() => {
+                localStorage.setItem('bearwallet_cache_' + currentUserId, JSON.stringify(payload));
+                return true;
+            })
+            .catch((err) => {
+                console.error('Firebase Sync Error:', err);
+                return false;
+            });
+        return firebaseSaveQueue;
+    }
+
+    async function moveAllDataToTrash() {
+        if (!currentUserId) return;
+        if (!totalMoneyInitial && historyData.length === 0 && !startDateProjectIso && !endDateProjectIso) {
+            alert('ℹ️ ตอนนี้ยังไม่มีข้อมูลสำหรับลบ');
+            return;
+        }
+
+        if (trashData?.data) {
+            const ready = Date.now() >= Number(trashData.deleteAfter || 0);
+            alert(ready
+                ? '♻️ มีข้อมูลเก่าอยู่ในถังขยะ กรุณาลบถาวรหรือกู้คืนก่อนจึงจะย้ายข้อมูลชุดใหม่ได้'
+                : '♻️ มีข้อมูลอยู่ในถังขยะแล้ว กรุณากู้คืนหรือรอให้ครบ 30 วันก่อน');
+            return;
+        }
+
+        if (!confirm('🗑️ ย้ายข้อมูลการเงินทั้งหมดไปถังขยะหรือไม่?\nข้อมูลจะยังไม่ถูกลบถาวร และกู้คืนได้ภายใน 30 วัน')) return;
+
+        const now = Date.now();
+        trashData = {
+            deletedAt: now,
+            deleteAfter: now + TRASH_DURATION_MS,
+            data: getCurrentActiveDataForTrash()
+        };
+
+        totalMoneyInitial = 0;
+        totalMoney = 0;
+        totalDays = 1;
+        targetDailyBudget = 0;
+        baseDailyBudget = 0;
+        reserveFund = 0;
+        totalSpent = 0;
+        totalIncomeEarned = 0;
+        startDateProjectIso = '';
+        endDateProjectIso = '';
+        historyData = [];
+        currentDayBasket = [];
+        isEditMode = false;
+        editTargetIndex = null;
+
+        const payload = buildDataPayload();
+        const ok = await persistCurrentPayload(payload);
+        if (!ok) {
+            alert('❌ ไม่สามารถย้ายข้อมูลไปถังขยะได้ กรุณาลองใหม่');
+            return;
+        }
+        location.reload();
+    }
+
+    async function restoreTrashData() {
+        if (!currentUserId || !trashData?.data) return;
+        if (!confirm('↩️ ต้องการกู้คืนข้อมูลจากถังขยะกลับมาใช้งานหรือไม่?')) return;
+
+        const restored = JSON.parse(JSON.stringify(trashData.data));
+        trashData = null;
+        totalMoneyInitial = restored.totalMoneyInitial || 0;
+        startDateProjectIso = restored.startDateProjectIso || '';
+        endDateProjectIso = restored.endDateProjectIso || '';
+        historyData = restored.historyData || [];
+        currentDayBasket = restored.currentDayBasket || [];
+        targetDailyBudget = restored.targetDailyBudget || 0;
+        isEditMode = false;
+        editTargetIndex = null;
+
+        const payload = buildDataPayload();
+        const ok = await persistCurrentPayload(payload);
+        if (!ok) {
+            alert('❌ กู้คืนข้อมูลไม่สำเร็จ');
+            return;
+        }
+        location.reload();
+    }
+
+    async function permanentlyDeleteTrash() {
+        if (!currentUserId || !trashData?.data) return;
+        const remaining = Number(trashData.deleteAfter || 0) - Date.now();
+        if (remaining > 0) {
+            alert(`⏳ ยังลบถาวรไม่ได้ ต้องรออีก ${formatTrashRemaining(remaining)}`);
+            return;
+        }
+        if (!confirm('🚨 ลบข้อมูลในถังขยะถาวรหรือไม่? การลบครั้งนี้กู้คืนไม่ได้')) return;
+
+        trashData = null;
+        const payload = buildDataPayload();
+        const ok = await persistCurrentPayload(payload);
+        if (!ok) {
+            alert('❌ ไม่สามารถลบข้อมูลถาวรได้ กรุณาลองใหม่');
+            return;
+        }
+        location.reload();
+    }
+
+    function resetTracker() {
+        moveAllDataToTrash();
+    }
+
+    updateTrashUI();
+    setInterval(updateTrashUI, 60 * 1000);
     setupEnterToSubmit();
 
     setInterval(updateFormDateTitle, 30000);
