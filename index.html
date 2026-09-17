@@ -269,6 +269,164 @@
         
         .sys-btn-reset { background: transparent; border: 1px solid rgba(239,68,68,0.3); color: var(--danger); width: auto; padding: 10px 20px; margin-top: 20px; }
         .sys-btn-reset:hover { background: var(--danger); color: white; }
+
+        /* 📄 Summary Report */
+        .summary-actions { display:flex; justify-content:flex-end; margin-top:16px; }
+        .btn-summary {
+            width:auto; padding:10px 18px; background:#0f172a; color:white;
+            border:1px solid var(--info); box-shadow:none;
+        }
+        .btn-summary:hover { background:rgba(56,189,248,.12); box-shadow:none; transform:translateY(-1px); }
+        .summary-modal-card { max-width:560px; max-height:90vh; overflow:auto; }
+        .summary-preview {
+            background:#ffffff; color:#111827; border-radius:14px; padding:28px;
+            width:100%; font-family:'Segoe UI',Tahoma,sans-serif;
+        }
+        .summary-header { text-align:center; border-bottom:2px solid #e5e7eb; padding-bottom:18px; margin-bottom:20px; }
+        .summary-header h2 { margin:0 0 6px; font-size:24px; color:#111827; }
+        .summary-header p { margin:0; color:#6b7280; font-size:13px; }
+        .summary-main {
+            background:#f8fafc; border:1px solid #e5e7eb; border-radius:12px;
+            padding:18px; margin-bottom:16px;
+        }
+        .summary-balance-label { color:#6b7280; font-size:13px; margin-bottom:5px; }
+        .summary-balance { font-size:34px; font-weight:800; color:#111827; }
+        .summary-balance span { font-size:16px; font-weight:500; color:#6b7280; }
+        .summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+        .summary-stat { background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:12px; }
+        .summary-stat-label { color:#6b7280; font-size:12px; margin-bottom:5px; }
+        .summary-stat-value { color:#111827; font-size:17px; font-weight:700; }
+        .summary-stat-countdown { color:#6b7280; font-size:12px; margin-top:5px; line-height:1.45; }
+        .summary-stat-countdown strong { font-size:12px; font-weight:600; color:#6b7280; }
+        .summary-footer { text-align:center; color:#9ca3af; font-size:11px; margin-top:18px; }
+        .summary-modal-buttons { display:flex; gap:10px; margin-top:16px; }
+        .summary-modal-buttons button { flex:1; }
+        @media(max-width:600px) {
+            .summary-grid { grid-template-columns:1fr; }
+            .summary-preview { padding:20px; }
+        }
+        /* 🍱 Quick expense category choices */
+        .quick-category-row {
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+            margin-top:8px;
+        }
+        .quick-category-label {
+            width:100%;
+            color:var(--text-muted);
+            font-size:11px;
+            margin-bottom:1px;
+        }
+        .btn-quick-category {
+            width:auto;
+            padding:7px 12px;
+            background:var(--bg-input);
+            color:#e2e8f0;
+            border:1px solid var(--border-color);
+            border-radius:999px;
+            font-size:12px;
+            box-shadow:none;
+        }
+        .btn-quick-category:hover {
+            background:rgba(16,185,129,.12);
+            border-color:rgba(16,185,129,.45);
+            color:#fff;
+            box-shadow:none;
+            transform:none;
+        }
+
+        /* 📊 History view controls */
+        .history-toolbar {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:12px;
+            flex-wrap:wrap;
+            margin-bottom:16px;
+        }
+        .history-view-toggle,
+        .history-actions {
+            display:flex;
+            align-items:center;
+            gap:8px;
+            flex-wrap:wrap;
+        }
+        .history-view-btn,
+        .history-action-btn {
+            width:auto;
+            padding:9px 14px;
+            font-size:12px;
+            box-shadow:none;
+            margin:0;
+        }
+        .history-view-btn {
+            background:var(--bg-input);
+            border:1px solid var(--border-color);
+            color:var(--text-muted);
+        }
+        .history-view-btn.active {
+            background:rgba(16,185,129,.12);
+            border-color:rgba(16,185,129,.45);
+            color:var(--success);
+        }
+        .history-chart-modebar {
+            display:flex;
+            gap:8px;
+            margin-bottom:12px;
+            flex-wrap:wrap;
+        }
+        .history-chart-mode-btn {
+            width:auto;
+            padding:8px 12px;
+            background:var(--bg-input);
+            border:1px solid var(--border-color);
+            color:var(--text-muted);
+            font-size:12px;
+            box-shadow:none;
+        }
+        .history-chart-mode-btn.active {
+            background:rgba(56,189,248,.10);
+            border-color:rgba(56,189,248,.45);
+            color:var(--info);
+        }
+        .history-action-summary {
+            background:#0f172a;
+            border:1px solid var(--info);
+        }
+        .history-action-reset {
+            background:transparent;
+            border:1px solid rgba(239,68,68,.4);
+            color:var(--danger);
+        }
+        .history-action-reset:hover {
+            background:var(--danger);
+            color:white;
+        }
+        .history-chart-wrap {
+            position:relative;
+            width:100%;
+            min-height:380px;
+            background:rgba(0,0,0,.08);
+            border:1px solid var(--border-color);
+            border-radius:12px;
+            padding:14px 14px 10px;
+        }
+        #history-chart {
+            width:100% !important;
+            height:350px !important;
+        }
+        .history-chart-empty {
+            text-align:center;
+            color:var(--text-muted);
+            padding:80px 20px;
+            font-size:14px;
+        }
+        @media(max-width:700px) {
+            .history-toolbar { align-items:stretch; }
+            .history-view-toggle, .history-actions { width:100%; }
+            .history-view-btn, .history-action-btn { flex:1; }
+        }
     </style>
 </head>
 <body>
@@ -354,7 +512,16 @@
                             </div>
                             <div class="form-group">
                                 <label for="draft-spent-detail">💬 ชื่อรายการ</label>
-                                <input type="text" id="draft-spent-detail" placeholder="เช่น ข้าวมันไก่">
+                                <input type="text" id="draft-spent-detail" list="expense-detail-options" placeholder="เช่น ข้าวมันไก่">
+                                <datalist id="expense-detail-options">
+                                    <option value="อาหาร"></option>
+                                    <option value="ค่าเดินทาง"></option>
+                                </datalist>
+                                <div class="quick-category-row">
+                                    <div class="quick-category-label">เลือกเร็ว</div>
+                                    <button type="button" class="btn-quick-category" onclick="selectExpenseCategory('อาหาร')">🍚 อาหาร</button>
+                                    <button type="button" class="btn-quick-category" onclick="selectExpenseCategory('ค่าเดินทาง')">🚗 ค่าเดินทาง</button>
+                                </div>
                             </div>
                         </div>
 
@@ -409,29 +576,51 @@
 
             </div>
 
-            <!-- Table History -->
+            <!-- History -->
             <div class="card" style="margin-top: 24px;">
                 <h3 style="margin-top:0;">📋 ประวัติการเงินรายวัน</h3>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 14%;">วันที่</th>
-                                <th style="width: 15%;">งบสะสมต้นวัน</th>
-                                <th style="width: 13%;">รายรับเพิ่ม</th>
-                                <th style="width: 13%;">ใช้จริงรวม</th>
-                                <th style="width: 15%;">รายการย่อย</th>
-                                <th style="width: 15%;">สถานะสิ้นวัน</th>
-                                <th style="width: 15%;">จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="history-table-body">
-                        </tbody>
-                    </table>
+
+                <div class="history-toolbar">
+                    <div class="history-view-toggle">
+                        <button id="history-table-view-btn" class="history-view-btn active" onclick="setHistoryView('table')">📋 แบบรายการ</button>
+                        <button id="history-chart-view-btn" class="history-view-btn" onclick="setHistoryView('chart')">📊 แบบกราฟ</button>
+                    </div>
+
+                    <div class="history-actions">
+                        <button class="history-action-btn history-action-summary" onclick="openSummaryModal()">📄 ใบสรุปผล</button>
+                        <button class="history-action-btn history-action-reset" onclick="resetTracker()">🗑️ ลบข้อมูล</button>
+                    </div>
                 </div>
-                
-                <div style="display: flex; justify-content: flex-end;">
-                    <button class="sys-btn-reset" onclick="resetTracker()">🚨 ล้างข้อมูลออนไลน์เริ่มใหม่ทั้งหมด</button>
+
+                <div id="history-table-view">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 14%;">วันที่</th>
+                                    <th style="width: 15%;">งบสะสมต้นวัน</th>
+                                    <th style="width: 13%;">รายรับเพิ่ม</th>
+                                    <th style="width: 13%;">ใช้จริงรวม</th>
+                                    <th style="width: 15%;">รายการย่อย</th>
+                                    <th style="width: 15%;">สถานะสิ้นวัน</th>
+                                    <th style="width: 15%;">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="history-chart-view" class="hidden">
+                    <div class="history-chart-modebar">
+                        <button id="history-chart-balance-btn" class="history-chart-mode-btn active" onclick="setHistoryChartMode('balance')">📈 เงินคงเหลือ</button>
+                        <button id="history-chart-overview-btn" class="history-chart-mode-btn" onclick="setHistoryChartMode('overview')">📊 ภาพรวม 3 เส้น</button>
+                    </div>
+                    <div class="history-chart-wrap">
+                        <canvas id="history-chart"></canvas>
+                        <div id="history-chart-empty" class="history-chart-empty hidden">ยังไม่มีข้อมูลสำหรับสร้างกราฟ</div>
+                    </div>
                 </div>
             </div>
 
@@ -451,6 +640,24 @@
     </div>
 </div>
 
+
+<!-- Summary Report Modal -->
+<div id="summary-modal" class="modal-overlay" onclick="closeSummaryModal()">
+    <div class="modal-card summary-modal-card" onclick="event.stopPropagation()">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #334155; padding-bottom:12px;">
+            <h3 style="margin:0; color:white;">ใบสรุปผล</h3>
+            <button onclick="closeSummaryModal()" style="background:none;border:none;color:white;font-size:20px;width:auto;padding:0;box-shadow:none;">✕</button>
+        </div>
+        <div id="summary-report" class="summary-preview"></div>
+        <div class="summary-modal-buttons">
+            <button id="summary-download-btn" onclick="downloadSummaryImage()">ดาวน์โหลดรูปใบสรุปผล</button>
+            <button onclick="closeSummaryModal()" style="background:#334155;">ปิด</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
@@ -493,6 +700,10 @@
     let isEditMode = false;
     let editTargetIndex = null;
 
+    let historyViewMode = 'table';
+    let historyChartMode = 'balance';
+    let historyChart = null;
+
     // คิวสำหรับ Firebase: ป้องกันการบันทึกคำขอเก่าทับข้อมูลล่าสุด
     let firebaseSaveQueue = Promise.resolve();
     let isLoadingFromFirebase = false;
@@ -524,6 +735,10 @@
         return new Date().toLocaleDateString(userLocale, { day: 'numeric', month: 'short', year: 'numeric' });
     }
 
+    function getCurrentLocaleTimeStr() {
+        return new Date().toLocaleTimeString(userLocale, { hour: '2-digit', minute: '2-digit', hour12: false });
+    }
+
     function getLocaleDateStrFromIso(isoStr) {
         if(!isoStr) return "-";
         let d = parseIsoToLocalDate(isoStr);
@@ -546,6 +761,12 @@
     window.resetTracker = resetTracker;
     window.saveDataToFirebase = saveDataToFirebase;
     window.editTargetBudget = editTargetBudget;
+    window.setHistoryChartMode = setHistoryChartMode;
+    window.openSummaryModal = openSummaryModal;
+    window.closeSummaryModal = closeSummaryModal;
+    window.downloadSummaryImage = downloadSummaryImage;
+    window.selectExpenseCategory = selectExpenseCategory;
+    window.setHistoryView = setHistoryView;
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -652,6 +873,13 @@
         document.getElementById('draft-spent-amount').value = '';
         document.getElementById('draft-spent-detail').value = '';
         renderBasket();
+    }
+
+    function selectExpenseCategory(category) {
+        const detailInput = document.getElementById('draft-spent-detail');
+        if (!detailInput) return;
+        detailInput.value = category;
+        detailInput.focus();
     }
 
     function addExpenseToBasket() {
@@ -1048,11 +1276,15 @@
 
     function renderTable() {
         const tbody = document.getElementById('history-table-body');
+        if (!tbody) return;
+
         tbody.innerHTML = '';
         if(historyData.length === 0) {
             tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">ยังไม่มีข้อมูล</td></tr>`;
+            renderHistoryChart();
             return;
         }
+
         historyData.forEach((item, index) => {
             const row = document.createElement('tr');
             let statusClass = item.remaining >= 0 ? 'text-success' : 'text-danger';
@@ -1070,6 +1302,213 @@
                     <button class="btn-delete-row" onclick="deleteHistoryRow(${index})">ลบ</button>
                 </td>`;
             tbody.appendChild(row);
+        });
+
+        renderHistoryChart();
+    }
+
+    function setHistoryView(mode) {
+        historyViewMode = mode === 'chart' ? 'chart' : 'table';
+
+        const tableView = document.getElementById('history-table-view');
+        const chartView = document.getElementById('history-chart-view');
+        const tableBtn = document.getElementById('history-table-view-btn');
+        const chartBtn = document.getElementById('history-chart-view-btn');
+
+        if (!tableView || !chartView) return;
+
+        tableView.classList.toggle('hidden', historyViewMode !== 'table');
+        chartView.classList.toggle('hidden', historyViewMode !== 'chart');
+        tableBtn?.classList.toggle('active', historyViewMode === 'table');
+        chartBtn?.classList.toggle('active', historyViewMode === 'chart');
+
+        if (historyViewMode === 'chart') {
+            setTimeout(renderHistoryChart, 0);
+        }
+    }
+
+    function setHistoryChartMode(mode) {
+        historyChartMode = mode === 'overview' ? 'overview' : 'balance';
+
+        document.getElementById('history-chart-balance-btn')?.classList.toggle('active', historyChartMode === 'balance');
+        document.getElementById('history-chart-overview-btn')?.classList.toggle('active', historyChartMode === 'overview');
+
+        if (historyViewMode === 'chart') {
+            setTimeout(renderHistoryChart, 0);
+        }
+    }
+
+    function renderHistoryChart() {
+        const canvas = document.getElementById('history-chart');
+        const emptyBox = document.getElementById('history-chart-empty');
+        if (!canvas || !emptyBox) return;
+
+        if (historyViewMode !== 'chart') return;
+
+        if (typeof Chart === 'undefined') {
+            canvas.classList.add('hidden');
+            emptyBox.classList.remove('hidden');
+            emptyBox.innerText = 'ไม่สามารถโหลดระบบกราฟได้ กรุณาตรวจสอบอินเทอร์เน็ต';
+            return;
+        }
+
+        const validData = historyData.filter(item => item && item.dateIso);
+        if (validData.length === 0) {
+            canvas.classList.add('hidden');
+            emptyBox.classList.remove('hidden');
+            emptyBox.innerText = 'ยังไม่มีข้อมูลสำหรับสร้างกราฟ';
+            if (historyChart) {
+                historyChart.destroy();
+                historyChart = null;
+            }
+            return;
+        }
+
+        canvas.classList.remove('hidden');
+        emptyBox.classList.add('hidden');
+
+        const labels = validData.map(item => item.dateStr || item.dateIso);
+        let datasets = [];
+        let tooltipMode = 'balance';
+
+        if (historyChartMode === 'overview') {
+            // แบบแรกที่ทำไว้: 3 เส้น = ใช้จริง / รายรับ / งบสะสมต้นวัน
+            tooltipMode = 'overview';
+            datasets = [
+                {
+                    label: 'ใช้จริง',
+                    data: validData.map(item => Number((Number(item.spent) || 0).toFixed(2))),
+                    borderWidth: 1.7,
+                    tension: 0,
+                    fill: false,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    pointHitRadius: 10,
+                    spanGaps: false,
+                    borderColor: '#fca5a5'
+                },
+                {
+                    label: 'รายรับเพิ่ม',
+                    data: validData.map(item => Number((Number(item.income) || 0).toFixed(2))),
+                    borderWidth: 1.7,
+                    tension: 0,
+                    fill: false,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    pointHitRadius: 10,
+                    spanGaps: false,
+                    borderColor: '#6ee7b7'
+                },
+                {
+                    label: 'งบสะสมต้นวัน',
+                    data: validData.map(item => Number((Number(item.budget) || 0).toFixed(2))),
+                    borderWidth: 1.7,
+                    tension: 0,
+                    fill: false,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    pointHitRadius: 10,
+                    spanGaps: false,
+                    borderColor: '#93c5fd'
+                }
+            ];
+        } else {
+            // แบบล่าสุด: 1 เส้น แสดงเงินคงเหลือหลังจบแต่ละวัน
+            let runningBalance = Number(totalMoneyInitial) || 0;
+            const balanceData = validData.map(item => {
+                const income = Number(item.income) || 0;
+                const spent = Number(item.spent) || 0;
+                runningBalance += income - spent;
+                return Number(runningBalance.toFixed(2));
+            });
+
+            datasets = [{
+                label: 'เงินคงเหลือ',
+                data: balanceData,
+                borderWidth: 1.7,
+                tension: 0,
+                fill: false,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                pointHitRadius: 10,
+                spanGaps: false,
+                borderColor: '#cbd5e1',
+                pointBackgroundColor: '#cbd5e1'
+            }];
+        }
+
+        if (historyChart) historyChart.destroy();
+
+        historyChart = new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: { labels, datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 350 },
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: tooltipMode === 'overview',
+                        labels: {
+                            color: '#cbd5e1',
+                            usePointStyle: true,
+                            boxWidth: 8
+                        }
+                    },
+                    tooltip: {
+                        displayColors: tooltipMode === 'overview',
+                        callbacks: {
+                            title: function(items) {
+                                return items.length ? items[0].label : '';
+                            },
+                            label: function(context) {
+                                return `${context.dataset.label}: ${formatMoney(context.parsed.y)} บาท`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        offset: false,
+                        ticks: {
+                            color: '#94a3b8',
+                            maxRotation: 45,
+                            minRotation: 0,
+                            autoSkip: true,
+                            maxTicksLimit: 12,
+                            padding: 8
+                        },
+                        grid: {
+                            color: 'rgba(148,163,184,0.07)',
+                            drawTicks: true
+                        },
+                        border: {
+                            color: 'rgba(148,163,184,0.25)'
+                        }
+                    },
+                    y: {
+                        beginAtZero: false,
+                        grace: '8%',
+                        ticks: {
+                            color: '#94a3b8',
+                            maxTicksLimit: 8,
+                            callback: function(value) {
+                                return formatMoney(value);
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(148,163,184,0.07)'
+                        },
+                        border: {
+                            color: 'rgba(148,163,184,0.25)'
+                        }
+                    }
+                }
+            }
         });
     }
 
@@ -1231,6 +1670,181 @@
             isLoadingFromFirebase = false;
         }
     }
+
+
+    // 📄 ใบสรุปผล: สร้างรายงานจากข้อมูลปัจจุบันของ BearWallet
+    function getSummaryValues() {
+        const actualRemainingWallet = totalMoney - totalSpent;
+        const todayIso = getTodayIso();
+
+        let remainingDays = 0;
+        if (endDateProjectIso) {
+            const today = parseIsoToLocalDate(todayIso);
+            const end = parseIsoToLocalDate(endDateProjectIso);
+            remainingDays = Math.floor((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+            remainingDays = Math.max(0, remainingDays);
+        }
+
+        // ถ้าวันนี้ยังไม่ได้บันทึก ให้รวมวันนี้เป็นวันที่ยังใช้ได้
+        // ถ้าบันทึกวันนี้แล้ว ให้ใช้จำนวนวันตั้งแต่พรุ่งนี้ถึงวันสิ้นสุด
+        const todayRecorded = historyData.some(item => item.dateIso === todayIso);
+        let daysForAverage = remainingDays;
+        if (todayRecorded) daysForAverage = Math.max(remainingDays - 1, 0);
+
+        // เพื่อให้สอดคล้องกับหน้า Dashboard หากโครงการจบแล้วจะไม่หารด้วยศูนย์
+        const averageUsable = daysForAverage > 0
+            ? actualRemainingWallet / daysForAverage
+            : actualRemainingWallet;
+
+        const target = parseFloat(targetDailyBudget) || 0;
+        const requiredForRemaining = target * daysForAverage;
+        const shortage = target > 0
+            ? Math.max(0, requiredForRemaining - actualRemainingWallet)
+            : 0;
+
+        const todayForCountdown = parseIsoToLocalDate(todayIso);
+        const endDateForCountdown = parseIsoToLocalDate(endDateProjectIso);
+        const daysUntilEnd = Math.max(0, Math.floor((endDateForCountdown.getTime() - todayForCountdown.getTime()) / (1000 * 60 * 60 * 24)));
+
+        return {
+            balance: actualRemainingWallet,
+            endDate: endDateProjectIso,
+            remainingDays: daysForAverage,
+            daysUntilEnd,
+            averageUsable,
+            target,
+            shortage,
+            totalSpent,
+            totalIncomeEarned,
+            initial: totalMoneyInitial
+        };
+    }
+
+    function openSummaryModal() {
+        if (!totalMoneyInitial || !endDateProjectIso) {
+            alert('❌ ยังไม่มีข้อมูลสำหรับสร้างใบสรุปผล');
+            return;
+        }
+
+        const v = getSummaryValues();
+        const balanceClass = v.balance < 0 ? 'color:#dc2626;' : 'color:#111827;';
+        const avgClass = v.averageUsable < 0 ? 'color:#dc2626;' : 'color:#059669;';
+        const shortageHtml = v.target > 0
+            ? `หากต้องการให้ถึงเป้าหมาย ${formatMoney(v.target)} บาท/วัน<br>
+               <strong style="font-weight:600;color:#6b7280;">ขาดอีก ${formatMoney(v.shortage)} บาท</strong>`
+            : `ยังไม่ได้ตั้งเป้างบต่อวัน`;
+
+        document.getElementById('summary-report').innerHTML = `
+            <div class="summary-header">
+                <h2>🐻 BearWallet</h2>
+                <p>ใบสรุปผลการเงิน</p>
+            </div>
+
+            <div class="summary-main">
+                <div class="summary-balance-label">จำนวนเงิน ณ ปัจจุบัน</div>
+                <div class="summary-balance" style="${balanceClass}">
+                    ${formatMoney(v.balance)} <span>บาท</span>
+                </div>
+
+                <div class="summary-grid">
+                    <div class="summary-stat">
+                        <div class="summary-stat-label">ใช้ได้ถึงวันที่</div>
+                        <div class="summary-stat-value">${getLocaleDateStrFromIso(v.endDate)}</div>
+                        <div class="summary-stat-countdown">อีก ${v.daysUntilEnd} วันถึงวันที่กำหนด</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-stat-label">ใช้ได้เฉลี่ย</div>
+                        <div class="summary-stat-value" style="${avgClass}">${formatMoney(v.averageUsable)} บาท/วัน</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-stat-label">เป้าหมายต่อวัน</div>
+                        <div class="summary-stat-value">${v.target > 0 ? formatMoney(v.target) + ' บาท' : 'ไม่ได้ตั้ง'}</div>
+                        <div class="summary-stat-countdown">${shortageHtml}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div style="font-size:12px;color:#6b7280;">💸 ใช้ไปแล้ว<br><strong style="color:#374151;font-size:14px;">${formatMoney(v.totalSpent)} บาท</strong></div>
+                <div style="font-size:12px;color:#6b7280;">รายรับเพิ่ม<br><strong style="color:#374151;font-size:14px;">${formatMoney(v.totalIncomeEarned)} บาท</strong></div>
+            </div>
+
+            <div class="summary-footer">
+                สร้างจากข้อมูล BearWallet ณ วันที่ ${getTodayLocaleDateStr()} เวลา ${getCurrentLocaleTimeStr()} น.
+            </div>
+        `;
+
+        document.getElementById('summary-modal').classList.add('active');
+    }
+
+    function closeSummaryModal() {
+        document.getElementById('summary-modal').classList.remove('active');
+    }
+
+    function updateSummaryDownloadButton() {
+        const btn = document.getElementById('summary-download-btn');
+        if (!btn) return;
+        const canShareFiles = typeof navigator !== 'undefined' &&
+            typeof navigator.share === 'function' &&
+            typeof navigator.canShare === 'function';
+        btn.textContent = canShareFiles ? 'บันทึกลงรูปภาพ' : 'ดาวน์โหลดรูปใบสรุปผล';
+    }
+
+    async function downloadSummaryImage() {
+        const report = document.getElementById('summary-report');
+        if (!report || typeof html2canvas === 'undefined') {
+            alert('❌ ระบบสร้างรูปยังไม่พร้อม กรุณาลองใหม่อีกครั้ง');
+            return;
+        }
+
+        try {
+            const canvas = await html2canvas(report, {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                useCORS: true,
+                logging: false
+            });
+
+            const filename = `BearWallet-ใบสรุปผล-${getTodayIso()}.png`;
+            const canShareFiles = typeof navigator !== 'undefined' &&
+                typeof navigator.share === 'function' &&
+                typeof navigator.canShare === 'function';
+
+            if (canShareFiles) {
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                if (blob) {
+                    const file = new File([blob], filename, { type: 'image/png' });
+                    if (navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({
+                                files: [file],
+                                title: 'BearWallet ใบสรุปผล',
+                                text: 'ใบสรุปผลการวางแผนเงินจาก BearWallet'
+                            });
+                            return;
+                        } catch (shareError) {
+                            // ผู้ใช้กดยกเลิก Share Sheet ไม่ต้องแจ้งเตือน
+                            if (shareError && shareError.name === 'AbortError') return;
+                        }
+                    }
+                }
+            }
+
+            // เบราว์เซอร์ที่ไม่รองรับการแชร์ไฟล์ จะดาวน์โหลดตามปกติ
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error('Summary image error:', error);
+            alert('❌ ไม่สามารถสร้างรูปใบสรุปผลได้ กรุณาลองใหม่');
+        }
+    }
+
+    updateSummaryDownloadButton();
+    setHistoryView('table');
 
     function resetTracker() {
         if(confirm("🚨 ต้องการล้างข้อมูลทั้งหมดแล้วเริ่มโครงใหม่หรือไม่? (กู้คืนไม่ได้)")) {
