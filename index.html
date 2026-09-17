@@ -69,27 +69,62 @@
         .logo-text span { color: var(--primary); }
 
         .user-widget {
+            position: relative;
             display: flex;
             align-items: center;
-            gap: 12px;
-            background: var(--bg-card);
-            padding: 6px 14px;
-            border-radius: 30px;
-            border: 1px solid var(--border-color);
         }
-        .user-email {
-            font-size: 13px;
+        .profile-btn {
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            background: var(--bg-card);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.16);
+            transition: var(--transition);
+        }
+        .profile-btn:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
+        }
+        .profile-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            min-width: 180px;
+            padding: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+            z-index: 1000;
+        }
+        .profile-email {
+            padding: 4px 6px 9px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--text-muted);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .btn-logout-small {
+            width: 100%;
+            box-sizing: border-box;
             background: transparent;
             color: var(--danger);
             border: 1px solid rgba(239, 68, 68, 0.4);
-            padding: 4px 12px;
-            border-radius: 20px;
+            padding: 7px 10px;
+            border-radius: 9px;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
+            line-height: 1.2;
             cursor: pointer;
             transition: var(--transition);
         }
@@ -158,8 +193,8 @@
             transition: var(--transition);
         }
 
-        .auth-container { max-width: 400px; margin: 80px auto; text-align: center; }
-        .auth-container h1 { font-size: 28px; margin-bottom: 30px; color: white; }
+        .auth-container { max-width: 320px; margin: 48px auto; text-align: center; padding: 20px; }
+        .auth-container h1 { font-size: 22px; margin-bottom: 18px; color: white; }
 
         .form-group { margin-bottom: 16px; text-align: left; }
         label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: #cbd5e1; }
@@ -390,6 +425,55 @@
             border-color:rgba(56,189,248,.45);
             color:var(--info);
         }
+
+        .history-chart-search {
+            display:flex;
+            align-items:center;
+            gap:8px;
+            flex-wrap:wrap;
+            margin:0 0 12px;
+            padding:9px 10px;
+            border:1px solid var(--border-color);
+            border-radius:10px;
+            background:rgba(0,0,0,.08);
+        }
+        .history-chart-search label {
+            color:var(--text-muted);
+            font-size:12px;
+            font-weight:600;
+        }
+        .history-chart-search input {
+            flex:0 1 165px;
+            min-width:140px;
+            padding:8px 10px;
+            border:1px solid var(--border-color);
+            border-radius:8px;
+            background:var(--bg-input);
+            color:var(--text-main);
+            font-size:12px;
+        }
+        .history-chart-search-btn {
+            width:auto;
+            padding:8px 12px;
+            border-radius:8px;
+            font-size:12px;
+            white-space:nowrap;
+        }
+        @media (max-width: 600px) {
+            .history-chart-search {
+                align-items:stretch;
+            }
+            .history-chart-search label {
+                width:100%;
+            }
+            .history-chart-search input {
+                flex:1 1 150px;
+                min-width:0;
+            }
+            .history-chart-search-btn {
+                flex:0 0 auto;
+            }
+        }
         .history-action-summary {
             background:#0f172a;
             border:1px solid var(--info);
@@ -407,14 +491,57 @@
             position:relative;
             width:100%;
             min-height:380px;
+            overflow-x:scroll;
+            overflow-y:hidden;
+            scrollbar-gutter:stable;
             background:rgba(0,0,0,.08);
             border:1px solid var(--border-color);
             border-radius:12px;
             padding:14px 14px 10px;
+            scrollbar-width:auto;
+        }
+        .history-chart-wrap::-webkit-scrollbar {
+            height:12px;
+        }
+        .history-chart-wrap::-webkit-scrollbar-track {
+            background:rgba(148,163,184,.12);
+            border-radius:10px;
+        }
+        .history-chart-wrap::-webkit-scrollbar-thumb {
+            background:rgba(148,163,184,.65);
+            border-radius:10px;
+            border:2px solid transparent;
+            background-clip:padding-box;
+        }
+        .history-chart-wrap::-webkit-scrollbar-thumb:hover {
+            background:rgba(148,163,184,.9);
+            background-clip:padding-box;
+        }
+        .history-chart-canvas-track {
+            position:relative;
+            width:100%;
+            min-width:100%;
+            height:350px;
         }
         #history-chart {
+            display:block;
             width:100% !important;
             height:350px !important;
+            max-width:none !important;
+        }
+        .history-chart-wrap.chart-scroll-mode {
+            overflow-x:scroll;
+            overflow-y:hidden;
+            -webkit-overflow-scrolling:touch;
+            overscroll-behavior-x:contain;
+        }
+        .history-chart-wrap.chart-all-mode {
+            overflow-x:hidden;
+            overflow-y:hidden;
+        }
+        .history-chart-wrap.chart-all-mode .history-chart-canvas-track {
+            width:100%;
+            min-width:100%;
         }
         .history-chart-empty {
             text-align:center;
@@ -426,6 +553,245 @@
             .history-toolbar { align-items:stretch; }
             .history-view-toggle, .history-actions { width:100%; }
             .history-view-btn, .history-action-btn { flex:1; }
+        }
+        /* 📱 Final Responsive Cleanup */
+        html {
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        .container, .card, .hero-card, .modal-card {
+            min-width: 0;
+        }
+
+        .hero-balance {
+            font-size: clamp(32px, 7vw, 46px);
+            overflow-wrap: anywhere;
+        }
+
+        .hero-daily-amount {
+            font-size: clamp(28px, 5.5vw, 36px);
+            overflow-wrap: anywhere;
+        }
+
+        .top-nav {
+            min-width: 0;
+        }
+
+        .logo-text {
+            min-width: 0;
+        }
+
+        .user-widget {
+            min-width: 0;
+            max-width: 55%;
+        }
+
+        .user-email {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            min-width: 760px;
+        }
+
+        th, td {
+            white-space: nowrap;
+        }
+
+        .summary-modal-card {
+            width: min(560px, calc(100% - 20px));
+        }
+
+        .summary-preview {
+            max-width: 100%;
+            overflow-wrap: anywhere;
+        }
+
+        .history-chart-wrap {
+            min-height: 300px;
+            overflow-x:scroll;
+            scrollbar-gutter:stable;
+        }
+
+        #history-chart {
+            max-width: 100%;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                max-width: 960px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 18px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .hero-card {
+                padding: 24px;
+            }
+
+            .history-chart-wrap {
+                min-height: 300px;
+                padding: 10px;
+            }
+
+            #history-chart {
+                height: 280px !important;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 12px;
+            }
+
+            .top-nav {
+                gap: 12px;
+                margin-bottom: 20px;
+                padding-bottom: 14px;
+            }
+
+            .logo-text {
+                font-size: 21px;
+            }
+
+            .user-widget {
+                max-width: none;
+                width: auto;
+                flex: 0 0 auto;
+                justify-content: flex-end;
+                margin-left: auto;
+            }
+
+            .card {
+                padding: 16px;
+                border-radius: 14px;
+            }
+
+            .hero-card {
+                padding: 20px;
+                border-radius: 16px;
+            }
+
+            .summary-modal-card {
+                width: calc(100% - 16px);
+                max-height: calc(100vh - 16px);
+                padding: 16px;
+                border-radius: 16px;
+            }
+
+            .summary-preview {
+                padding: 16px;
+            }
+
+            .summary-header h2 {
+                font-size: clamp(20px, 6vw, 24px);
+            }
+
+            .summary-modal-buttons {
+                flex-direction: column;
+            }
+
+            .history-chart-modebar {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .history-chart-mode-btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-section {
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+
+            .hero-card p {
+                font-size: 12px;
+            }
+
+            .hero-balance span {
+                font-size: 18px;
+            }
+
+            .hero-daily-amount span {
+                font-size: 16px;
+            }
+
+            .history-toolbar {
+                gap: 10px;
+            }
+
+            .history-view-toggle, .history-actions {
+                gap: 6px;
+            }
+
+            .history-view-btn, .history-action-btn {
+                padding: 8px 9px;
+                font-size: 11px;
+            }
+
+            #history-chart {
+                height: 240px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-container {
+                max-width: 280px;
+                margin: 28px auto;
+                padding: 16px;
+            }
+            .auth-container h1 {
+                font-size: 20px;
+                margin-bottom: 14px;
+            }
+            .auth-container h3 {
+                font-size: 14px !important;
+                margin-bottom: 16px !important;
+            }
+            .auth-container .form-group {
+                margin-bottom: 10px;
+            }
+            .auth-container label {
+                font-size: 12px;
+                margin-bottom: 5px;
+            }
+            .auth-container input {
+                padding: 10px 11px;
+                font-size: 13px;
+                border-radius: 8px;
+            }
+            .auth-container button {
+                padding: 10px;
+                font-size: 13px;
+                border-radius: 8px;
+            }
+            .auth-container .auth-toggle {
+                font-size: 12px;
+                margin-top: 10px;
+            }
         }
     </style>
 </head>
@@ -457,8 +823,11 @@
         <div class="top-nav">
             <div class="logo-text">🐻 <span>BearWallet</span></div>
             <div class="user-widget">
-                <span class="user-email" id="user-display-email">-</span>
-                <button class="btn-logout-small" onclick="logoutUser()">ออก</button>
+                <button class="profile-btn" id="profile-btn" type="button" aria-label="เปิดเมนูโปรไฟล์" onclick="toggleProfileMenu()">👤</button>
+                <div class="profile-menu hidden" id="profile-menu">
+                    <div class="profile-email" id="user-display-email">-</div>
+                    <button class="btn-logout-small" type="button" onclick="logoutUser()">ออก</button>
+                </div>
             </div>
         </div>
 
@@ -616,9 +985,17 @@
                     <div class="history-chart-modebar">
                         <button id="history-chart-balance-btn" class="history-chart-mode-btn active" onclick="setHistoryChartMode('balance')">📈 เงินคงเหลือ</button>
                         <button id="history-chart-overview-btn" class="history-chart-mode-btn" onclick="setHistoryChartMode('overview')">📊 ภาพรวม 3 เส้น</button>
+                        <button id="history-chart-all-btn" class="history-chart-mode-btn" onclick="setHistoryChartDisplay('all')">🔍 ดูกราฟทั้งหมด</button>
                     </div>
-                    <div class="history-chart-wrap">
-                        <canvas id="history-chart"></canvas>
+<div class="history-chart-search" aria-label="ค้นหาวันที่ในกราฟ">
+                        <label for="history-chart-date-search">🔎 ค้นหาวันที่</label>
+                        <input id="history-chart-date-search" type="date" aria-label="เลือกวันที่เพื่อค้นหา">
+                        <button type="button" class="history-chart-search-btn" onclick="searchHistoryChartDate()">ไปที่วันนั้น</button>
+                    </div>
+                                        <div class="history-chart-wrap chart-scroll-mode">
+                        <div id="history-chart-track" class="history-chart-canvas-track">
+                            <canvas id="history-chart"></canvas>
+                        </div>
                         <div id="history-chart-empty" class="history-chart-empty hidden">ยังไม่มีข้อมูลสำหรับสร้างกราฟ</div>
                     </div>
                 </div>
@@ -658,6 +1035,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.2.0"></script>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
@@ -702,6 +1081,7 @@
 
     let historyViewMode = 'table';
     let historyChartMode = 'balance';
+    let historyChartDisplayMode = 'scroll';
     let historyChart = null;
 
     // คิวสำหรับ Firebase: ป้องกันการบันทึกคำขอเก่าทับข้อมูลล่าสุด
@@ -747,6 +1127,7 @@
 
     window.handleAuth = handleAuth;
     window.toggleAuthMode = toggleAuthMode;
+    window.toggleProfileMenu = toggleProfileMenu;
     window.logoutUser = logoutUser;
     window.startTracker = startTracker;
     window.addExpenseToBasket = addExpenseToBasket;
@@ -762,6 +1143,8 @@
     window.saveDataToFirebase = saveDataToFirebase;
     window.editTargetBudget = editTargetBudget;
     window.setHistoryChartMode = setHistoryChartMode;
+    window.setHistoryChartDisplay = setHistoryChartDisplay;
+    window.searchHistoryChartDate = searchHistoryChartDate;
     window.openSummaryModal = openSummaryModal;
     window.closeSummaryModal = closeSummaryModal;
     window.downloadSummaryImage = downloadSummaryImage;
@@ -811,6 +1194,19 @@
                 .catch(err => alert("❌ ล็อกอินไม่สำเร็จ: " + err.message));
         }
     }
+
+    function toggleProfileMenu() {
+        const menu = document.getElementById('profile-menu');
+        if (menu) menu.classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', (event) => {
+        const widget = document.querySelector('.user-widget');
+        const menu = document.getElementById('profile-menu');
+        if (widget && menu && !widget.contains(event.target)) {
+            menu.classList.add('hidden');
+        }
+    });
 
     function logoutUser() {
         signOut(auth).then(() => { 
@@ -1338,41 +1734,120 @@
         }
     }
 
-    function renderHistoryChart() {
-        const canvas = document.getElementById('history-chart');
-        const emptyBox = document.getElementById('history-chart-empty');
-        if (!canvas || !emptyBox) return;
+    function setHistoryChartDisplay(mode) {
+        // ปุ่มเดียวใช้สลับระหว่างโหมดเลื่อนดู กับโหมดดูทั้งหมด
+        const previousMode = historyChartDisplayMode;
+        if (mode === 'all') {
+            historyChartDisplayMode = historyChartDisplayMode === 'all' ? 'scroll' : 'all';
+        } else {
+            historyChartDisplayMode = 'scroll';
+        }
+        const chartWrap = document.querySelector('.history-chart-wrap');
+        if (chartWrap && previousMode !== historyChartDisplayMode) {
+            chartWrap.dataset.chartModeChanged = 'true';
+        }
 
+        const allBtn = document.getElementById('history-chart-all-btn');
+        allBtn?.classList.toggle('active', historyChartDisplayMode === 'all');
+        if (allBtn) {
+            allBtn.textContent = historyChartDisplayMode === 'all'
+                ? '↔️ กลับไปแบบเลื่อน'
+                : '🔍 ดูกราฟทั้งหมด';
+        }
+
+        if (historyViewMode === 'chart') {
+            setTimeout(renderHistoryChart, 0);
+        }
+    }
+
+
+    function searchHistoryChartDate() {
+        const input = document.getElementById('history-chart-date-search');
+        const chartWrap = document.querySelector('.history-chart-wrap');
+        if (!input || !chartWrap || !historyChart) return;
+
+        const query = String(input.value || '').trim();
+        if (!query) {
+            alert('กรุณาเลือกวันที่ก่อนค้นหา');
+            return;
+        }
+
+        const index = historyData.findIndex(item => item && (item.dateIso === query));
+        if (index < 0) {
+            alert('ไม่พบวันที่นี้ในข้อมูลประวัติการเงิน');
+            return;
+        }
+
+        const labelCount = Math.max(1, historyData.length);
+        const scale = historyChart.scales?.x;
+
+        // เน้นจุดวันที่ที่ค้นหาในทั้งสองโหมด
+        const activeElements = historyChart.data.datasets
+            .map((_, datasetIndex) => ({ datasetIndex, index }))
+            .filter(item => historyChart.data.datasets[item.datasetIndex]);
+        historyChart.setActiveElements(activeElements);
+        if (historyChart.tooltip) {
+            historyChart.tooltip.setActiveElements(activeElements, {x:0, y:0});
+        }
+
+        if (historyChartDisplayMode === 'all') {
+            // โหมดดูทั้งหมด: ซูมเข้าหาวันที่ที่ค้นหา
+            if (typeof historyChart.zoomScale === 'function' && scale) {
+                const radius = Math.min(2, Math.max(0, Math.floor((labelCount - 1) / 2)));
+                const min = Math.max(0, index - radius);
+                const max = Math.min(labelCount - 1, index + radius);
+                historyChart.zoomScale('x', { min, max }, 'active');
+            }
+        } else {
+            // โหมดเลื่อน: เลื่อนแถบด้านล่างให้วันที่อยู่กลางหน้าจอ
+            requestAnimationFrame(() => {
+                const x = scale ? scale.getPixelForValue(index) : index * 68;
+                chartWrap.scrollLeft = Math.max(0, x - (chartWrap.clientWidth / 2));
+            });
+        }
+    }
+
+    function renderHistoryChart() {
+        const chartWrap = document.querySelector('.history-chart-wrap');
+        const track = document.getElementById('history-chart-track');
+        const emptyBox = document.getElementById('history-chart-empty');
+        if (!chartWrap || !track || !emptyBox) return;
         if (historyViewMode !== 'chart') return;
 
+        // Always destroy the previous Chart.js instance and create a fresh canvas.
+        // This prevents Chart.js from keeping the previous mode's dimensions.
+        if (historyChart) {
+            try { historyChart.destroy(); } catch (e) {}
+            historyChart = null;
+        }
+
+        const realData = historyData.filter(item => item && item.dateIso);
+        const validData = realData;
+
         if (typeof Chart === 'undefined') {
-            canvas.classList.add('hidden');
+            track.innerHTML = '';
+            track.style.width = '100%';
             emptyBox.classList.remove('hidden');
             emptyBox.innerText = 'ไม่สามารถโหลดระบบกราฟได้ กรุณาตรวจสอบอินเทอร์เน็ต';
             return;
         }
 
-        const validData = historyData.filter(item => item && item.dateIso);
         if (validData.length === 0) {
-            canvas.classList.add('hidden');
+            track.innerHTML = '';
+            track.style.width = '100%';
             emptyBox.classList.remove('hidden');
             emptyBox.innerText = 'ยังไม่มีข้อมูลสำหรับสร้างกราฟ';
-            if (historyChart) {
-                historyChart.destroy();
-                historyChart = null;
-            }
             return;
         }
 
-        canvas.classList.remove('hidden');
         emptyBox.classList.add('hidden');
+        emptyBox.innerText = 'ยังไม่มีข้อมูลสำหรับสร้างกราฟ';
 
         const labels = validData.map(item => item.dateStr || item.dateIso);
         let datasets = [];
         let tooltipMode = 'balance';
 
         if (historyChartMode === 'overview') {
-            // แบบแรกที่ทำไว้: 3 เส้น = ใช้จริง / รายรับ / งบสะสมต้นวัน
             tooltipMode = 'overview';
             datasets = [
                 {
@@ -1413,7 +1888,6 @@
                 }
             ];
         } else {
-            // แบบล่าสุด: 1 เส้น แสดงเงินคงเหลือหลังจบแต่ละวัน
             let runningBalance = Number(totalMoneyInitial) || 0;
             const balanceData = validData.map(item => {
                 const income = Number(item.income) || 0;
@@ -1437,20 +1911,67 @@
             }];
         }
 
-        if (historyChart) historyChart.destroy();
+        const isScrollMode = historyChartDisplayMode === 'scroll';
+        const labelCount = Math.max(1, labels.length);
+        const availableWidth = Math.max(280, Math.floor(chartWrap.clientWidth - 30));
+        const pointSpacing = 68;
+        const targetWidth = isScrollMode
+            ? Math.max(availableWidth, labelCount * pointSpacing)
+            : availableWidth;
+        const fontSize = isScrollMode
+            ? 12
+            : Math.max(5, Math.min(9, availableWidth / Math.max(labelCount, 1) * 0.62));
+
+        chartWrap.classList.toggle('chart-scroll-mode', isScrollMode);
+        chartWrap.classList.toggle('chart-all-mode', !isScrollMode);
+        track.style.width = `${targetWidth}px`;
+        track.style.minWidth = `${targetWidth}px`;
+        track.style.height = '350px';
+
+        // Recreate the canvas every time so no old inline dimensions survive a mode switch.
+        track.innerHTML = '<canvas id="history-chart"></canvas>';
+        const canvas = document.getElementById('history-chart');
+        if (!canvas) return;
+
+        canvas.width = Math.max(1, Math.floor(targetWidth));
+        canvas.height = 350;
+        canvas.style.width = `${targetWidth}px`;
+        canvas.style.height = '350px';
+
+        // Keep the selected graph mode visible after a full reset.
+        const allBtn = document.getElementById('history-chart-all-btn');
+        if (allBtn) {
+            allBtn.classList.toggle('active', !isScrollMode);
+            allBtn.textContent = !isScrollMode ? '↔️ กลับไปแบบเลื่อน' : '🔍 ดูกราฟทั้งหมด';
+        }
 
         historyChart = new Chart(canvas.getContext('2d'), {
             type: 'line',
             data: { labels, datasets },
             options: {
-                responsive: true,
+                responsive: false,
                 maintainAspectRatio: false,
-                animation: { duration: 350 },
+                animation: { duration: 250 },
                 interaction: {
                     mode: 'index',
                     intersect: false
                 },
                 plugins: {
+                    zoom: {
+                        pan: {
+                            enabled: !isScrollMode,
+                            mode: 'x',
+                            threshold: 8
+                        },
+                        zoom: {
+                            wheel: { enabled: !isScrollMode },
+                            pinch: { enabled: !isScrollMode },
+                            mode: 'x'
+                        },
+                        limits: {
+                            x: { min: 0, max: Math.max(0, labelCount - 1), minRange: 2 }
+                        }
+                    },
                     legend: {
                         display: tooltipMode === 'overview',
                         labels: {
@@ -1476,11 +1997,20 @@
                         offset: false,
                         ticks: {
                             color: '#94a3b8',
-                            maxRotation: 45,
-                            minRotation: 0,
-                            autoSkip: true,
-                            maxTicksLimit: 12,
-                            padding: 8
+                            maxRotation: isScrollMode ? 0 : 90,
+                            minRotation: isScrollMode ? 0 : 90,
+                            autoSkip: false,
+                            autoSkipPadding: 0,
+                            maxTicksLimit: labelCount,
+                            padding: isScrollMode ? 8 : 0,
+                            font: { size: fontSize },
+                            callback: function(value, index) {
+                                const label = labels[index] || '';
+                                if (isScrollMode) return label;
+                                const date = validData[index]?.dateIso || '';
+                                const parts = date.split('-');
+                                return parts.length === 3 ? `${Number(parts[2])}/${Number(parts[1])}` : label;
+                            }
                         },
                         grid: {
                             color: 'rgba(148,163,184,0.07)',
@@ -1510,7 +2040,27 @@
                 }
             }
         });
+
+        // Keep the newest area in view only when first entering scroll mode.
+        if (isScrollMode) {
+            const shouldScrollToEnd = !chartWrap.dataset.chartHasBeenSeen || chartWrap.dataset.chartModeChanged === 'true';
+            if (shouldScrollToEnd && targetWidth > availableWidth) {
+                requestAnimationFrame(() => {
+                    chartWrap.scrollLeft = Math.max(0, chartWrap.scrollWidth - chartWrap.clientWidth);
+                    chartWrap.dataset.chartHasBeenSeen = 'true';
+                    chartWrap.dataset.chartModeChanged = 'false';
+                });
+            }
+        }
     }
+
+    let historyChartResizeTimer = null;
+    window.addEventListener('resize', () => {
+        clearTimeout(historyChartResizeTimer);
+        historyChartResizeTimer = setTimeout(() => {
+            if (historyViewMode === 'chart') renderHistoryChart();
+        }, 120);
+    });
 
     function updateDashboard() {
         document.getElementById('stat-base-budget').innerText = `${formatMoney(targetDailyBudget)} ฿`;
