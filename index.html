@@ -235,6 +235,68 @@
         }
         .hero-daily-amount span { font-size: 18px; font-weight: 600; }
 
+        /* ปุ่มกระโดดไปประวัติ: เป็นปุ่มวงกลมลอยชั่วคราว ไม่กินพื้นที่หน้าเว็บ */
+        .history-jump-row {
+            position: fixed;
+            right: 18px;
+            top: 152px;
+            z-index: 1200;
+            margin: 0;
+            pointer-events: none;
+        }
+        .history-jump-btn {
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            padding: 0;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 20px;
+            font-weight: 800;
+            line-height: 1;
+            box-shadow: 0 8px 22px rgba(0,0,0,.28);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px) scale(.82);
+            transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+        }
+        .history-jump-row.show .history-jump-btn {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+        .history-jump-btn:hover,
+        .history-jump-btn:focus,
+        .history-jump-btn:active {
+            background: var(--bg-card);
+            border-color: var(--primary);
+            color: var(--text-main);
+            transform: scale(1.04);
+        }
+        @media (max-width: 480px) {
+            .history-jump-row {
+                right: 12px;
+                top: 136px;
+            }
+            .history-jump-btn {
+                width: 38px;
+                height: 38px;
+                min-width: 38px;
+                font-size: 18px;
+            }
+        }
+
+        .number-rolling {
+            font-variant-numeric: tabular-nums;
+            will-change: contents;
+        }
+
         /* 📋 Main Layout */
         .card {
             background: var(--bg-card);
@@ -942,12 +1004,16 @@
             <div class="hero-section">
                 <div class="hero-card">
                     <p>💰 เงินคงเหลือจริงในกระเป๋า</p>
-                    <h1 id="stat-wallet-remaining" class="hero-balance">0.00 <span>บาท</span></h1>
+                    <h1 id="stat-wallet-remaining" class="hero-balance number-rolling">0.00 <span>บาท</span></h1>
                 </div>
                 <div class="hero-card hero-daily-card">
                     <p>✨ วันนี้ใช้ได้อีก (งบเฉลี่ย)</p>
-                    <h2 id="stat-future-avg" class="hero-daily-amount">0.00 <span>/ วัน</span></h2>
+                    <h2 id="stat-future-avg" class="hero-daily-amount number-rolling">0.00 <span>/ วัน</span></h2>
                 </div>
+            </div>
+
+            <div class="history-jump-row" id="history-jump-row" aria-hidden="true">
+                <button type="button" class="history-jump-btn" aria-label="ดูประวัติเงินรายวัน" title="ดูประวัติเงินรายวัน" onclick="scrollToHistorySection()">↓</button>
             </div>
 
             <div class="dashboard-layout">
@@ -1003,7 +1069,7 @@
                 <div style="display: flex; flex-direction: column; gap: 16px;">
                     <div class="card" style="padding: 20px; margin: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                            <p style="margin:0; font-size:13px; color:var(--text-muted);">🎯 เป้าหมายงบต่อวัน (ตั้งไว้)</p>
+                            <p style="margin:0; font-size:13px; color:var(--text-muted);">🎯 เป้าหมายงบต่อวัน</p>
                             <button onclick="editTargetBudget()" style="background: none; border: 1px solid var(--border-color); color: var(--info); font-size: 11px; padding: 4px 8px; border-radius: 6px; width: auto; box-shadow: none; cursor: pointer;">✏️ แก้ไข</button>
                         </div>
                         <h3 id="stat-base-budget" style="margin:0; font-size:24px; color: white;">0.00</h3>
@@ -1029,7 +1095,7 @@
             </div>
 
             <!-- History -->
-            <div class="card" style="margin-top: 24px;">
+            <div class="card" id="history-section" style="margin-top: 24px; scroll-margin-top: 18px;">
                 <h3 style="margin-top:0;">📋 ประวัติการเงินรายวัน</h3>
 
                 <div class="history-toolbar">
@@ -1069,7 +1135,7 @@
                         <button id="history-chart-overview-btn" class="history-chart-mode-btn" onclick="setHistoryChartMode('overview')">📊 ภาพรวม 3 เส้น</button>
                         <button id="history-chart-all-btn" class="history-chart-mode-btn" onclick="setHistoryChartDisplay('all')">เปิดดูกราฟทั้งหมด</button>
                     </div>
-<div class="history-chart-search" aria-label="ค้นหาวันที่ในกราฟ">
+<div id="history-chart-search" class="history-chart-search hidden" aria-label="ค้นหาวันที่ในกราฟ">
                         <label for="history-chart-date-search">🔎 ค้นหาวันที่</label>
                         <input id="history-chart-date-search" type="date" aria-label="เลือกวันที่เพื่อค้นหา">
                         <button type="button" class="history-chart-search-btn" onclick="searchHistoryChartDate()">ไปที่วันนั้น</button>
@@ -1211,6 +1277,7 @@
     window.handleAuth = handleAuth;
     window.toggleAuthMode = toggleAuthMode;
     window.toggleProfileMenu = toggleProfileMenu;
+    window.scrollToHistorySection = scrollToHistorySection;
     window.toggleTrashPanel = toggleTrashPanel;
     window.moveAllDataToTrash = moveAllDataToTrash;
     window.restoreTrashData = restoreTrashData;
@@ -1295,6 +1362,45 @@
         }
     });
 
+    // เลื่อนหน้าเมื่อใด ให้ปิดกล่องโปรไฟล์ทันที เหมือนการกดพื้นที่อื่นของเว็บ
+    window.addEventListener('scroll', () => {
+        const menu = document.getElementById('profile-menu');
+        if (menu && !menu.classList.contains('hidden')) {
+            menu.classList.add('hidden');
+        }
+    }, { passive: true });
+
+    // เสียงสั้น ๆ เพื่อบอกผู้ใช้ว่าการกดบันทึกถูกเรียกใช้งานแล้ว
+    function playSaveFeedbackSound() {
+        try {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) return;
+
+            const ctx = new AudioContextClass();
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, now);
+            osc.frequency.setValueAtTime(1174.66, now + 0.07);
+
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.exponentialRampToValueAtTime(0.08, now + 0.012);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.19);
+            osc.addEventListener('ended', () => {
+                ctx.close().catch(() => {});
+            }, { once: true });
+        } catch (error) {
+            // ไม่ให้ระบบบันทึกหยุดทำงาน หากเบราว์เซอร์ไม่รองรับเสียง
+        }
+    }
+
     function logoutUser() {
         signOut(auth).then(() => { 
             if (currentUserId) localStorage.removeItem('bearwallet_cache_' + currentUserId);
@@ -1309,7 +1415,7 @@
     function updateFormDateTitle() {
         if (isEditMode) return;
         const t = document.getElementById('current-day-title');
-        if (t) t.innerText = `📝 บันทึกรายจ่าย วันที่ ${getTodayLocaleDateStr()}`;
+        if (t) t.innerText = `📝 บันทึกรายจ่าย วันนี้ ${getTodayLocaleDateStr()}`;
     }
 
     function startTracker() {
@@ -1464,7 +1570,96 @@
         });
     }
 
+    function parseDisplayedMoney(text) {
+        if (!text) return 0;
+        const match = String(text).replace(/,/g, '').match(/-?\d+(?:\.\d+)?/);
+        return match ? parseFloat(match[0]) : 0;
+    }
+
+    function getDashboardMoneySnapshot() {
+        const walletEl = document.getElementById('stat-wallet-remaining');
+        const avgEl = document.getElementById('stat-future-avg');
+        return {
+            wallet: parseDisplayedMoney(walletEl ? walletEl.textContent : '0'),
+            avg: parseDisplayedMoney(avgEl ? avgEl.textContent : '0')
+        };
+    }
+
+    function animateMoneyValue(element, fromValue, toValue, suffixHtml, duration = 750) {
+        if (!element) return;
+
+        const start = Number.isFinite(fromValue) ? fromValue : toValue;
+        const end = Number.isFinite(toValue) ? toValue : 0;
+        const startTime = performance.now();
+
+        function tick(now) {
+            const progress = Math.min(1, (now - startTime) / duration);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const current = start + (end - start) * eased;
+            element.innerHTML = `${formatMoney(current)} ${suffixHtml}`;
+
+            if (progress < 1) {
+                requestAnimationFrame(tick);
+            } else {
+                element.innerHTML = `${formatMoney(end)} ${suffixHtml}`;
+            }
+        }
+
+        cancelAnimationFrame(element._moneyAnimationFrame || 0);
+        element._moneyAnimationFrame = requestAnimationFrame(tick);
+    }
+
+    function animateDashboardNumbers(previousSnapshot) {
+        const walletEl = document.getElementById('stat-wallet-remaining');
+        const avgEl = document.getElementById('stat-future-avg');
+        const walletTarget = parseDisplayedMoney(walletEl ? walletEl.textContent : '0');
+        const avgTarget = parseDisplayedMoney(avgEl ? avgEl.textContent : '0');
+
+        animateMoneyValue(walletEl, previousSnapshot?.wallet ?? walletTarget, walletTarget, '<span>บาท</span>');
+        animateMoneyValue(avgEl, previousSnapshot?.avg ?? avgTarget, avgTarget, '<span>/ วัน</span>');
+    }
+
+    function scrollToTopAfterSave(previousSnapshot) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => animateDashboardNumbers(previousSnapshot), 180);
+    }
+
+    let historyJumpHideTimer = null;
+
+    function showHistoryJumpButton(duration = 4200) {
+        const row = document.getElementById('history-jump-row');
+        if (!row) return;
+
+        row.classList.add('show');
+        row.setAttribute('aria-hidden', 'false');
+
+        if (historyJumpHideTimer) clearTimeout(historyJumpHideTimer);
+        historyJumpHideTimer = setTimeout(() => {
+            row.classList.remove('show');
+            row.setAttribute('aria-hidden', 'true');
+        }, duration);
+    }
+
+    function hideHistoryJumpButton() {
+        const row = document.getElementById('history-jump-row');
+        if (!row) return;
+        row.classList.remove('show');
+        row.setAttribute('aria-hidden', 'true');
+        if (historyJumpHideTimer) {
+            clearTimeout(historyJumpHideTimer);
+            historyJumpHideTimer = null;
+        }
+    }
+
+    function scrollToHistorySection() {
+        const historySection = document.getElementById('history-section');
+        if (!historySection) return;
+        hideHistoryJumpButton();
+        historySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     function submitDailySummary() {
+        const dashboardBeforeSave = getDashboardMoneySnapshot();
         let incomeInput = document.getElementById('daily-income').value;
         if (incomeInput === '') incomeInput = '0';
 
@@ -1558,6 +1753,9 @@
         }
 
         recalculateAllChain();
+        playSaveFeedbackSound();
+        scrollToTopAfterSave(dashboardBeforeSave);
+        showHistoryJumpButton();
     }
 
     function openDetailModal(index) {
@@ -1850,6 +2048,9 @@
         }
 
         updateHistoryChartAllButton();
+
+        const dateSearch = document.getElementById('history-chart-search');
+        if (dateSearch) dateSearch.classList.toggle('hidden', historyChartDisplayMode !== 'all');
 
         if (historyViewMode === 'chart') {
             setTimeout(renderHistoryChart, 0);
