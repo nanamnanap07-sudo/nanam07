@@ -696,6 +696,13 @@
             .history-view-toggle, .history-actions { width:100%; }
             .history-view-btn, .history-action-btn { flex:1; }
         }
+
+        .history-list-toggle { display:flex; justify-content:flex-end; align-items:center; margin:0 0 10px; }
+        .history-list-toggle-btn { width:auto; min-width:130px; padding:8px 14px; border-radius:10px; background:rgba(56,189,248,.08); color:var(--text-main); border:1px solid rgba(56,189,248,.35); cursor:pointer; font-weight:700; transition:var(--transition); }
+        .history-list-toggle-btn:hover { background:rgba(56,189,248,.16); transform:translateY(-1px); }
+        .history-standby-row td { opacity:.88; }
+        .history-standby-badge { display:inline-block; margin-left:6px; padding:2px 7px; border-radius:999px; font-size:11px; color:var(--info); background:rgba(56,189,248,.10); border:1px solid rgba(56,189,248,.25); }
+
         /* 📱 Final Responsive Cleanup */
         html {
             -webkit-text-size-adjust: 100%;
@@ -895,6 +902,102 @@
 
             #history-chart {
                 height: 240px !important;
+            }
+        }
+
+        /* 📱 Mobile history table: lock all 7 columns inside the card */
+        @media (max-width: 600px) {
+            #history-table-view .table-responsive {
+                width: 100%;
+                max-width: 100%;
+                overflow-x: hidden;
+                overflow-y: visible;
+            }
+
+            #history-table-view table {
+                width: 100%;
+                min-width: 0;
+                max-width: 100%;
+                table-layout: fixed;
+                font-size: 9px;
+            }
+
+            #history-table-view th,
+            #history-table-view td {
+                padding: 7px 3px;
+                white-space: normal;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+                line-height: 1.2;
+                vertical-align: middle;
+            }
+
+            #history-table-view th {
+                font-size: 8px;
+                line-height: 1.15;
+                text-align: center;
+            }
+
+            #history-table-view td {
+                text-align: center;
+            }
+
+            #history-table-view td strong {
+                display: block;
+            }
+
+            #history-table-view .history-standby-badge {
+                display: block;
+                width: fit-content;
+                max-width: 100%;
+                margin: 3px auto 0;
+                padding: 2px 4px;
+                font-size: 7px;
+                line-height: 1.1;
+            }
+
+            #history-table-view .btn-view,
+            #history-table-view .btn-edit,
+            #history-table-view .btn-delete-row {
+                width: 100%;
+                min-width: 0;
+                padding: 4px 2px;
+                margin: 1px 0;
+                font-size: 8px;
+                line-height: 1.15;
+                white-space: normal;
+                overflow-wrap: anywhere;
+            }
+
+            #history-table-view td:nth-child(7) button {
+                display: block;
+            }
+
+            #history-table-view td[style*="font-weight:bold"] {
+                font-size: 8px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            #history-table-view th,
+            #history-table-view td {
+                padding-left: 2px;
+                padding-right: 2px;
+            }
+
+            #history-table-view table {
+                font-size: 8px;
+            }
+
+            #history-table-view th {
+                font-size: 7px;
+            }
+
+            #history-table-view .btn-view,
+            #history-table-view .btn-edit,
+            #history-table-view .btn-delete-row,
+            #history-table-view td[style*="font-weight:bold"] {
+                font-size: 7px;
             }
         }
 
@@ -1110,6 +1213,9 @@
                 </div>
 
                 <div id="history-table-view">
+                    <div class="history-list-toggle">
+                        <button type="button" id="history-table-toggle-btn" class="history-list-toggle-btn" onclick="toggleHistoryTable(); return false;" aria-expanded="false">⌄ ดูประวัติทั้งหมด</button>
+                    </div>
                     <div class="table-responsive">
                         <table>
                             <thead>
@@ -1228,6 +1334,7 @@
     let editTargetIndex = null;
 
     let historyViewMode = 'table';
+    let historyTableExpanded = false;
     let historyChartMode = 'balance';
     let historyChartDisplayMode = 'scroll';
     let historyChart = null;
@@ -1304,6 +1411,7 @@
     window.downloadSummaryImage = downloadSummaryImage;
     window.selectExpenseCategory = selectExpenseCategory;
     window.setHistoryView = setHistoryView;
+    window.toggleHistoryTable = toggleHistoryTable;
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -1955,33 +2063,94 @@
         if (!isLoadingFromFirebase) saveDataToFirebase();
     }
 
+    function getStandbyTodayRecord() {
+        const todayIso = getTodayIso();
+        const existing = historyData.find(item => item && item.dateIso === todayIso);
+        if (existing) return existing;
+
+        let walletAtStartOfToday = totalMoneyInitial;
+        for (const item of historyData) {
+            walletAtStartOfToday += (parseFloat(item.income) || 0) - (parseFloat(item.spent) || 0);
+        }
+
+        const start = parseIsoToLocalDate(startDateProjectIso || todayIso);
+        const end = parseIsoToLocalDate(endDateProjectIso || todayIso);
+        const diff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        const daysRemaining = Math.max(1, diff - historyData.length);
+        const budget = walletAtStartOfToday / daysRemaining;
+        const income = parseFloat(document.getElementById('daily-income')?.value || 0) || 0;
+        const spent = currentDayBasket.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+
+        return {
+            dateStr: getTodayLocaleDateStr(), dateIso: todayIso, budget, income, spent,
+            itemsArray: currentDayBasket, remaining: budget + income - spent, isStandby: true
+        };
+    }
+
+    function toggleHistoryTable() {
+        // สลับเฉพาะการแสดงผล ไม่แตะข้อมูลประวัติจริง
+        historyTableExpanded = !historyTableExpanded;
+        renderTable();
+
+        // ย้ำสถานะปุ่มหลัง render เพื่อไม่ให้ถูก reset จากส่วนอื่น
+        const toggle = document.getElementById('history-table-toggle-btn');
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', String(historyTableExpanded));
+            toggle.innerHTML = historyTableExpanded ? '⌃ ซ่อนประวัติ' : '⌄ ดูประวัติทั้งหมด';
+        }
+    }
+
     function renderTable() {
         const tbody = document.getElementById('history-table-body');
         if (!tbody) return;
 
         tbody.innerHTML = '';
-        if(historyData.length === 0) {
+        const todayIso = getTodayIso();
+        const recordedRows = Array.isArray(historyData) ? historyData.filter(item => item && item.dateIso) : [];
+        const hasToday = recordedRows.some(item => item.dateIso === todayIso);
+        const standbyToday = hasToday ? null : getStandbyTodayRecord();
+
+        // สร้างชุดข้อมูลสำหรับตารางโดยไม่แก้ historyData จริง
+        const allRows = [...recordedRows];
+        if (standbyToday) allRows.push(standbyToday);
+        allRows.sort((a, b) => String(a.dateIso).localeCompare(String(b.dateIso)));
+
+        // ปิด = วันล่าสุด, เปิด = ทุกวัน (ล่าสุดอยู่ด้านบน)
+        const rowsToShow = historyTableExpanded
+            ? allRows.slice().reverse()
+            : (allRows.length ? [allRows[allRows.length - 1]] : []);
+
+        const toggle = document.getElementById('history-table-toggle-btn');
+        if (toggle) {
+            toggle.innerHTML = historyTableExpanded ? '⌃ ซ่อนประวัติ' : '⌄ ดูประวัติทั้งหมด';
+            toggle.setAttribute('aria-expanded', String(historyTableExpanded));
+        }
+
+        if (rowsToShow.length === 0) {
             tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">ยังไม่มีข้อมูล</td></tr>`;
             renderHistoryChart();
             return;
         }
 
-        historyData.forEach((item, index) => {
+        rowsToShow.forEach((item) => {
+            const actualIndex = historyData.findIndex(x => x === item || (x.dateIso === item.dateIso && !item.isStandby));
             const row = document.createElement('tr');
-            let statusClass = item.remaining >= 0 ? 'text-success' : 'text-danger';
-            let statusText = item.remaining >= 0 ? `+${formatMoney(item.remaining)}` : `เกินงบ ${formatMoney(Math.abs(item.remaining))}`;
-            let itemsCount = item.itemsArray ? item.itemsArray.length : 0;
+            const statusClass = item.remaining >= 0 ? 'text-success' : 'text-danger';
+            const statusText = item.remaining >= 0 ? `+${formatMoney(item.remaining)}` : `เกินงบ ${formatMoney(Math.abs(item.remaining))}`;
+            const itemsCount = item.itemsArray ? item.itemsArray.length : 0;
+            const dateLabel = `<strong>${item.dateStr}</strong>`;
+            const actionButtons = item.isStandby
+                ? ``
+                : `<button class="btn-edit" onclick="enterEditMode(${actualIndex})">แก้</button>
+                   <button class="btn-delete-row" onclick="deleteHistoryRow(${actualIndex})">ลบ</button>`;
             row.innerHTML = `
-                <td><strong>${item.dateStr}</strong></td>
+                <td>${dateLabel}</td>
                 <td>${formatMoney(item.budget)}</td>
                 <td style="color:var(--success);">${item.income > 0 ? '+'+formatMoney(item.income) : '-'}</td>
                 <td>${formatMoney(item.spent)}</td>
-                <td><button class="btn-view" onclick="openDetailModal(${index})">👁️ ดูรายการ (${itemsCount})</button></td>
+                <td><button class="btn-view" onclick="${item.isStandby ? `alert('วันนี้ยังไม่ได้สรุปยอด การแสดงนี้เป็นรายการสแตนด์บาย')` : `openDetailModal(${actualIndex})`}">👁️ ดูรายการ (${itemsCount})</button></td>
                 <td class="${statusClass}" style="font-weight:bold;">${statusText}</td>
-                <td>
-                    <button class="btn-edit" onclick="enterEditMode(${index})">แก้</button>
-                    <button class="btn-delete-row" onclick="deleteHistoryRow(${index})">ลบ</button>
-                </td>`;
+                <td>${actionButtons}</td>`;
             tbody.appendChild(row);
         });
 
@@ -2140,7 +2309,16 @@
         emptyBox.classList.add('hidden');
         emptyBox.innerText = 'ยังไม่มีข้อมูลสำหรับสร้างกราฟ';
 
-        const labels = validData.map(item => item.dateStr || item.dateIso);
+        // วันที่ใต้กราฟแสดงเป็นรายวัน และจะเลื่อนไปพร้อมกับตำแหน่งของกราฟ
+        // เช่น 14/9, 15/9, 16/9 ... โดยใช้ dateIso เป็นตัวอ้างอิงเสมอ
+        const labels = validData.map(item => {
+            const iso = String(item.dateIso || '');
+            const parts = iso.split('-');
+            if (parts.length === 3 && parts[1] && parts[2]) {
+                return `${Number(parts[2])}/${Number(parts[1])}`;
+            }
+            return String(item.dateStr || iso);
+        });
         let datasets = [];
         let tooltipMode = 'balance';
 
@@ -2277,7 +2455,10 @@
                         displayColors: tooltipMode === 'overview',
                         callbacks: {
                             title: function(items) {
-                                return items.length ? items[0].label : '';
+                                if (!items.length) return '';
+                                const dataIndex = items[0].dataIndex;
+                                const item = validData[dataIndex];
+                                return item ? (item.dateStr || item.dateIso || items[0].label) : items[0].label;
                             },
                             label: function(context) {
                                 return `${context.dataset.label}: ${formatMoney(context.parsed.y)} บาท`;
@@ -2608,11 +2789,6 @@
                         <div class="summary-stat-countdown">${shortageHtml}</div>
                     </div>
                 </div>
-            </div>
-
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <div style="font-size:12px;color:#6b7280;">💸 ใช้ไปแล้ว<br><strong style="color:#374151;font-size:14px;">${formatMoney(v.totalSpent)} บาท</strong></div>
-                <div style="font-size:12px;color:#6b7280;">รายรับเพิ่ม<br><strong style="color:#374151;font-size:14px;">${formatMoney(v.totalIncomeEarned)} บาท</strong></div>
             </div>
 
             <div class="summary-footer">
