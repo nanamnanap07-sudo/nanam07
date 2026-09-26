@@ -1110,7 +1110,7 @@
                     <h1 id="stat-wallet-remaining" class="hero-balance number-rolling">0.00 <span>บาท</span></h1>
                 </div>
                 <div class="hero-card hero-daily-card">
-                    <p>✨ วันนี้ใช้ได้อีก (งบเฉลี่ย)</p>
+                    <p>วันต่อไปเฉลี่ยแล้วใช้ได้</p>
                     <h2 id="stat-future-avg" class="hero-daily-amount number-rolling">0.00 <span>/ วัน</span></h2>
                 </div>
             </div>
@@ -2547,8 +2547,26 @@
         let recordedDays = historyData.length;
         document.getElementById('stat-days-status').innerText = `${recordedDays} / ${totalDays} วัน`;
 
+        // แสดงจำนวนวันที่เหลือจนถึงวันสิ้นสุดโครงการ
+        let countdownText = '';
+        if (endDateProjectIso) {
+            const today = parseIsoToLocalDate(getTodayIso());
+            const endDate = parseIsoToLocalDate(endDateProjectIso);
+            const msPerDay = 24 * 60 * 60 * 1000;
+            const daysUntilEnd = Math.round((endDate - today) / msPerDay);
+
+            if (daysUntilEnd > 0) {
+                countdownText = `⏳ อีก ${daysUntilEnd} วันถึงวันสิ้นสุด`;
+            } else if (daysUntilEnd === 0) {
+                countdownText = '⏳ วันนี้คือวันสิ้นสุดโครงการ';
+            } else {
+                countdownText = `🏁 โครงการสิ้นสุดแล้ว ${Math.abs(daysUntilEnd)} วัน`;
+            }
+        }
+
         document.getElementById('stat-days-rich-details').innerHTML = `
             📌 เริ่ม: ${getLocaleDateStrFromIso(startDateProjectIso)}<br>
+            ${countdownText}<br>
             🏁 สิ้นสุด: ${getLocaleDateStrFromIso(endDateProjectIso)}<br>
             💸 ใช้รวมไปแล้ว: <span style="color:white; font-weight:bold;">${formatMoney(totalSpent)} บาท</span>
         `;
