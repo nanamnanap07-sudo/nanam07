@@ -389,6 +389,28 @@
         tr:last-child td { border-bottom: none; }
 
         .btn-view { background: #1e293b; color: white; padding: 6px 12px; font-size: 12px; width: auto; box-shadow: none; }
+        .history-date-label {
+    display: inline-block;
+    line-height: 1.25;
+    white-space: nowrap;
+}
+
+.btn-spent-detail {
+            background: #1e293b; color: white; padding: 6px 9px; font-size: 11px;
+            width: auto; min-width: 72px; border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: none; border-radius: 8px; white-space: nowrap;
+        }
+        .btn-spent-detail:hover {
+            background: #273449; box-shadow: none; transform: translateY(-1px);
+        }
+        .btn-spent-detail.has-income {
+            background: rgba(34, 197, 94, 0.18);
+            border-color: rgba(34, 197, 94, 0.55);
+            color: #86efac;
+        }
+        .btn-spent-detail.has-income:hover {
+            background: rgba(34, 197, 94, 0.28);
+        }
         .btn-edit { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); padding: 6px 12px; font-size: 12px; width: auto; box-shadow: none; }
         .btn-delete-row { background: transparent; color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); padding: 6px 12px; font-size: 12px; width: auto; box-shadow: none; }
 
@@ -700,6 +722,26 @@
         .history-list-toggle { display:flex; justify-content:flex-end; align-items:center; margin:0 0 10px; }
         .history-list-toggle-btn { width:auto; min-width:130px; padding:8px 14px; border-radius:10px; background:rgba(56,189,248,.08); color:var(--text-main); border:1px solid rgba(56,189,248,.35); cursor:pointer; font-weight:700; transition:var(--transition); }
         .history-list-toggle-btn:hover { background:rgba(56,189,248,.16); transform:translateY(-1px); }
+        .history-list-actions { display:flex; justify-content:flex-end; align-items:center; gap:8px; margin:0 0 10px; flex-wrap:wrap; }
+        .history-secondary-btn { width:auto; min-width:130px; padding:8px 14px; border-radius:10px; background:rgba(56,189,248,.08); color:var(--text-main); border:1px solid rgba(56,189,248,.35); cursor:pointer; font-weight:700; transition:var(--transition); font-size:12px; }
+        .history-secondary-btn:hover { background:rgba(56,189,248,.16); transform:translateY(-1px); }
+        .history-backup-btn { background:rgba(16,185,129,.08); border-color:rgba(16,185,129,.35); }
+        .history-backup-btn:hover { background:rgba(16,185,129,.16); }
+        .transaction-search-results { max-height:360px; overflow-y:auto; margin-top:14px; }
+        .transaction-search-item { padding:12px 0; border-bottom:1px solid rgba(255,255,255,.07); }
+        .transaction-search-item:last-child { border-bottom:none; }
+        .transaction-search-head { display:flex; justify-content:space-between; gap:12px; align-items:center; }
+        .transaction-search-date { color:var(--text-muted); font-size:12px; }
+        .transaction-search-amount { font-weight:800; color:var(--text-main); }
+        .transaction-search-empty { text-align:center; color:var(--text-muted); padding:28px 10px; }
+        .backup-actions { display:flex; gap:10px; margin-top:16px; }
+        .backup-actions button { flex:1; }
+        .backup-note { margin:10px 0 0; color:var(--text-muted); font-size:12px; line-height:1.5; }
+        @media(max-width:600px) {
+            .history-list-actions { justify-content:stretch; }
+            .history-list-actions .history-secondary-btn { flex:1; min-width:0; }
+            .backup-actions { flex-direction:column; }
+        }
         .history-standby-row td { opacity:.88; }
         .history-standby-badge { display:inline-block; margin-left:6px; padding:2px 7px; border-radius:999px; font-size:11px; color:var(--info); background:rgba(56,189,248,.10); border:1px solid rgba(56,189,248,.25); }
 
@@ -1123,7 +1165,7 @@
                 
                 <!-- Left: Form Zone -->
                 <div class="card" id="daily-form-card" style="margin-bottom: 0;">
-                    <h3 id="current-day-title" style="margin-top:0; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">📝 บันทึกรายจ่ายวันนี้</h3>
+                    <h3 id="current-day-title" style="margin-top:0; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">บันทึกรายจ่ายวันนี้</h3>
                     
                     <div style="margin-top: 16px;">
                         <div class="grid-2">
@@ -1209,12 +1251,14 @@
 
                     <div class="history-actions" id="history-table-actions">
                         <button class="history-action-btn history-action-summary" onclick="openSummaryModal()">📄 ใบสรุปผล</button>
+                        <button class="history-action-btn history-backup-btn" onclick="openBackupModal()">💾 สำรอง/กู้คืน</button>
                     </div>
                 </div>
 
                 <div id="history-table-view">
-                    <div class="history-list-toggle">
+                    <div class="history-list-actions">
                         <button type="button" id="history-table-toggle-btn" class="history-list-toggle-btn" onclick="toggleHistoryTable(); return false;" aria-expanded="false">⌄ ดูประวัติทั้งหมด</button>
+                        <button type="button" class="history-secondary-btn" onclick="openTransactionSearchModal()">🔎 ค้นหารายการ</button>
                     </div>
                     <div class="table-responsive">
                         <table>
@@ -1222,11 +1266,9 @@
                                 <tr>
                                     <th style="width: 14%;">วันที่</th>
                                     <th style="width: 15%;">งบสะสมต้นวัน</th>
-                                    <th style="width: 13%;">รายรับเพิ่ม</th>
-                                    <th style="width: 13%;">ใช้จริงรวม</th>
-                                    <th style="width: 15%;">รายการย่อย</th>
-                                    <th style="width: 15%;">สถานะสิ้นวัน</th>
-                                    <th style="width: 15%;">จัดการ</th>
+                                    <th style="width: 25%;">ใช้จริงรวม</th>
+                                    <th style="width: 18%;">สถานะสิ้นวัน</th>
+                                    <th style="width: 20%;">จัดการ</th>
                                 </tr>
                             </thead>
                             <tbody id="history-table-body">
@@ -1271,6 +1313,36 @@
     </div>
 </div>
 
+
+<!-- Transaction Search Modal -->
+<div id="transaction-search-modal" class="modal-overlay" onclick="closeTransactionSearchModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #334155; padding-bottom:12px;">
+            <h3 style="margin:0; color:white;">🔎 ค้นหารายการ</h3>
+            <button onclick="closeTransactionSearchModal()" style="background:none;border:none;color:white;font-size:20px;width:auto;padding:0;box-shadow:none;">✕</button>
+        </div>
+        <input id="transaction-search-input" type="search" placeholder="ค้นหา เช่น ข้าว, BTS, เซเว่น" oninput="searchTransactions()" style="width:100%; box-sizing:border-box;">
+        <div id="transaction-search-results" class="transaction-search-results"></div>
+        <button onclick="closeTransactionSearchModal()" style="background:var(--bg-input);border:1px solid var(--border-color);margin-top:14px;">ปิดหน้าต่าง</button>
+    </div>
+</div>
+
+<!-- Backup / Restore Modal -->
+<div id="backup-modal" class="modal-overlay" onclick="closeBackupModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #334155; padding-bottom:12px;">
+            <h3 style="margin:0; color:white;">💾 สำรอง / กู้คืนข้อมูล</h3>
+            <button onclick="closeBackupModal()" style="background:none;border:none;color:white;font-size:20px;width:auto;padding:0;box-shadow:none;">✕</button>
+        </div>
+        <p class="backup-note">สำรองข้อมูลการเงินลงไฟล์ JSON เพื่อเก็บไว้เป็นข้อมูลสำรองส่วนตัว หรือใช้กู้คืนกลับมาใน BearWallet ภายหลัง</p>
+        <div class="backup-actions">
+            <button onclick="downloadBackupData()">⬇️ สำรองข้อมูล</button>
+            <button onclick="document.getElementById('backup-restore-input').click()">↩️ กู้คืนข้อมูล</button>
+        </div>
+        <input id="backup-restore-input" type="file" accept="application/json,.json" style="display:none" onchange="restoreBackupData(event)">
+        <button onclick="closeBackupModal()" style="background:var(--bg-input);border:1px solid var(--border-color);margin-top:10px;">ปิดหน้าต่าง</button>
+    </div>
+</div>
 
 <!-- Summary Report Modal -->
 <div id="summary-modal" class="modal-overlay" onclick="closeSummaryModal()">
@@ -1381,6 +1453,15 @@
         return d.toLocaleDateString(userLocale, { day: 'numeric', month: 'short', year: 'numeric' });
     }
 
+    // รูปแบบวันที่ในประวัติ: 21ก.ย. / 2569(อา)
+    function getHistoryDateLabel(isoStr, fallbackDateStr = '-') {
+        if (!isoStr) return fallbackDateStr;
+        const d = parseIsoToLocalDate(isoStr);
+        const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+        const weekdays = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
+        return `${d.getDate()}${months[d.getMonth()]}<br>${d.getFullYear() + 543}(${weekdays[d.getDay()]})`;
+    }
+
     window.handleAuth = handleAuth;
     window.toggleAuthMode = toggleAuthMode;
     window.toggleProfileMenu = toggleProfileMenu;
@@ -1412,6 +1493,13 @@
     window.selectExpenseCategory = selectExpenseCategory;
     window.setHistoryView = setHistoryView;
     window.toggleHistoryTable = toggleHistoryTable;
+    window.openTransactionSearchModal = openTransactionSearchModal;
+    window.closeTransactionSearchModal = closeTransactionSearchModal;
+    window.searchTransactions = searchTransactions;
+    window.openBackupModal = openBackupModal;
+    window.closeBackupModal = closeBackupModal;
+    window.downloadBackupData = downloadBackupData;
+    window.restoreBackupData = restoreBackupData;
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -1523,7 +1611,7 @@
     function updateFormDateTitle() {
         if (isEditMode) return;
         const t = document.getElementById('current-day-title');
-        if (t) t.innerText = `📝 บันทึกรายจ่าย วันนี้ ${getTodayLocaleDateStr()}`;
+        if (t) t.innerText = `บันทึกรายจ่าย วันนี้ ${getTodayLocaleDateStr()}`;
     }
 
     function startTracker() {
@@ -1614,7 +1702,7 @@
             totalDraftSpent += item.amount;
             const div = document.createElement('div');
             div.className = 'basket-item';
-            div.innerHTML = `<span>🔹 <strong>${item.detail}</strong> - ${formatMoney(item.amount)} บาท</span>
+            div.innerHTML = `<span>- <strong>${item.detail}</strong> - ${formatMoney(item.amount)} บาท</span>
                 <button class="btn-delete-item" onclick="removeBasketItem(${index})">ลบ</button>`;
             listContainer.appendChild(div);
         });
@@ -1872,13 +1960,24 @@
         const container = document.getElementById('modal-items-container');
         container.innerHTML = '';
 
+        // แสดงรายรับเพิ่มในหน้าต่างรายละเอียดแทนคอลัมน์บนตาราง
+        if ((parseFloat(target.income) || 0) > 0) {
+            const incomeRow = document.createElement('div');
+            incomeRow.className = 'modal-row-item';
+            incomeRow.innerHTML = `<span> รายรับเพิ่ม</span><strong style="color:var(--success);">+${formatMoney(target.income)} บาท</strong>`;
+            container.appendChild(incomeRow);
+        }
+
         if (!target.itemsArray || target.itemsArray.length === 0) {
-            container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:20px;">ไม่มีข้อมูลรายการใช้จ่ายย่อยของวันนี้</div>`;
+            const empty = document.createElement('div');
+            empty.style.cssText = 'text-align:center; color:var(--text-muted); padding:20px;';
+            empty.textContent = 'ไม่มีข้อมูลรายการใช้จ่ายย่อยของวันนี้';
+            container.appendChild(empty);
         } else {
             target.itemsArray.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'modal-row-item';
-                div.innerHTML = `<span>🔹 ${item.detail}</span><strong style="color:var(--danger);">${formatMoney(item.amount)} บาท</strong>`;
+                div.innerHTML = `<span>- ${item.detail}</span><strong style="color:var(--danger);">${formatMoney(item.amount)} บาท</strong>`;
                 container.appendChild(div);
             });
         }
@@ -2127,7 +2226,7 @@
         }
 
         if (rowsToShow.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">ยังไม่มีข้อมูล</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:20px;">ยังไม่มีข้อมูล</td></tr>`;
             renderHistoryChart();
             return;
         }
@@ -2138,7 +2237,8 @@
             const statusClass = item.remaining >= 0 ? 'text-success' : 'text-danger';
             const statusText = item.remaining >= 0 ? `+${formatMoney(item.remaining)}` : `เกินงบ ${formatMoney(Math.abs(item.remaining))}`;
             const itemsCount = item.itemsArray ? item.itemsArray.length : 0;
-            const dateLabel = `<strong>${item.dateStr}</strong>`;
+            const hasIncome = (parseFloat(item.income) || 0) > 0;
+            const dateLabel = `<strong class="history-date-label">${getHistoryDateLabel(item.dateIso, item.dateStr)}</strong>`;
             const actionButtons = item.isStandby
                 ? ``
                 : `<button class="btn-edit" onclick="enterEditMode(${actualIndex})">แก้</button>
@@ -2146,9 +2246,11 @@
             row.innerHTML = `
                 <td>${dateLabel}</td>
                 <td>${formatMoney(item.budget)}</td>
-                <td style="color:var(--success);">${item.income > 0 ? '+'+formatMoney(item.income) : '-'}</td>
-                <td>${formatMoney(item.spent)}</td>
-                <td><button class="btn-view" onclick="${item.isStandby ? `alert('วันนี้ยังไม่ได้สรุปยอด การแสดงนี้เป็นรายการสแตนด์บาย')` : `openDetailModal(${actualIndex})`}">👁️ ดูรายการ (${itemsCount})</button></td>
+                <td>
+                    <button class="btn-spent-detail${hasIncome ? ' has-income' : ''}" onclick="${item.isStandby ? `alert('วันนี้ยังไม่ได้สรุปยอด การแสดงนี้เป็นรายการสแตนด์บาย')` : `openDetailModal(${actualIndex})`}">
+                        ${formatMoney(item.spent)}
+                    </button>
+                </td>
                 <td class="${statusClass}" style="font-weight:bold;">${statusText}</td>
                 <td>${actionButtons}</td>`;
             tbody.appendChild(row);
@@ -2479,11 +2581,9 @@
                             padding: isScrollMode ? 8 : 0,
                             font: { size: fontSize },
                             callback: function(value, index) {
-                                const label = labels[index] || '';
-                                if (isScrollMode) return label;
-                                const date = validData[index]?.dateIso || '';
-                                const parts = date.split('-');
-                                return parts.length === 3 ? `${Number(parts[2])}/${Number(parts[1])}` : label;
+                                // โหมดดูกราฟทั้งหมด: ซ่อนวันที่ใต้กราฟ แต่ยังคงวันที่ไว้ใน tooltip
+                                if (!isScrollMode) return '';
+                                return labels[index] || '';
                             }
                         },
                         grid: {
@@ -2763,6 +2863,131 @@
             totalIncomeEarned,
             initial: totalMoneyInitial
         };
+    }
+
+    function openTransactionSearchModal() {
+        const modal = document.getElementById('transaction-search-modal');
+        const input = document.getElementById('transaction-search-input');
+        if (!modal) return;
+        modal.classList.add('active');
+        if (input) {
+            input.value = '';
+            setTimeout(() => input.focus(), 50);
+        }
+        searchTransactions();
+    }
+
+    function closeTransactionSearchModal() {
+        const modal = document.getElementById('transaction-search-modal');
+        if (modal) modal.classList.remove('active');
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[char]));
+    }
+
+    function searchTransactions() {
+        const input = document.getElementById('transaction-search-input');
+        const results = document.getElementById('transaction-search-results');
+        if (!results) return;
+        const keyword = String(input?.value || '').trim().toLowerCase();
+        const matches = [];
+        (Array.isArray(historyData) ? historyData : []).forEach(day => {
+            const items = Array.isArray(day?.itemsArray) ? day.itemsArray : [];
+            items.forEach(item => {
+                const name = String(item?.detail || item?.name || item?.item || item?.title || '').trim();
+                const amount = parseFloat(item?.amount) || 0;
+                if (!name) return;
+                const haystack = `${name} ${day?.dateStr || ''} ${day?.dateIso || ''}`.toLowerCase();
+                if (!keyword || haystack.includes(keyword)) {
+                    matches.push({ dateIso: day.dateIso, dateStr: day.dateStr, name, amount });
+                }
+            });
+        });
+
+        matches.sort((a,b) => String(b.dateIso).localeCompare(String(a.dateIso)));
+        if (!matches.length) {
+            results.innerHTML = '<div class="transaction-search-empty">ไม่พบรายการที่ค้นหา</div>';
+            return;
+        }
+        results.innerHTML = matches.map(item => {
+            const dateLabel = getHistoryDateLabel(item.dateIso, item.dateStr);
+            return `<div class="transaction-search-item"><div class="transaction-search-head"><strong>${escapeHtml(item.name)}</strong><span class="transaction-search-amount">${item.amount.toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div><div class="transaction-search-date">${dateLabel}</div></div>`;
+        }).join('');
+    }
+
+    function openBackupModal() {
+        const modal = document.getElementById('backup-modal');
+        if (modal) modal.classList.add('active');
+    }
+
+    function closeBackupModal() {
+        const modal = document.getElementById('backup-modal');
+        if (modal) modal.classList.remove('active');
+    }
+
+    function downloadBackupData() {
+        const backup = {
+            app: 'BearWallet',
+            backupVersion: 1,
+            exportedAt: new Date().toISOString(),
+            totalMoneyInitial,
+            totalMoney,
+            totalDays,
+            targetDailyBudget,
+            baseDailyBudget,
+            reserveFund,
+            startDateProjectIso,
+            endDateProjectIso,
+            historyData: Array.isArray(historyData) ? historyData : [],
+            currentDayBasket: Array.isArray(currentDayBasket) ? currentDayBasket : [],
+            trashData: trashData || null
+        };
+        const blob = new Blob([JSON.stringify(backup, null, 2)], {type:'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `BearWallet-Backup-${getTodayIso()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    }
+
+    async function restoreBackupData(event) {
+        const file = event?.target?.files?.[0];
+        if (!file) return;
+        try {
+            const text = await file.text();
+            const backup = JSON.parse(text);
+            if (!backup || backup.app !== 'BearWallet' || !Array.isArray(backup.historyData)) {
+                throw new Error('invalid backup');
+            }
+            if (!confirm('↩️ ต้องการกู้คืนข้อมูลจากไฟล์สำรองนี้หรือไม่? ข้อมูลปัจจุบันจะถูกแทนที่')) return;
+            totalMoneyInitial = Number(backup.totalMoneyInitial) || 0;
+            totalMoney = Number(backup.totalMoney) || 0;
+            totalDays = Number(backup.totalDays) || 1;
+            targetDailyBudget = Number(backup.targetDailyBudget) || 0;
+            baseDailyBudget = Number(backup.baseDailyBudget) || 0;
+            reserveFund = Number(backup.reserveFund) || 0;
+            startDateProjectIso = backup.startDateProjectIso || '';
+            endDateProjectIso = backup.endDateProjectIso || '';
+            historyData = backup.historyData;
+            currentDayBasket = Array.isArray(backup.currentDayBasket) ? backup.currentDayBasket : [];
+            trashData = backup.trashData || null;
+            recalculateAllChain();
+            await saveDataToFirebase();
+            renderTable();
+            updateDashboard();
+            checkAlerts();
+            closeBackupModal();
+            alert('✅ กู้คืนข้อมูลสำเร็จ');
+        } catch (err) {
+            console.error(err);
+            alert('❌ ไฟล์สำรองไม่ถูกต้อง หรือไม่สามารถกู้คืนได้');
+        } finally {
+            if (event?.target) event.target.value = '';
+        }
     }
 
     function openSummaryModal() {
