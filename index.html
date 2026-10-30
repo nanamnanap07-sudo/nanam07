@@ -379,6 +379,20 @@
         }
         .btn-delete-item { background: none; color: var(--danger); width: auto; padding: 0; font-size: 13px; box-shadow: none; }
         .btn-delete-item:hover { color: #fca5a5; transform: none; box-shadow: none; background: none; text-decoration: underline; }
+        .planned-expense-list { display:flex; flex-direction:column; gap:8px; margin-top:14px; }
+        .planned-expense-item { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px; background:var(--bg-input); border:1px solid var(--border-color); border-radius:10px; }
+        .planned-expense-main { min-width:0; display:flex; flex-direction:column; gap:4px; }
+        .planned-expense-main strong { overflow-wrap:anywhere; }
+        .planned-expense-meta, .planned-expense-status { color:var(--text-muted); font-size:12px; line-height:1.45; }
+        .planned-expense-status { color:var(--warning); }
+        .planned-expense-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+        .planned-expense-actions button { width:auto; padding:7px 10px; font-size:12px; box-shadow:none; }
+        .planned-expense-actions .planned-transfer-btn { background:rgba(16,185,129,.12); border:1px solid rgba(16,185,129,.35); }
+        .planned-expense-actions .planned-remove-btn { background:transparent; color:var(--danger); border:1px solid rgba(239,68,68,.35); }
+        @media(max-width:600px) {
+            .planned-expense-item { align-items:flex-start; flex-direction:column; }
+            .planned-expense-actions { width:100%; justify-content:flex-end; }
+        }
 
         /* 📋 Table */
         .table-responsive { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-color); }
@@ -642,6 +656,8 @@
             background:#0f172a;
             border:1px solid var(--info);
         }
+        .history-action-planned { background:rgba(16,185,129,.10); border:1px solid rgba(16,185,129,.38); color:var(--success); }
+        .history-action-planned:hover { background:rgba(16,185,129,.18); }
         .history-action-reset {
             background:transparent;
             border:1px solid rgba(239,68,68,.4);
@@ -744,6 +760,119 @@
         }
         .history-standby-row td { opacity:.88; }
         .history-standby-badge { display:inline-block; margin-left:6px; padding:2px 7px; border-radius:999px; font-size:11px; color:var(--info); background:rgba(56,189,248,.10); border:1px solid rgba(56,189,248,.25); }
+
+        /* 🗓️ Planned spending calendar */
+        .planned-calendar-modal-card {
+            width: min(900px, calc(100% - 24px));
+            max-width: 900px;
+            max-height: min(92vh, 980px);
+            overflow-y: auto;
+            padding: 24px;
+        }
+        .planned-calendar-toolbar {
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:12px;
+            flex-wrap:wrap;
+            margin-bottom:14px;
+        }
+        .planned-calendar-month-control { display:flex; align-items:center; gap:10px; min-width:0; }
+        .planned-calendar-month-control h3 { margin:0; font-size:21px; }
+        .planned-calendar-nav-btn {
+            width:38px; height:38px; padding:0; flex:0 0 auto;
+            display:flex; align-items:center; justify-content:center;
+            background:var(--bg-input); color:var(--text-main);
+            border:1px solid var(--border-color); box-shadow:none; font-size:20px;
+        }
+        .planned-calendar-nav-btn:hover { background:var(--bg-input); border-color:var(--primary); box-shadow:none; transform:none; }
+        .planned-calendar-edit-toggle {
+            width:auto; min-width:112px; padding:10px 14px;
+            background:rgba(16,185,129,.12); color:var(--success);
+            border:1px solid rgba(16,185,129,.4); box-shadow:none; white-space:nowrap;
+        }
+        .planned-calendar-edit-toggle.is-editing { background:var(--primary); color:white; border-color:var(--primary); }
+        .planned-calendar-edit-toggle:hover { box-shadow:none; }
+        .planned-calendar-summary {
+            display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+            background:rgba(16,185,129,.08); border:1px solid rgba(16,185,129,.22);
+            border-radius:12px; padding:12px 14px; margin-bottom:16px;
+        }
+        .planned-calendar-summary strong { color:var(--success); font-size:15px; }
+        .planned-calendar-summary span { color:var(--text-muted); font-size:12px; }
+        .planned-calendar-weekdays,
+        .planned-calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px; }
+        .planned-calendar-weekdays { margin-bottom:6px; }
+        .planned-calendar-weekday { text-align:center; color:var(--text-muted); font-size:12px; font-weight:700; padding:7px 0; }
+        .planned-calendar-day-wrap { min-width:0; min-height:82px; position:relative; }
+        .planned-calendar-day {
+            display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:7px;
+            width:100%; height:100%; min-height:82px; padding:9px 4px 7px;
+            border-radius:11px; border:1px solid var(--border-color); background:var(--bg-input);
+            color:var(--text-main); box-shadow:none; transform:none; position:relative; z-index:1;
+        }
+        .planned-calendar-day:hover,
+        .planned-calendar-day:focus-visible { background:var(--bg-input); border-color:var(--primary); color:white; box-shadow:none; transform:none; outline:none; }
+        .planned-calendar-day.is-today { border-color:rgba(56,189,248,.7); }
+        .planned-calendar-day.is-selected { border:2px solid var(--primary); padding:8px 3px 6px; background:rgba(16,185,129,.09); }
+        .planned-calendar-day.has-expenses { background:rgba(16,185,129,.08); border-color:rgba(16,185,129,.48); }
+        .planned-calendar-day-number { font-size:14px; font-weight:700; line-height:1.2; }
+        .planned-calendar-day-total { max-width:100%; font-size:10px; line-height:1.2; color:var(--success); font-weight:800; overflow-wrap:anywhere; }
+        .planned-calendar-day-dot { width:7px; height:7px; border-radius:50%; background:var(--success); box-shadow:0 0 0 3px rgba(16,185,129,.12); }
+        .planned-calendar-day.is-today .planned-calendar-day-number::after { content:'วันนี้'; display:block; font-size:9px; margin-top:3px; color:var(--info); font-weight:600; }
+        .planned-calendar-tooltip {
+            position:absolute; z-index:30; top:calc(100% + 5px); left:50%; transform:translateX(-50%);
+            width:min(250px, calc(100vw - 48px)); max-height:220px; overflow:auto;
+            background:#0f172a; color:#f8fafc; border:1px solid #475569; border-radius:12px;
+            padding:11px 12px; box-shadow:0 12px 28px rgba(0,0,0,.35); font-size:12px; line-height:1.55;
+            pointer-events:none;
+        }
+        .planned-calendar-tooltip.above { top:auto; bottom:calc(100% + 5px); }
+.planned-calendar-day-wrap:nth-child(7n+1) .planned-calendar-tooltip { left:0; transform:none; }
+.planned-calendar-day-wrap:nth-child(7n) .planned-calendar-tooltip { left:auto; right:0; transform:none; }
+        .planned-calendar-tooltip strong { display:block; margin-bottom:4px; color:#6ee7b7; font-size:13px; }
+        .planned-calendar-tooltip .tooltip-empty { color:#cbd5e1; }
+        .planned-calendar-tooltip .tooltip-item { border-top:1px solid rgba(148,163,184,.2); padding-top:4px; margin-top:4px; overflow-wrap:anywhere; }
+        .planned-calendar-legend { display:flex; align-items:center; gap:8px; color:var(--text-muted); font-size:12px; margin-top:12px; }
+        .planned-calendar-legend .planned-calendar-day-dot { width:7px; height:7px; }
+        .planned-date-editor {
+            margin-top:20px; padding-top:18px; border-top:1px solid var(--border-color);
+        }
+        .planned-date-editor-header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+        .planned-date-editor-header h4 { margin:0; font-size:17px; }
+        .planned-editor-hint { margin:0 0 14px; color:var(--text-muted); font-size:12px; line-height:1.6; }
+        .planned-editor-form { display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:end; }
+        .planned-editor-form .form-group { margin:0; }
+        .planned-editor-form .planned-editor-detail-group { grid-column:1 / -1; }
+        .planned-editor-actions { display:flex; gap:8px; grid-column:1 / -1; }
+        .planned-editor-actions button { flex:1; }
+        .planned-editor-cancel-btn { background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); }
+        .planned-date-editor .planned-expense-list { margin-top:14px; }
+        .planned-date-editor .planned-expense-item { align-items:flex-start; }
+        .planned-expense-category { display:inline-block; color:var(--success); font-size:11px; font-weight:700; margin-right:4px; }
+        .planned-expense-meta { overflow-wrap:anywhere; }
+        .planned-expense-actions { flex-wrap:wrap; justify-content:flex-end; }
+        .planned-expense-actions .planned-edit-btn { background:rgba(56,189,248,.1); color:var(--info); border:1px solid rgba(56,189,248,.3); }
+        .planned-calendar-footer { display:flex; justify-content:flex-end; margin-top:18px; }
+        .planned-calendar-footer button { width:auto; min-width:100px; background:var(--bg-input); border:1px solid var(--border-color); }
+        @media(max-width:600px) {
+            .planned-calendar-modal-card { width:calc(100% - 12px); max-height:calc(100vh - 12px); padding:14px; border-radius:15px; }
+            .planned-calendar-month-control h3 { font-size:18px; }
+            .planned-calendar-toolbar { align-items:flex-start; }
+            .planned-calendar-edit-toggle { min-width:94px; padding:9px 10px; font-size:12px; }
+            .planned-calendar-weekdays, .planned-calendar-grid { gap:3px; }
+            .planned-calendar-weekday { font-size:10px; padding:5px 0; }
+            .planned-calendar-day-wrap { min-height:68px; }
+            .planned-calendar-day { min-height:68px; padding:7px 2px 5px; gap:5px; border-radius:8px; }
+            .planned-calendar-day-number { font-size:12px; }
+            .planned-calendar-day-total { font-size:8px; }
+            .planned-calendar-day.is-today .planned-calendar-day-number::after { font-size:8px; }
+            .planned-calendar-tooltip { width:min(210px, calc(100vw - 40px)); font-size:11px; }
+            .planned-editor-form { grid-template-columns:1fr; }
+            .planned-editor-form .planned-editor-detail-group, .planned-editor-actions { grid-column:1; }
+            .planned-date-editor .planned-expense-item { flex-direction:column; }
+            .planned-date-editor .planned-expense-actions { width:100%; justify-content:flex-end; }
+        }
 
         /* 📱 Final Responsive Cleanup */
         html {
@@ -1079,6 +1208,1342 @@
                 margin-top: 10px;
             }
         }
+
+
+        /* ===== Fixed-size calendar layout: keep the frame stable ===== */
+        .planned-calendar-modal-card {
+            width: min(900px, calc(100% - 24px));
+            height: min(92vh, 900px);
+            max-height: min(92vh, 900px);
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        /* Keep seven weekday columns and six equal date rows */
+        .planned-calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+        .planned-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            grid-template-rows: repeat(6, minmax(0, 1fr));
+            gap: 5px;
+            height: 366px;
+            min-height: 0;
+            align-content: stretch;
+        }
+        .planned-calendar-weekday {
+            min-width: 0;
+            font-size: 11px;
+            padding: 5px 0;
+        }
+        .planned-calendar-day-wrap {
+            position: relative;
+            min-width: 0;
+            min-height: 0;
+            height: 100%;
+        }
+        .planned-calendar-day {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 4px;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            padding: 5px 2px 4px;
+            border-radius: 9px;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        .planned-calendar-day-number {
+            font-size: 13px;
+            line-height: 1.05;
+            font-weight: 700;
+        }
+        .planned-calendar-day-total {
+            display: block;
+            max-width: 100%;
+            max-height: 20px;
+            overflow: hidden;
+            font-size: 9px;
+            line-height: 1.05;
+            overflow-wrap: anywhere;
+            text-align: center;
+        }
+        .planned-calendar-day-dot {
+            width: 5px;
+            height: 5px;
+            min-height: 5px;
+            flex: 0 0 5px;
+            box-shadow: none;
+        }
+        .planned-calendar-day.is-selected {
+            padding: 4px 1px 3px;
+            border-width: 2px;
+        }
+        .planned-calendar-day.is-today .planned-calendar-day-number::after {
+            content: 'วันนี้';
+            display: block;
+            font-size: 8px;
+            line-height: 1;
+            margin-top: 2px;
+            color: var(--info);
+        }
+        .planned-calendar-legend {
+            margin-top: 8px;
+            font-size: 11px;
+        }
+
+        @media (max-width: 600px) {
+            .planned-calendar-modal-card {
+                width: calc(100% - 12px);
+                height: calc(100vh - 12px);
+                max-height: calc(100vh - 12px);
+                padding: 12px;
+                border-radius: 15px;
+                overflow-y: auto;
+            }
+            .planned-calendar-toolbar { gap: 8px; margin-bottom: 10px; }
+            .planned-calendar-month-control { gap: 6px; }
+            .planned-calendar-month-control h3 { font-size: 16px; }
+            .planned-calendar-weekdays,
+            .planned-calendar-grid { gap: 3px; }
+            .planned-calendar-weekday { font-size: 9px; padding: 4px 0; }
+            .planned-calendar-grid {
+                height: 288px;
+                grid-template-rows: repeat(6, minmax(0, 1fr));
+            }
+            .planned-calendar-day-wrap { min-height: 0; height: 100%; }
+            .planned-calendar-day {
+                min-height: 0;
+                height: 100%;
+                padding: 3px 1px;
+                gap: 2px;
+                border-radius: 7px;
+            }
+            .planned-calendar-day-number { font-size: 11px; line-height: 1; }
+            .planned-calendar-day-total { font-size: 7px; line-height: 1; max-height: 14px; }
+            .planned-calendar-day-dot {
+                width: 4px;
+                height: 4px;
+                min-height: 4px;
+                flex-basis: 4px;
+            }
+            .planned-calendar-day.is-selected { padding: 2px 0; }
+            .planned-calendar-day.is-today .planned-calendar-day-number::after {
+                font-size: 7px;
+                margin-top: 1px;
+            }
+            .planned-calendar-tooltip {
+                width: min(210px, calc(100vw - 40px));
+                font-size: 11px;
+            }
+        }
+
+    
+
+        /* ===== Calendar modal: compact, centered, responsive ===== */
+        #planned-calendar-modal {
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 12px !important;
+            box-sizing: border-box !important;
+            overflow-y: auto !important;
+        }
+        #planned-calendar-modal .planned-calendar-modal-card {
+            width: min(92vw, 640px) !important;
+            max-width: min(92vw, 640px) !important;
+            height: auto !important;
+            aspect-ratio: 4 / 5;
+            min-height: 0 !important;
+            max-height: min(84dvh, 740px) !important;
+            margin: auto !important;
+            padding: 18px !important;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            overscroll-behavior: contain;
+            box-sizing: border-box !important;
+        }
+        /* Keep the month title between two fixed-width navigation buttons. */
+        #planned-calendar-modal .planned-calendar-toolbar {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) auto !important;
+            align-items: center !important;
+            gap: 8px !important;
+            flex-wrap: nowrap !important;
+            margin-bottom: 10px !important;
+        }
+        #planned-calendar-modal .planned-calendar-month-control {
+            display: grid !important;
+            grid-template-columns: 36px minmax(0, 1fr) 36px !important;
+            align-items: center !important;
+            gap: 6px !important;
+            width: 100% !important;
+            min-width: 0 !important;
+        }
+        #planned-calendar-modal .planned-calendar-nav-btn {
+            width: 36px !important;
+            min-width: 36px !important;
+            height: 36px !important;
+            flex: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            transform: none !important;
+        }
+        #planned-calendar-modal .planned-calendar-month-control h3 {
+            min-width: 0 !important;
+            margin: 0 !important;
+            text-align: center !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            font-size: clamp(13px, 2.7vw, 20px) !important;
+        }
+        #planned-calendar-modal .planned-calendar-edit-toggle {
+            min-width: 72px !important;
+            width: auto !important;
+            padding: 8px 10px !important;
+            margin: 0 !important;
+            white-space: nowrap !important;
+            transform: none !important;
+        }
+        #planned-calendar-modal .planned-calendar-summary {
+            padding: 9px 11px !important;
+            margin-bottom: 10px !important;
+            gap: 6px 10px !important;
+        }
+        #planned-calendar-modal .planned-calendar-weekdays {
+            grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+            gap: 5px !important;
+            margin-bottom: 5px !important;
+        }
+        #planned-calendar-modal .planned-calendar-grid {
+            grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+            grid-template-rows: repeat(6, minmax(0, 1fr)) !important;
+            gap: 5px !important;
+            height: 330px !important;
+            min-height: 0 !important;
+        }
+        #planned-calendar-modal .planned-calendar-day-wrap {
+            min-width: 0 !important;
+            min-height: 0 !important;
+            height: 100% !important;
+        }
+        #planned-calendar-modal .planned-calendar-day {
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 0 !important;
+            padding: 5px 2px 4px !important;
+            gap: 4px !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+        }
+        #planned-calendar-modal .planned-calendar-day-number {
+            font-size: 13px !important;
+            line-height: 1.05 !important;
+        }
+        #planned-calendar-modal .planned-calendar-day-total {
+            max-width: 100% !important;
+            max-height: 18px !important;
+            overflow: hidden !important;
+            font-size: 9px !important;
+            line-height: 1.05 !important;
+            text-align: center !important;
+        }
+        #planned-calendar-modal .planned-calendar-legend {
+            margin-top: 7px !important;
+            font-size: 11px !important;
+        }
+        #planned-calendar-modal .planned-calendar-footer {
+            margin-top: 10px !important;
+        }
+
+        @media (max-width: 600px) {
+            #planned-calendar-modal {
+                padding: 8px !important;
+            }
+            #planned-calendar-modal .planned-calendar-modal-card {
+                width: min(94vw, 520px) !important;
+                max-width: min(94vw, 520px) !important;
+                aspect-ratio: 4 / 5;
+                max-height: 86dvh !important;
+                padding: 12px !important;
+                border-radius: 15px !important;
+            }
+            #planned-calendar-modal .planned-calendar-modal-card > div:first-child {
+                margin-bottom: 10px !important;
+                padding-bottom: 8px !important;
+                gap: 8px !important;
+            }
+            #planned-calendar-modal .planned-calendar-toolbar {
+                grid-template-columns: minmax(0, 1fr) auto !important;
+                gap: 6px !important;
+                margin-bottom: 9px !important;
+            }
+            #planned-calendar-modal .planned-calendar-month-control {
+                grid-template-columns: 32px minmax(0, 1fr) 32px !important;
+                gap: 4px !important;
+            }
+            #planned-calendar-modal .planned-calendar-nav-btn {
+                width: 32px !important;
+                min-width: 32px !important;
+                height: 32px !important;
+                font-size: 18px !important;
+            }
+            #planned-calendar-modal .planned-calendar-month-control h3 {
+                font-size: clamp(12px, 3.5vw, 15px) !important;
+            }
+            #planned-calendar-modal .planned-calendar-edit-toggle {
+                min-width: 64px !important;
+                padding: 7px 8px !important;
+                font-size: 11px !important;
+            }
+            #planned-calendar-modal .planned-calendar-summary {
+                padding: 8px 9px !important;
+                margin-bottom: 8px !important;
+                border-radius: 9px !important;
+            }
+            #planned-calendar-modal .planned-calendar-summary strong {
+                font-size: 12px !important;
+            }
+            #planned-calendar-modal .planned-calendar-summary span {
+                font-size: 10px !important;
+            }
+            #planned-calendar-modal .planned-calendar-weekdays {
+                gap: 3px !important;
+                margin-bottom: 4px !important;
+            }
+            #planned-calendar-modal .planned-calendar-weekday {
+                font-size: 9px !important;
+                padding: 3px 0 !important;
+            }
+            #planned-calendar-modal .planned-calendar-grid {
+                gap: 3px !important;
+                height: 210px !important;
+                grid-template-rows: repeat(6, minmax(0, 1fr)) !important;
+            }
+            #planned-calendar-modal .planned-calendar-day {
+                padding: 3px 1px !important;
+                gap: 2px !important;
+                border-radius: 7px !important;
+            }
+            #planned-calendar-modal .planned-calendar-day-number {
+                font-size: 11px !important;
+                line-height: 1 !important;
+            }
+            #planned-calendar-modal .planned-calendar-day-total {
+                font-size: 7px !important;
+                line-height: 1 !important;
+                max-height: 12px !important;
+            }
+            #planned-calendar-modal .planned-calendar-day-dot,
+            #planned-calendar-modal .planned-calendar-legend .planned-calendar-day-dot {
+                width: 4px !important;
+                height: 4px !important;
+                min-height: 4px !important;
+                flex: 0 0 4px !important;
+            }
+            #planned-calendar-modal .planned-calendar-day.is-today .planned-calendar-day-number::after {
+                font-size: 7px !important;
+                margin-top: 1px !important;
+            }
+            #planned-calendar-modal .planned-calendar-legend {
+                font-size: 9px !important;
+                margin-top: 6px !important;
+                gap: 6px !important;
+            }
+            #planned-calendar-modal .planned-calendar-footer {
+                margin-top: 8px !important;
+            }
+            #planned-calendar-modal .planned-date-editor {
+                margin-top: 12px !important;
+                padding-top: 12px !important;
+            }
+            #planned-calendar-modal .planned-editor-form {
+                gap: 9px !important;
+            }
+            #planned-calendar-modal .planned-calendar-tooltip {
+                width: min(190px, calc(100vw - 44px)) !important;
+                font-size: 10px !important;
+            }
+        }
+
+
+
+        /* ===== BearWallet calendar: fixed compact layout, no modal scrolling ===== */
+        #planned-calendar-modal {
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 10px !important;
+            overflow: hidden !important;
+        }
+        #planned-calendar-modal .planned-calendar-modal-card {
+            display: flex !important;
+            flex-direction: column !important;
+            width: min(92vw, 580px) !important;
+            max-width: min(92vw, 580px) !important;
+            height: min(54dvh, 480px) !important;
+            min-height: 0 !important;
+            max-height: min(54dvh, 480px) !important;
+            aspect-ratio: auto !important;
+            margin: auto !important;
+            padding: 14px !important;
+            gap: 0 !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+        }
+        #planned-calendar-modal .planned-calendar-modal-card > div:first-child {
+            flex: 0 0 auto !important;
+            margin-bottom: 9px !important;
+            padding-bottom: 8px !important;
+        }
+        #planned-calendar-modal .planned-calendar-toolbar {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) auto !important;
+            align-items: center !important;
+            gap: 8px !important;
+            flex: 0 0 auto !important;
+            margin-bottom: 8px !important;
+        }
+        #planned-calendar-modal .planned-calendar-month-control {
+            display: grid !important;
+            grid-template-columns: 32px minmax(0, 1fr) 32px !important;
+            align-items: center !important;
+            gap: 5px !important;
+            width: 100% !important;
+            min-width: 0 !important;
+        }
+        #planned-calendar-modal .planned-calendar-nav-btn {
+            width: 32px !important;
+            min-width: 32px !important;
+            height: 32px !important;
+            flex: 0 0 32px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            transform: none !important;
+        }
+        #planned-calendar-modal .planned-calendar-month-control h3 {
+            min-width: 0 !important;
+            margin: 0 !important;
+            text-align: center !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            font-size: clamp(12px, 2.8vw, 18px) !important;
+        }
+        #planned-calendar-modal .planned-calendar-edit-toggle {
+            width: auto !important;
+            min-width: 66px !important;
+            padding: 7px 9px !important;
+            margin: 0 !important;
+            font-size: 12px !important;
+            white-space: nowrap !important;
+            transform: none !important;
+        }
+        #planned-calendar-modal .planned-calendar-summary,
+        #planned-calendar-modal .planned-calendar-footer {
+            display: none !important;
+        }
+        #planned-calendar-modal .planned-calendar-weekdays {
+            flex: 0 0 auto !important;
+            grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+            gap: 4px !important;
+            margin: 0 0 4px !important;
+        }
+        #planned-calendar-modal .planned-calendar-weekday {
+            padding: 3px 0 !important;
+            font-size: 10px !important;
+        }
+        #planned-calendar-modal .planned-calendar-grid {
+            flex: 0 0 auto !important;
+            grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+            grid-template-rows: repeat(6, minmax(0, 1fr)) !important;
+            gap: 4px !important;
+            width: 100% !important;
+            height: min(27dvh, 220px) !important;
+            min-height: 0 !important;
+            overflow: hidden !important;
+        }
+        #planned-calendar-modal .planned-calendar-day-wrap {
+            min-width: 0 !important;
+            min-height: 0 !important;
+            height: 100% !important;
+        }
+        #planned-calendar-modal .planned-calendar-day {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            gap: 3px !important;
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 0 !important;
+            padding: 3px 1px !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+        }
+        #planned-calendar-modal .planned-calendar-day-number {
+            font-size: 12px !important;
+            line-height: 1 !important;
+        }
+        #planned-calendar-modal .planned-calendar-day-total {
+            max-width: 100% !important;
+            max-height: 14px !important;
+            overflow: hidden !important;
+            font-size: 8px !important;
+            line-height: 1 !important;
+            text-align: center !important;
+        }
+        #planned-calendar-modal .planned-calendar-day-dot,
+        #planned-calendar-modal .planned-calendar-legend .planned-calendar-day-dot {
+            width: 5px !important;
+            height: 5px !important;
+            min-height: 5px !important;
+            flex: 0 0 5px !important;
+            box-shadow: none !important;
+        }
+        #planned-calendar-modal .planned-calendar-legend {
+            display: flex !important;
+            flex: 0 0 auto !important;
+            margin-top: 6px !important;
+            gap: 6px !important;
+            font-size: 10px !important;
+            line-height: 1.3 !important;
+        }
+        #planned-calendar-modal .planned-calendar-day.is-past-disabled {
+            opacity: .38 !important;
+            cursor: not-allowed !important;
+            filter: grayscale(.45);
+        }
+        #planned-calendar-modal .planned-calendar-day.is-past-disabled:hover,
+        #planned-calendar-modal .planned-calendar-day.is-past-disabled:focus-visible {
+            border-color: var(--border-color) !important;
+            background: var(--bg-input) !important;
+            color: var(--text-muted) !important;
+        }
+        #planned-calendar-modal.is-date-editor-open .planned-calendar-weekdays,
+        #planned-calendar-modal.is-date-editor-open .planned-calendar-grid,
+        #planned-calendar-modal.is-date-editor-open .planned-calendar-legend {
+            display: none !important;
+        }
+        #planned-calendar-modal .planned-date-editor {
+            flex: 1 1 auto !important;
+            min-height: 0 !important;
+            margin: 3px 0 0 !important;
+            padding: 8px 0 0 !important;
+            overflow: hidden !important;
+            display: flex;
+            flex-direction: column;
+        }
+        #planned-calendar-modal .planned-date-editor-header {
+            flex: 0 0 auto !important;
+            margin-bottom: 7px !important;
+        }
+        #planned-calendar-modal .planned-date-editor-header h4 {
+            font-size: 15px !important;
+        }
+        #planned-calendar-modal .planned-editor-hint {
+            display: none !important;
+        }
+        #planned-calendar-modal .planned-editor-form {
+            flex: 0 0 auto !important;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+            gap: 8px !important;
+            align-items: end !important;
+        }
+        #planned-calendar-modal .planned-editor-form .form-group label {
+            font-size: 11px !important;
+            margin-bottom: 4px !important;
+        }
+        #planned-calendar-modal .planned-editor-form input,
+        #planned-calendar-modal .planned-editor-form select {
+            min-width: 0 !important;
+            padding: 8px 9px !important;
+            font-size: 13px !important;
+            border-radius: 8px !important;
+        }
+        #planned-calendar-modal .planned-editor-actions {
+            gap: 7px !important;
+        }
+        #planned-calendar-modal .planned-editor-actions button {
+            padding: 9px 7px !important;
+            font-size: 12px !important;
+        }
+        #planned-calendar-modal .planned-date-editor .planned-expense-list {
+            flex: 1 1 auto !important;
+            min-height: 0 !important;
+            margin-top: 8px !important;
+            overflow-y: auto !important;
+            overscroll-behavior: contain;
+            scrollbar-width: thin;
+        }
+        #planned-calendar-modal .planned-date-editor .planned-expense-item {
+            align-items: center !important;
+            gap: 7px !important;
+            padding: 7px 8px !important;
+            margin-bottom: 6px !important;
+        }
+        #planned-calendar-modal .planned-date-editor .planned-expense-main strong {
+            font-size: 12px !important;
+        }
+        #planned-calendar-modal .planned-date-editor .planned-expense-meta {
+            font-size: 10px !important;
+        }
+        #planned-calendar-modal .planned-date-editor .planned-expense-actions {
+            width: auto !important;
+            gap: 4px !important;
+        }
+        #planned-calendar-modal .planned-date-editor .planned-expense-actions button {
+            width: auto !important;
+            padding: 5px 6px !important;
+            margin: 0 !important;
+            font-size: 10px !important;
+        }
+        #planned-calendar-modal .planned-calendar-tooltip {
+            max-height: 180px !important;
+            overflow-y: auto !important;
+        }
+
+        @media (max-width: 600px) {
+            #planned-calendar-modal { padding: 6px !important; }
+            #planned-calendar-modal .planned-calendar-modal-card {
+                width: min(94vw, 520px) !important;
+                max-width: min(94vw, 520px) !important;
+                height: min(54dvh, 440px) !important;
+                max-height: min(54dvh, 440px) !important;
+                padding: 11px !important;
+                border-radius: 14px !important;
+            }
+            #planned-calendar-modal .planned-calendar-modal-card > div:first-child {
+                margin-bottom: 7px !important;
+                padding-bottom: 7px !important;
+            }
+            #planned-calendar-modal .planned-calendar-modal-card > div:first-child h3 {
+                font-size: 16px !important;
+            }
+            #planned-calendar-modal .planned-calendar-modal-card > div:first-child p {
+                font-size: 10px !important;
+                line-height: 1.35 !important;
+            }
+            #planned-calendar-modal .planned-calendar-toolbar { gap: 5px !important; margin-bottom: 7px !important; }
+            #planned-calendar-modal .planned-calendar-month-control { grid-template-columns: 30px minmax(0, 1fr) 30px !important; gap: 3px !important; }
+            #planned-calendar-modal .planned-calendar-nav-btn { width: 30px !important; min-width: 30px !important; height: 30px !important; }
+            #planned-calendar-modal .planned-calendar-month-control h3 { font-size: clamp(11px, 3.3vw, 14px) !important; }
+            #planned-calendar-modal .planned-calendar-edit-toggle { min-width: 60px !important; padding: 7px 6px !important; font-size: 11px !important; }
+            #planned-calendar-modal .planned-calendar-weekdays { gap: 3px !important; }
+            #planned-calendar-modal .planned-calendar-weekday { font-size: 9px !important; }
+            #planned-calendar-modal .planned-calendar-grid { height: min(25dvh, 205px) !important; gap: 3px !important; }
+            #planned-calendar-modal .planned-calendar-day { gap: 2px !important; border-radius: 6px !important; padding: 2px 0 !important; }
+            #planned-calendar-modal .planned-calendar-day-number { font-size: 11px !important; }
+            #planned-calendar-modal .planned-calendar-day-total { font-size: 7px !important; max-height: 11px !important; }
+            #planned-calendar-modal .planned-calendar-day.is-today .planned-calendar-day-number::after { font-size: 7px !important; margin-top: 1px !important; }
+            #planned-calendar-modal .planned-calendar-legend { font-size: 9px !important; margin-top: 5px !important; }
+            #planned-calendar-modal .planned-date-editor { padding-top: 7px !important; }
+            #planned-calendar-modal .planned-editor-form { gap: 7px !important; }
+            #planned-calendar-modal .planned-editor-form input,
+            #planned-calendar-modal .planned-editor-form select { padding: 7px 8px !important; font-size: 12px !important; }
+            #planned-calendar-modal .planned-editor-actions button { padding: 8px 5px !important; font-size: 11px !important; }
+        }
+
+
+
+        /* ===== Final responsive fix: scroll only inside the calendar panel ===== */
+        body.planned-calendar-open {
+            overflow: hidden !important;
+            overscroll-behavior: none !important;
+        }
+        #planned-calendar-modal.active {
+            position: fixed !important;
+            inset: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 10px !important;
+            overflow: hidden !important;
+            overscroll-behavior: contain !important;
+            box-sizing: border-box !important;
+        }
+        #planned-calendar-modal .planned-calendar-modal-card {
+            display: block !important;
+            flex: 0 1 auto !important;
+            width: min(94vw, 520px) !important;
+            max-width: min(94vw, 520px) !important;
+            height: auto !important;
+            min-height: 0 !important;
+            max-height: min(88dvh, 760px) !important;
+            aspect-ratio: auto !important;
+            margin: auto !important;
+            padding: clamp(12px, 3vw, 18px) !important;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            overscroll-behavior: contain !important;
+            -webkit-overflow-scrolling: touch !important;
+            box-sizing: border-box !important;
+        }
+        #planned-calendar-modal .planned-calendar-modal-card > div:first-child {
+            display: block !important;
+            position: relative !important;
+            margin: 0 0 10px !important;
+            padding: 0 0 9px !important;
+            flex: none !important;
+        }
+        #planned-calendar-modal .planned-calendar-modal-card > div:first-child h3 {
+            font-size: clamp(16px, 4vw, 20px) !important;
+            line-height: 1.3 !important;
+        }
+        #planned-calendar-modal .planned-calendar-modal-card > div:first-child p {
+            display: block !important;
+            font-size: 11px !important;
+            line-height: 1.45 !important;
+            overflow-wrap: anywhere !important;
+        }
+        #planned-calendar-modal .planned-calendar-toolbar {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) auto !important;
+            align-items: center !important;
+            gap: 8px !important;
+            flex-wrap: nowrap !important;
+            margin: 0 0 10px !important;
+        }
+        #planned-calendar-modal .planned-calendar-month-control {
+            display: grid !important;
+            grid-template-columns: 34px minmax(0, 1fr) 34px !important;
+            align-items: center !important;
+            gap: 5px !important;
+            width: 100% !important;
+            min-width: 0 !important;
+        }
+        #planned-calendar-modal .planned-calendar-nav-btn {
+            width: 34px !important;
+            min-width: 34px !important;
+            height: 34px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            flex: none !important;
+            transform: none !important;
+        }
+        #planned-calendar-modal .planned-calendar-month-control h3 {
+            min-width: 0 !important;
+            text-align: center !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            font-size: clamp(12px, 3.5vw, 17px) !important;
+        }
+        #planned-calendar-modal .planned-calendar-edit-toggle {
+            min-width: 70px !important;
+            width: auto !important;
+            padding: 8px 10px !important;
+            font-size: 12px !important;
+            white-space: nowrap !important;
+        }
+        #planned-calendar-modal .planned-calendar-summary,
+        #planned-calendar-modal .planned-calendar-footer {
+            display: none !important;
+        }
+        #planned-calendar-modal .planned-calendar-weekdays {
+            display: grid !important;
+            grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+            gap: 4px !important;
+            margin: 0 0 4px !important;
+        }
+        #planned-calendar-modal .planned-calendar-weekday {
+            min-width: 0 !important;
+            padding: 4px 0 !important;
+            font-size: 10px !important;
+        }
+        #planned-calendar-modal .planned-calendar-grid {
+            display: grid !important;
+            grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+            grid-template-rows: repeat(6, minmax(0, 1fr)) !important;
+            width: 100% !important;
+            height: clamp(205px, 34dvh, 300px) !important;
+            min-height: 0 !important;
+            gap: 4px !important;
+            overflow: hidden !important;
+        }
+        #planned-calendar-modal .planned-calendar-day-wrap {
+            min-width: 0 !important;
+            min-height: 0 !important;
+            height: 100% !important;
+        }
+        #planned-calendar-modal .planned-calendar-day {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            width: 100% !important;
+            height: 100% !important;
+            min-width: 0 !important;
+            min-height: 0 !important;
+            gap: 3px !important;
+            padding: 4px 1px !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+        }
+        #planned-calendar-modal .planned-calendar-day-number {
+            font-size: clamp(10px, 3vw, 13px) !important;
+            line-height: 1.05 !important;
+        }
+        #planned-calendar-modal .planned-calendar-day-total {
+            max-width: 100% !important;
+            max-height: 16px !important;
+            overflow: hidden !important;
+            overflow-wrap: anywhere !important;
+            font-size: clamp(7px, 2vw, 9px) !important;
+            line-height: 1 !important;
+            text-align: center !important;
+        }
+        #planned-calendar-modal .planned-calendar-day-dot,
+        #planned-calendar-modal .planned-calendar-legend .planned-calendar-day-dot {
+            width: 5px !important;
+            height: 5px !important;
+            min-height: 5px !important;
+            flex: 0 0 5px !important;
+            box-shadow: none !important;
+        }
+        #planned-calendar-modal .planned-calendar-legend {
+            display: flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            margin: 7px 0 0 !important;
+            font-size: 10px !important;
+            line-height: 1.4 !important;
+        }
+        /* While editing, focus on the form and hide the calendar controls. The panel itself scrolls. */
+        #planned-calendar-modal.is-date-editor-open .planned-calendar-toolbar,
+        #planned-calendar-modal.is-date-editor-open .planned-calendar-weekdays,
+        #planned-calendar-modal.is-date-editor-open .planned-calendar-grid,
+        #planned-calendar-modal.is-date-editor-open .planned-calendar-legend {
+            display: none !important;
+        }
+        #planned-calendar-modal.is-date-editor-open .planned-calendar-modal-card > div:first-child p {
+            display: none !important;
+        }
+        #planned-calendar-modal .planned-date-editor:not(.hidden) {
+            display: block !important;
+            flex: none !important;
+            min-height: 0 !important;
+            margin: 2px 0 0 !important;
+            padding: 0 !important;
+            border-top: 0 !important;
+            overflow: visible !important;
+        }
+        #planned-calendar-modal .planned-date-editor.hidden {
+            display: none !important;
+        }
+        #planned-calendar-modal .planned-date-editor-header {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 8px !important;
+            margin: 0 0 12px !important;
+        }
+        #planned-calendar-modal .planned-date-editor-header h4 {
+            min-width: 0 !important;
+            font-size: 16px !important;
+            line-height: 1.35 !important;
+        }
+        #planned-calendar-modal .planned-editor-hint {
+            display: block !important;
+            margin: 0 0 12px !important;
+            font-size: 12px !important;
+            line-height: 1.5 !important;
+        }
+        #planned-calendar-modal .planned-editor-form {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+            align-items: start !important;
+            gap: 10px !important;
+            width: 100% !important;
+        }
+        #planned-calendar-modal .planned-editor-form .form-group {
+            min-width: 0 !important;
+            margin: 0 !important;
+        }
+        #planned-calendar-modal .planned-editor-form .form-group:nth-child(3),
+        #planned-calendar-modal .planned-editor-form .planned-editor-detail-group,
+        #planned-calendar-modal .planned-editor-actions {
+            grid-column: 1 / -1 !important;
+            min-width: 0 !important;
+        }
+        #planned-calendar-modal .planned-editor-form label {
+            font-size: 12px !important;
+            line-height: 1.35 !important;
+            margin-bottom: 5px !important;
+        }
+        #planned-calendar-modal .planned-editor-form input,
+        #planned-calendar-modal .planned-editor-form select {
+            display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            min-height: 40px !important;
+            padding: 9px 10px !important;
+            font-size: 13px !important;
+            border-radius: 9px !important;
+            box-sizing: border-box !important;
+        }
+        #planned-calendar-modal .planned-editor-actions {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+            gap: 8px !important;
+            margin-top: 2px !important;
+        }
+        #planned-calendar-modal .planned-editor-actions button {
+            width: 100% !important;
+            min-width: 0 !important;
+            margin: 0 !important;
+            padding: 10px 8px !important;
+            font-size: 12px !important;
+            line-height: 1.3 !important;
+            white-space: normal !important;
+            box-sizing: border-box !important;
+        }
+        #planned-calendar-modal .planned-date-editor .planned-expense-list {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 7px !important;
+            max-height: none !important;
+            min-height: 0 !important;
+            margin: 12px 0 0 !important;
+            overflow: visible !important;
+            flex: none !important;
+        }
+        #planned-calendar-modal .planned-date-editor .planned-expense-item {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 8px !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            padding: 10px !important;
+            box-sizing: border-box !important;
+        }
+        #planned-calendar-modal .planned-date-editor .planned-expense-main {
+            min-width: 0 !important;
+            overflow-wrap: anywhere !important;
+        }
+        #planned-calendar-modal .planned-date-editor .planned-expense-main strong,
+        #planned-calendar-modal .planned-date-editor .planned-expense-meta {
+            overflow-wrap: anywhere !important;
+            white-space: normal !important;
+        }
+        #planned-calendar-modal .planned-date-editor .planned-expense-actions {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            justify-content: flex-end !important;
+            gap: 6px !important;
+            width: 100% !important;
+        }
+        #planned-calendar-modal .planned-date-editor .planned-expense-actions button {
+            width: auto !important;
+            min-width: 68px !important;
+            margin: 0 !important;
+            padding: 7px 9px !important;
+            font-size: 11px !important;
+        }
+        #planned-calendar-modal .planned-calendar-day.is-past-disabled {
+            opacity: .38 !important;
+            cursor: not-allowed !important;
+        }
+        @media (max-width: 380px) {
+            #planned-calendar-modal .planned-calendar-modal-card {
+                width: 96vw !important;
+                max-width: 96vw !important;
+                max-height: 90dvh !important;
+                padding: 11px !important;
+            }
+            #planned-calendar-modal .planned-calendar-month-control {
+                grid-template-columns: 30px minmax(0, 1fr) 30px !important;
+                gap: 3px !important;
+            }
+            #planned-calendar-modal .planned-calendar-nav-btn {
+                width: 30px !important;
+                min-width: 30px !important;
+                height: 30px !important;
+            }
+            #planned-calendar-modal .planned-editor-form {
+                grid-template-columns: minmax(0, 1fr) !important;
+            }
+            #planned-calendar-modal .planned-editor-form .form-group,
+            #planned-calendar-modal .planned-editor-form .form-group:nth-child(3),
+            #planned-calendar-modal .planned-editor-form .planned-editor-detail-group,
+            #planned-calendar-modal .planned-editor-actions {
+                grid-column: 1 / -1 !important;
+            }
+        }
+
+
+
+        /* ===== Responsive calendar amounts: show totals instead of day dots ===== */
+        #planned-calendar-modal .planned-calendar-day-total {
+            display: block !important;
+            flex: 0 1 auto !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            max-height: none !important;
+            margin-top: 1px !important;
+            padding: 0 1px !important;
+            overflow: visible !important;
+            white-space: nowrap !important;
+            overflow-wrap: normal !important;
+            word-break: normal !important;
+            text-overflow: clip !important;
+            text-align: center !important;
+            color: var(--success) !important;
+            font-size: clamp(8px, 0.8vw, 10px) !important;
+            line-height: 1.1 !important;
+            font-weight: 800 !important;
+            font-variant-numeric: tabular-nums;
+        }
+        #planned-calendar-modal .planned-calendar-amount-wide {
+            display: inline !important;
+        }
+        #planned-calendar-modal .planned-calendar-amount-compact {
+            display: none !important;
+        }
+        #planned-calendar-modal .planned-calendar-day-total.force-compact .planned-calendar-amount-wide {
+            display: none !important;
+        }
+        #planned-calendar-modal .planned-calendar-day-total.force-compact .planned-calendar-amount-compact {
+            display: inline !important;
+        }
+        #planned-calendar-modal .planned-calendar-day-dot {
+            display: none !important;
+        }
+        #planned-calendar-modal .planned-calendar-legend .planned-calendar-day-dot {
+            display: none !important;
+        }
+
+        @media (max-width: 480px) {
+            #planned-calendar-modal .planned-calendar-day-total {
+                font-size: clamp(6px, 1.85vw, 7.5px) !important;
+                line-height: 1 !important;
+                margin-top: 2px !important;
+                padding: 0 !important;
+            }
+            #planned-calendar-modal .planned-calendar-amount-wide {
+                display: none !important;
+            }
+            #planned-calendar-modal .planned-calendar-amount-compact {
+                display: inline !important;
+            }
+            #planned-calendar-modal .planned-calendar-day {
+                gap: 2px !important;
+            }
+        }
+        @media (min-width: 481px) and (max-width: 900px) {
+            #planned-calendar-modal .planned-calendar-day-total {
+                font-size: clamp(7px, 1.05vw, 9px) !important;
+            }
+        }
+
+        /* ===== รายรับที่คาดว่าจะได้รับในปฏิทินรายจ่ายล่วงหน้า ===== */
+        #planned-calendar-modal .planned-editor-income-group {
+            grid-column: 1 / -1 !important;
+            padding: 11px;
+            border: 1px solid rgba(56,189,248,.28);
+            background: rgba(56,189,248,.06);
+            border-radius: 10px;
+            min-width: 0;
+        }
+        #planned-calendar-modal .planned-income-control-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: stretch;
+            gap: 8px;
+            min-width: 0;
+        }
+        #planned-calendar-modal #planned-editor-income {
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+        #planned-calendar-modal #planned-income-save-btn {
+            width: auto;
+            min-width: 116px;
+            padding: 9px 11px;
+            font-size: 12px;
+            white-space: normal;
+            background: rgba(56,189,248,.12);
+            color: var(--info);
+            border: 1px solid rgba(56,189,248,.4);
+            box-shadow: none;
+        }
+        #planned-calendar-modal #planned-income-save-btn:disabled,
+        #planned-calendar-modal #planned-editor-income:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+        #planned-calendar-modal .planned-income-save-status {
+            display: block;
+            min-height: 14px;
+            margin: 5px 0 0;
+            color: var(--success);
+            font-size: 11px;
+        }
+        #planned-calendar-modal .planned-calendar-day-income {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+            color: var(--info);
+            font-size: clamp(7px, .75vw, 9px);
+            line-height: 1.1;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        #planned-calendar-modal .planned-income-amount-wide { display: inline; }
+        #planned-calendar-modal .planned-income-amount-compact { display: none; }
+        #planned-calendar-modal .planned-calendar-day-income.force-compact .planned-income-amount-wide { display: none; }
+        #planned-calendar-modal .planned-calendar-day-income.force-compact .planned-income-amount-compact { display: inline; }
+        #planned-calendar-modal .planned-calendar-day.has-planned-income {
+            border-color: rgba(56,189,248,.55);
+        }
+        #planned-calendar-modal .planned-calendar-day.has-expenses.has-planned-income {
+            background: linear-gradient(145deg, rgba(16,185,129,.08), rgba(56,189,248,.07));
+        }
+        #planned-calendar-modal .planned-income-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding: 10px 12px;
+            border: 1px solid rgba(56,189,248,.3);
+            background: rgba(56,189,248,.07);
+            border-radius: 10px;
+        }
+        #planned-calendar-modal .planned-income-item strong { color: var(--info); }
+        #planned-calendar-modal .planned-income-item span { color: var(--text-main); font-size: 13px; font-weight: 700; }
+        #planned-calendar-modal .planned-income-tooltip {
+            padding: 4px 0 6px;
+            color: var(--info);
+        }
+        #planned-calendar-modal .planned-calendar-legend { flex-wrap: wrap; }
+        @media (max-width: 480px) {
+            #planned-calendar-modal .planned-calendar-day-income {
+                font-size: clamp(6px, 1.65vw, 7px) !important;
+                line-height: 1 !important;
+            }
+            #planned-calendar-modal .planned-income-amount-wide { display: none; }
+            #planned-calendar-modal .planned-income-amount-compact { display: inline; }
+            #planned-calendar-modal .planned-income-control-row {
+                grid-template-columns: minmax(0, 1fr);
+            }
+            #planned-calendar-modal #planned-income-save-btn {
+                width: 100%;
+                min-width: 0;
+            }
+            #planned-calendar-modal .planned-income-item {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 4px;
+            }
+        }
+
+    
+
+        /* ===== รายละเอียดแผนรายวัน: กล่องใหญ่ อ่านครบ และเลื่อนเฉพาะรายการ ===== */
+        #planned-day-details-modal {
+            z-index: 1600 !important;
+            padding: 12px !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        #planned-day-details-modal .planned-day-details-card {
+            width: min(620px, calc(100vw - 24px)) !important;
+            max-width: 620px !important;
+            height: min(82dvh, 760px) !important;
+            max-height: calc(100dvh - 24px) !important;
+            min-height: min(380px, calc(100dvh - 24px)) !important;
+            padding: 18px !important;
+            display: grid !important;
+            grid-template-rows: auto auto minmax(0, 1fr) !important;
+            gap: 12px !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+            transform: scale(.98);
+        }
+        #planned-day-details-modal.active .planned-day-details-card {
+            transform: scale(1);
+        }
+        .planned-day-details-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            gap: 12px;
+            min-width: 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .planned-day-details-heading { min-width: 0; }
+        .planned-day-details-heading h3 {
+            margin: 0;
+            color: var(--text-main);
+            font-size: clamp(17px, 3vw, 21px);
+            line-height: 1.35;
+            overflow-wrap: anywhere;
+        }
+        .planned-day-details-heading p {
+            margin: 5px 0 0;
+            color: var(--text-muted);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        .planned-day-details-summary {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+        .planned-day-details-stat {
+            min-width: 0;
+            padding: 11px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-input);
+        }
+        .planned-day-details-stat span {
+            display: block;
+            color: var(--text-muted);
+            font-size: 11px;
+            line-height: 1.45;
+            margin-bottom: 5px;
+        }
+        .planned-day-details-stat strong {
+            display: block;
+            font-size: clamp(14px, 2.6vw, 18px);
+            line-height: 1.25;
+            overflow-wrap: anywhere;
+            font-variant-numeric: tabular-nums;
+        }
+        .planned-day-details-stat.expense strong { color: var(--danger); }
+        .planned-day-details-stat.income strong { color: var(--info); }
+        .planned-day-details-list {
+            min-height: 0;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            padding: 0 4px 2px 0;
+        }
+        .planned-day-details-list h4 {
+            margin: 2px 0 9px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .planned-day-detail-income,
+        .planned-day-detail-item {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: start;
+            gap: 10px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: rgba(30, 41, 59, .7);
+            min-width: 0;
+        }
+        .planned-day-detail-income { border-color: rgba(56,189,248,.35); }
+        .planned-day-detail-income-main,
+        .planned-day-detail-main { min-width: 0; overflow-wrap: anywhere; }
+        .planned-day-detail-order {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 23px;
+            height: 23px;
+            margin-right: 6px;
+            border-radius: 7px;
+            background: rgba(148,163,184,.14);
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 800;
+            vertical-align: middle;
+        }
+        .planned-day-detail-category {
+            display: inline-block;
+            margin-bottom: 4px;
+            color: var(--success);
+            font-size: 11px;
+            font-weight: 800;
+        }
+        .planned-day-detail-name {
+            display: block;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.45;
+            overflow-wrap: anywhere;
+        }
+        .planned-day-detail-meta {
+            display: block;
+            margin-top: 5px;
+            color: var(--text-muted);
+            font-size: 11px;
+            line-height: 1.45;
+            overflow-wrap: anywhere;
+        }
+        .planned-day-detail-amount {
+            color: var(--danger);
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.4;
+            text-align: right;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
+        .planned-day-detail-income .planned-day-detail-amount { color: var(--info); }
+        .planned-day-details-empty {
+            text-align: center;
+            padding: 34px 14px;
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+            color: var(--text-muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+        @media (max-width: 600px) {
+            #planned-day-details-modal { padding: 8px !important; }
+            #planned-day-details-modal .planned-day-details-card {
+                width: calc(100vw - 16px) !important;
+                max-width: 560px !important;
+                height: min(86dvh, 720px) !important;
+                max-height: calc(100dvh - 16px) !important;
+                min-height: min(400px, calc(100dvh - 16px)) !important;
+                padding: 13px !important;
+                gap: 10px !important;
+                border-radius: 16px !important;
+            }
+            .planned-day-details-summary { gap: 6px; }
+            .planned-day-details-stat { padding: 9px; }
+            .planned-day-detail-income,
+            .planned-day-detail-item { gap: 7px; padding: 10px; }
+            .planned-day-detail-amount { font-size: 12px; }
+            .planned-day-detail-name { font-size: 13px; }
+        }
+        @media (max-width: 360px) {
+            #planned-day-details-modal .planned-day-details-card {
+                padding: 10px !important;
+                gap: 8px !important;
+            }
+            .planned-day-details-summary { grid-template-columns: 1fr 1fr; }
+            .planned-day-details-stat span { font-size: 10px; }
+            .planned-day-detail-income,
+            .planned-day-detail-item { grid-template-columns: minmax(0, 1fr); }
+            .planned-day-detail-amount { text-align: left; }
+        }
+
     </style>
 </head>
 <body>
@@ -1112,6 +2577,7 @@
                 <button class="profile-btn" id="profile-btn" type="button" aria-label="เปิดเมนูโปรไฟล์" onclick="toggleProfileMenu()">👤</button>
                 <div class="profile-menu hidden" id="profile-menu">
                     <div class="profile-email" id="user-display-email">-</div>
+                    <button class="profile-trash-btn" type="button" onclick="openBackupModal(); document.getElementById('profile-menu').classList.add('hidden')">💾 สำรอง/กู้คืนข้อมูล</button>
                     <button id="profile-delete-data-btn" class="profile-data-btn" type="button" onclick="moveAllDataToTrash()">🗑️ ลบข้อมูลทั้งหมด</button>
                     <button id="profile-trash-btn" class="profile-trash-btn" type="button" onclick="toggleTrashPanel()">♻️ ถังขยะ</button>
                     <div id="profile-trash-panel" class="profile-trash-panel hidden"></div>
@@ -1251,7 +2717,7 @@
 
                     <div class="history-actions" id="history-table-actions">
                         <button class="history-action-btn history-action-summary" onclick="openSummaryModal()">📄 ใบสรุปผล</button>
-                        <button class="history-action-btn history-backup-btn" onclick="openBackupModal()">💾 สำรอง/กู้คืน</button>
+                        <button class="history-action-btn history-action-planned" onclick="openPlannedCalendarModal()">🗓️ การใช้จ่ายล่วงหน้า</button>
                     </div>
                 </div>
 
@@ -1344,6 +2810,95 @@
     </div>
 </div>
 
+<!-- Planned Spending Calendar Modal -->
+<div id="planned-calendar-modal" class="modal-overlay" onclick="closePlannedCalendarModal()">
+    <div class="modal-card planned-calendar-modal-card" onclick="event.stopPropagation()">
+        <div style="display:flex; justify-content:flex-start; align-items:center; gap:12px; margin-bottom:12px; border-bottom:1px solid #334155; padding-bottom:10px;">
+            <div>
+                <h3 style="margin:0; color:white;">🗓️ การใช้จ่ายล่วงหน้า</h3>
+                <p style="margin:5px 0 0; color:var(--text-muted); font-size:12px;">วางแผนรายจ่ายไว้ก่อนได้ โดยยังไม่หักจากเงินคงเหลือจริง</p>
+            </div>
+        </div>
+        <div class="planned-calendar-toolbar">
+            <div class="planned-calendar-month-control">
+                <button type="button" class="planned-calendar-nav-btn" aria-label="เดือนก่อนหน้า" onclick="changePlannedCalendarMonth(-1)">‹</button>
+                <h3 id="planned-calendar-month-title">ตุลาคม 2569</h3>
+                <button type="button" class="planned-calendar-nav-btn" aria-label="เดือนถัดไป" onclick="changePlannedCalendarMonth(1)">›</button>
+            </div>
+            <button type="button" id="planned-calendar-edit-toggle" class="planned-calendar-edit-toggle" onclick="togglePlannedCalendarEditMode()">✏️ แก้ไข</button>
+        </div>
+        <div class="planned-calendar-weekdays" aria-hidden="true">
+            <div class="planned-calendar-weekday">อา</div><div class="planned-calendar-weekday">จ</div><div class="planned-calendar-weekday">อ</div><div class="planned-calendar-weekday">พ</div><div class="planned-calendar-weekday">พฤ</div><div class="planned-calendar-weekday">ศ</div><div class="planned-calendar-weekday">ส</div>
+        </div>
+        <div id="planned-calendar-grid" class="planned-calendar-grid" aria-label="ปฏิทินแผนการใช้จ่าย"></div>
+
+        <section id="planned-date-editor" class="planned-date-editor hidden" aria-live="polite">
+            <div class="planned-date-editor-header">
+                <h4 id="planned-editor-title">เพิ่มรายจ่ายล่วงหน้า</h4>
+                <button type="button" onclick="hidePlannedExpenseEditor()" class="planned-editor-cancel-btn" style="width:auto;padding:7px 10px;font-size:12px;" id="planned-editor-close-btn">ปิดแบบฟอร์ม</button>
+            </div>
+            <p class="planned-editor-hint">เพิ่มได้หลายรายการในวันเดียวกัน เช่น ค่าอาหาร ค่าเดินทาง หรือค่าใช้จ่ายอื่น ๆ รายการจะถูกบันทึกไว้ในแผนทันที</p>
+            <div class="planned-editor-form">
+                <div class="form-group">
+                    <label for="planned-editor-date">📅 วันที่คาดว่าจะใช้</label>
+                    <input type="date" id="planned-editor-date" min="2020-01-01" onchange="loadPlannedIncomeForDate()">
+                </div>
+                <div class="form-group">
+                    <label for="planned-editor-amount" style="color:#fca5a5;">💸 จำนวนเงิน (บาท)</label>
+                    <input type="number" id="planned-editor-amount" min="0.01" step="any" placeholder="เช่น 150">
+                </div>
+                <div class="form-group">
+                    <label for="planned-editor-category">🏷️ ประเภทการใช้จ่าย</label>
+                    <select id="planned-editor-category" style="width:100%;padding:14px 16px;background:var(--bg-input);border:1px solid var(--border-color);border-radius:10px;font-size:15px;color:white;">
+                        <option value="ค่าอาหาร">🍚 ค่าอาหาร</option>
+                        <option value="ค่าเดินทาง">🚗 ค่าเดินทาง</option>
+                        <option value="ช้อปปิ้ง">🛍️ ช้อปปิ้ง</option>
+                        <option value="การเรียน">📚 การเรียน</option>
+                        <option value="บิล/ค่าสาธารณูปโภค">🧾 บิล/ค่าสาธารณูปโภค</option>
+                        <option value="สุขภาพ">💊 สุขภาพ</option>
+                        <option value="ความบันเทิง">🎮 ความบันเทิง</option>
+                        <option value="อื่นๆ">📦 อื่นๆ</option>
+                    </select>
+                </div>
+                <div class="form-group planned-editor-detail-group">
+                    <label for="planned-editor-detail">💬 ใช้จ่ายไปกับอะไร</label>
+                    <input type="text" id="planned-editor-detail" placeholder="เช่น ข้าวกลางวัน, รถไฟฟ้า, ซื้ออุปกรณ์เรียน">
+                </div>
+                <div class="form-group planned-editor-income-group">
+                    <label for="planned-editor-income" style="color:var(--info);">💰 เงินที่คาดว่าจะได้รับ (บาท)</label>
+                    <div class="planned-income-control-row">
+                        <input type="number" id="planned-editor-income" min="0" step="any" placeholder="เช่น 500" inputmode="decimal" autocomplete="off">
+                        <button type="button" id="planned-income-save-btn" onclick="savePlannedIncomeForDate()">💾 บันทึกยอดเงินรับ</button>
+                    </div>
+                    <p id="planned-income-save-status" class="planned-income-save-status" aria-live="polite"></p>
+                </div>
+                <div class="planned-editor-actions">
+                    <button type="button" id="planned-editor-save-btn" onclick="addPlannedExpense()">➕ เพิ่มรายจ่ายล่วงหน้า</button>
+                    <button type="button" id="planned-editor-cancel-btn" class="planned-editor-cancel-btn hidden" onclick="cancelPlannedExpenseEdit()">ยกเลิกการแก้ไข</button>
+                </div>
+            </div>
+            <div id="planned-expense-list" class="planned-expense-list">
+                <div style="color:var(--text-muted);font-size:13px;text-align:center;padding:10px;">เลือกวันที่ในปฏิทินเพื่อดูแผนรายจ่าย</div>
+            </div>
+        </section>
+    </div>
+</div>
+
+
+<!-- Full details for a selected planned-spending date -->
+<div id="planned-day-details-modal" class="modal-overlay" onclick="closePlannedDayDetails()" aria-hidden="true">
+    <section class="modal-card planned-day-details-card" role="dialog" aria-modal="true" aria-labelledby="planned-day-details-title" onclick="event.stopPropagation()">
+        <header class="planned-day-details-header">
+            <div class="planned-day-details-heading">
+                <h3 id="planned-day-details-title">📅 รายละเอียดวันที่</h3>
+                <p id="planned-day-details-subtitle">รายละเอียดรายรับและรายจ่ายที่วางแผนไว้</p>
+            </div>
+        </header>
+        <div id="planned-day-details-summary" class="planned-day-details-summary"></div>
+        <div id="planned-day-details-list" class="planned-day-details-list" tabindex="0" aria-label="รายการทั้งหมดของวันที่เลือก"></div>
+    </section>
+</div>
+
 <!-- Summary Report Modal -->
 <div id="summary-modal" class="modal-overlay" onclick="closeSummaryModal()">
     <div class="modal-card summary-modal-card" onclick="event.stopPropagation()">
@@ -1401,6 +2956,15 @@
     let endDateProjectIso = "";   
     let historyData = []; 
     let currentDayBasket = []; 
+    let plannedExpenses = [];
+    let plannedIncomeByDate = {};
+    let plannedCalendarYear = new Date().getFullYear();
+    let plannedCalendarMonth = new Date().getMonth();
+    let plannedCalendarSelectedDate = getTodayIso();
+    let plannedCalendarEditMode = false;
+    let plannedExpenseEditingId = null;
+    let plannedDatePopupTimer = null;
+    let plannedSuppressClickUntil = 0;
 
     let isEditMode = false;
     let editTargetIndex = null;
@@ -1491,6 +3055,19 @@
     window.closeSummaryModal = closeSummaryModal;
     window.downloadSummaryImage = downloadSummaryImage;
     window.selectExpenseCategory = selectExpenseCategory;
+    window.openPlannedCalendarModal = openPlannedCalendarModal;
+    window.closePlannedCalendarModal = closePlannedCalendarModal;
+    window.changePlannedCalendarMonth = changePlannedCalendarMonth;
+    window.togglePlannedCalendarEditMode = togglePlannedCalendarEditMode;
+    window.cancelPlannedExpenseEdit = cancelPlannedExpenseEdit;
+    window.hidePlannedExpenseEditor = hidePlannedExpenseEditor;
+    window.editPlannedExpense = editPlannedExpense;
+    window.addPlannedExpense = addPlannedExpense;
+    window.loadPlannedIncomeForDate = loadPlannedIncomeForDate;
+    window.savePlannedIncomeForDate = savePlannedIncomeForDate;
+    window.removePlannedExpense = removePlannedExpense;
+    window.movePlannedExpenseToTodayBasket = movePlannedExpenseToTodayBasket;
+    window.closePlannedDayDetails = closePlannedDayDetails;
     window.setHistoryView = setHistoryView;
     window.toggleHistoryTable = toggleHistoryTable;
     window.openTransactionSearchModal = openTransactionSearchModal;
@@ -1559,6 +3136,12 @@
     });
 
     // เลื่อนหน้าเมื่อใด ให้ปิดกล่องโปรไฟล์ทันที เหมือนการกดพื้นที่อื่นของเว็บ
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        const detailsModal = document.getElementById('planned-day-details-modal');
+        if (detailsModal?.classList.contains('active')) closePlannedDayDetails();
+    });
+
     window.addEventListener('scroll', () => {
         const menu = document.getElementById('profile-menu');
         if (menu && !menu.classList.contains('hidden')) {
@@ -1608,6 +3191,26 @@
         return parseFloat(num).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     }
 
+    // จำนวนเงินที่ใช้ในช่องปฏิทิน: อ่านง่ายและไม่ล้นในจอเล็ก
+    function formatCalendarAmountFull(num) {
+        const value = Number(num) || 0;
+        return (Math.round(value * 100) / 100).toLocaleString('en-US', { maximumFractionDigits: 2 });
+    }
+
+    function formatCalendarAmountCompact(num) {
+        const value = Number(num) || 0;
+        const abs = Math.abs(value);
+        const full = formatCalendarAmountFull(value);
+        if (abs < 10000 && full.length <= 6) return full;
+        if (abs < 1000000) {
+            return `${(value / 1000).toFixed(abs < 100000 ? 1 : 0).replace(/\.0$/, '')}k`;
+        }
+        if (abs < 1000000000) {
+            return `${(value / 1000000).toFixed(abs < 100000000 ? 1 : 0).replace(/\.0$/, '')}m`;
+        }
+        return `${(value / 1000000000).toFixed(1).replace(/\.0$/, '')}b`;
+    }
+
     function updateFormDateTitle() {
         if (isEditMode) return;
         const t = document.getElementById('current-day-title');
@@ -1633,7 +3236,7 @@
             targetDailyBudget = 0; 
         }
 
-        historyData = []; currentDayBasket = [];
+        historyData = []; currentDayBasket = []; plannedExpenses = []; plannedIncomeByDate = {};
         document.getElementById('setup-card').classList.add('hidden');
         document.getElementById('main-tracker').classList.remove('hidden');
         recalculateAllChain(); 
@@ -1679,6 +3282,659 @@
         document.getElementById('draft-spent-detail').value = '';
         renderBasket(); 
         saveDataToFirebase();
+    }
+
+    function openPlannedCalendarModal() {
+        const modal = document.getElementById('planned-calendar-modal');
+        if (!modal) return;
+        const today = parseIsoToLocalDate(getTodayIso());
+        plannedCalendarYear = today.getFullYear();
+        plannedCalendarMonth = today.getMonth();
+        plannedCalendarSelectedDate = getTodayIso();
+        plannedCalendarEditMode = false;
+        plannedExpenseEditingId = null;
+        modal.classList.remove('is-date-editor-open');
+        resetPlannedExpenseForm();
+        document.getElementById('planned-date-editor')?.classList.add('hidden');
+        updatePlannedCalendarEditButton();
+        document.body.classList.add('planned-calendar-open');
+        modal.classList.add('active');
+        renderPlannedCalendar();
+        renderPlannedExpenses();
+    }
+
+    function closePlannedCalendarModal() {
+        closePlannedDayDetails();
+        const modal = document.getElementById('planned-calendar-modal');
+        if (modal) {
+            modal.classList.remove('active');
+            modal.classList.remove('is-date-editor-open');
+        }
+        document.body.classList.remove('planned-calendar-open');
+        plannedCalendarEditMode = false;
+        plannedExpenseEditingId = null;
+        if (plannedDatePopupTimer) clearTimeout(plannedDatePopupTimer);
+        plannedDatePopupTimer = null;
+        document.getElementById('planned-date-editor')?.classList.add('hidden');
+        updatePlannedCalendarEditButton();
+    }
+
+    function changePlannedCalendarMonth(offset) {
+        const d = new Date(plannedCalendarYear, plannedCalendarMonth + Number(offset || 0), 1);
+        plannedCalendarYear = d.getFullYear();
+        plannedCalendarMonth = d.getMonth();
+        renderPlannedCalendar();
+    }
+
+    function updatePlannedCalendarEditButton() {
+        const button = document.getElementById('planned-calendar-edit-toggle');
+        if (!button) return;
+        button.textContent = plannedCalendarEditMode ? '✓ เสร็จสิ้น' : '✏️ แก้ไข';
+        button.classList.toggle('is-editing', plannedCalendarEditMode);
+        button.setAttribute('aria-pressed', plannedCalendarEditMode ? 'true' : 'false');
+    }
+
+    function togglePlannedCalendarEditMode() {
+        // เปลี่ยนโหมดโดยคงเดือนที่ผู้ใช้กำลังดูอยู่ ไม่กระโดดกลับเดือนปัจจุบัน
+        plannedCalendarEditMode = !plannedCalendarEditMode;
+        plannedExpenseEditingId = null;
+        document.getElementById('planned-calendar-modal')?.classList.remove('is-date-editor-open');
+        if (plannedCalendarEditMode) {
+            const selectedDate = plannedCalendarSelectedDate || getTodayIso();
+            const selected = parseIsoToLocalDate(selectedDate);
+            const selectedIsInDisplayedMonth = selected.getFullYear() === plannedCalendarYear && selected.getMonth() === plannedCalendarMonth;
+            if (!selectedIsInDisplayedMonth) {
+                const todayIso = getTodayIso();
+                const firstDayOfMonth = `${plannedCalendarYear}-${String(plannedCalendarMonth + 1).padStart(2, '0')}-01`;
+                const lastDayOfMonth = `${plannedCalendarYear}-${String(plannedCalendarMonth + 1).padStart(2, '0')}-${String(new Date(plannedCalendarYear, plannedCalendarMonth + 1, 0).getDate()).padStart(2, '0')}`;
+                // ถ้าเดือนที่เปิดอยู่มีวันที่แก้ไขได้ ให้เลือกวันแรกที่ไม่ผ่านไปแล้ว
+                if (lastDayOfMonth >= todayIso) {
+                    plannedCalendarSelectedDate = firstDayOfMonth < todayIso ? todayIso : firstDayOfMonth;
+                } else {
+                    // เดือนที่ผ่านมาแสดงไว้ตามเดิม แต่วันทั้งหมดจะถูกล็อกในโหมดแก้ไข
+                    plannedCalendarSelectedDate = firstDayOfMonth;
+                }
+            }
+            document.getElementById('planned-date-editor')?.classList.add('hidden');
+            resetPlannedExpenseForm();
+        } else {
+            document.getElementById('planned-date-editor')?.classList.add('hidden');
+        }
+        updatePlannedCalendarEditButton();
+        renderPlannedCalendar();
+        renderPlannedExpenses();
+    }
+
+    function getPlannedExpensesForDate(dateIso) {
+        // คงลำดับในอาร์เรย์ไว้ ซึ่งเป็นลำดับที่ผู้ใช้เพิ่มรายการไว้ก่อน-หลัง
+        // ห้ามเรียงตามประเภทหรือรายละเอียด เพราะจะทำให้ลำดับที่บันทึกเปลี่ยนไป
+        return plannedExpenses
+            .map((item, index) => ({ ...item, originalIndex: index }))
+            .filter(item => item.dateIso === dateIso);
+    }
+
+    function getPlannedDateTotal(dateIso) {
+        return getPlannedExpensesForDate(dateIso).reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+    }
+
+    // คำนวณเงินคงเหลือโดยประมาณ ณ สิ้นวันที่เลือก:
+    // เงินตั้งต้น + รายรับจริง - รายจ่ายจริง + รายรับล่วงหน้า - รายจ่ายล่วงหน้า
+    function getProjectedPlannedBalance(dateIso) {
+        const todayIso = getTodayIso();
+        const actualRecords = (historyData || []).filter(item => item && item.dateIso);
+        const actualThroughDate = actualRecords.filter(item => item.dateIso <= dateIso);
+        const actualBalanceAtDate = (Number(totalMoneyInitial) || 0) + actualThroughDate.reduce((sum, item) => {
+            return sum + (Number(item.income) || 0) - (Number(item.spent) || 0);
+        }, 0);
+
+        // วันที่ผ่านมาแล้ว ใช้ยอดเงินจริงจากประวัติถึงวันนั้น ไม่เอาแผนในอนาคตมารวม
+        if (dateIso < todayIso) return actualBalanceAtDate;
+
+        // สำหรับวันนี้/อนาคต ให้เริ่มจากเงินจริงปัจจุบัน แล้วค่อยบวก/ลบแผนตั้งแต่วันนี้ถึงวันที่เลือก
+        const actualThroughToday = actualRecords.filter(item => item.dateIso <= todayIso);
+        let balance = (Number(totalMoneyInitial) || 0) + actualThroughToday.reduce((sum, item) => {
+            return sum + (Number(item.income) || 0) - (Number(item.spent) || 0);
+        }, 0);
+
+        const recordedDates = new Set(actualThroughToday.map(item => item.dateIso));
+        for (const [incomeDate, amount] of Object.entries(plannedIncomeByDate || {})) {
+            if (incomeDate >= todayIso && incomeDate <= dateIso && !recordedDates.has(incomeDate)) {
+                balance += Number(amount) || 0;
+            }
+        }
+        for (const item of (plannedExpenses || [])) {
+            if (item && item.dateIso >= todayIso && item.dateIso <= dateIso) {
+                balance -= Number(item.amount) || 0;
+            }
+        }
+        return balance;
+    }
+
+    function buildPlannedCalendarTooltip(dateIso) {
+        const entries = getPlannedExpensesForDate(dateIso);
+        const expectedIncome = Number(plannedIncomeByDate?.[dateIso]) || 0;
+        if (!entries.length && expectedIncome <= 0) {
+            return '<div class="tooltip-empty">ไม่มีการใช้เงินวันนี้</div>';
+        }
+        let html = '';
+        if (expectedIncome > 0) {
+            html += `<div class="planned-income-tooltip">💰 คาดว่าจะได้รับ <strong style="display:inline;color:var(--info);font-size:12px;">${formatMoney(expectedIncome)} บาท</strong></div>`;
+        }
+        if (entries.length) {
+            const total = entries.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+            const list = entries.map(item => {
+                const category = item.category || 'รายจ่าย';
+                const detail = item.detail || 'ไม่ระบุรายละเอียด';
+                return `<div class="tooltip-item">${escapeHtml(category)} · ${escapeHtml(detail)}<br><strong style="display:inline;color:#f8fafc;font-size:12px;">${formatMoney(item.amount)} บาท</strong></div>`;
+            }).join('');
+            const projectedBalance = getProjectedPlannedBalance(dateIso);
+            html += `<div class="planned-calendar-tooltip-summary" style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:5px 0 7px;">
+                <strong style="display:block;margin:0;color:#6ee7b7;font-size:12px;">รวมรายจ่าย ${formatMoney(total)} บาท</strong>
+                <strong style="display:block;margin:0;color:${projectedBalance >= 0 ? '#38bdf8' : '#f87171'};font-size:12px;text-align:right;">เหลือ ${formatMoney(projectedBalance)} บาท</strong>
+            </div>${list}`;
+        } else {
+            html += '<div class="tooltip-empty">ไม่มีแผนรายจ่ายวันนี้</div>';
+        }
+        return html;
+    }
+
+    function renderPlannedCalendar() {
+        const grid = document.getElementById('planned-calendar-grid');
+        const title = document.getElementById('planned-calendar-month-title');
+        if (!grid || !title) return;
+        const months = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+        title.textContent = `${months[plannedCalendarMonth]} ${plannedCalendarYear + 543}`;
+        const firstDay = new Date(plannedCalendarYear, plannedCalendarMonth, 1).getDay();
+        const daysInMonth = new Date(plannedCalendarYear, plannedCalendarMonth + 1, 0).getDate();
+        const todayIso = getTodayIso();
+        let html = '';
+        for (let i = 0; i < firstDay; i++) html += '<div class="planned-calendar-day-wrap" aria-hidden="true"></div>';
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateIso = `${plannedCalendarYear}-${String(plannedCalendarMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+            const expenses = getPlannedExpensesForDate(dateIso);
+            const total = expenses.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+            const expectedIncome = Number(plannedIncomeByDate?.[dateIso]) || 0;
+            const isToday = dateIso === todayIso;
+            const isPastDate = dateIso < todayIso;
+            const isDisabledForEdit = plannedCalendarEditMode && isPastDate;
+            const isSelected = dateIso === plannedCalendarSelectedDate && plannedCalendarEditMode;
+            const hasExpenses = expenses.length > 0;
+            const hasPlannedIncome = expectedIncome > 0;
+            const calendarAmountFull = formatCalendarAmountFull(total);
+            const calendarAmountCompact = formatCalendarAmountCompact(total);
+            const forceCompactAmount = calendarAmountFull.length > 8;
+            const incomeAmountFull = formatCalendarAmountFull(expectedIncome);
+            const incomeAmountCompact = formatCalendarAmountCompact(expectedIncome);
+            const forceCompactIncome = incomeAmountFull.length > 7;
+            const classes = ['planned-calendar-day', isToday ? 'is-today' : '', isSelected ? 'is-selected' : '', hasExpenses ? 'has-expenses' : '', hasPlannedIncome ? 'has-planned-income' : '', isDisabledForEdit ? 'is-past-disabled' : ''].filter(Boolean).join(' ');
+            const tooltipPlacement = day > daysInMonth - 7 ? 'above' : '';
+            const pastLabel = isDisabledForEdit ? ' วันที่ผ่านมาแล้ว ไม่สามารถแก้ไขได้' : '';
+            const dayAriaSummary = [hasExpenses ? `มีแผนรายจ่าย ${formatMoney(total)} บาท` : '', hasPlannedIncome ? `คาดว่าจะได้รับ ${formatMoney(expectedIncome)} บาท` : '', !hasExpenses && !hasPlannedIncome ? 'ไม่มีแผนการเงิน' : ''].filter(Boolean).join(' และ ');
+            html += `<div class="planned-calendar-day-wrap" data-planned-day-wrap="${dateIso}">
+                <button type="button" class="${classes}" data-planned-date="${dateIso}" ${isDisabledForEdit ? 'disabled' : ''} aria-label="${day} ${months[plannedCalendarMonth]} ${dayAriaSummary}${pastLabel}" aria-pressed="${isSelected ? 'true' : 'false'}">
+                    <span class="planned-calendar-day-number">${day}</span>
+                    ${hasExpenses ? `<span class="planned-calendar-day-total${forceCompactAmount ? ' force-compact' : ''}" title="รายจ่าย ${formatMoney(total)} บาท"><span class="planned-calendar-amount-wide">−${calendarAmountFull}</span><span class="planned-calendar-amount-compact">−${calendarAmountCompact}</span></span>` : ''}
+                    ${hasPlannedIncome ? `<span class="planned-calendar-day-income${forceCompactIncome ? ' force-compact' : ''}" title="คาดว่าจะได้รับ ${formatMoney(expectedIncome)} บาท"><span class="planned-income-amount-wide">+${incomeAmountFull}</span><span class="planned-income-amount-compact">+${incomeAmountCompact}</span></span>` : ''}
+                </button>
+                <div class="planned-calendar-tooltip ${tooltipPlacement} hidden" data-planned-tooltip="${dateIso}" role="status"><strong>${day} ${months[plannedCalendarMonth]}</strong>${buildPlannedCalendarTooltip(dateIso)}</div>
+            </div>`;
+        }
+        const totalCells = firstDay + daysInMonth;
+        // เติมช่องว่างให้ครบ 42 ช่อง เพื่อให้ปฏิทินทุกเดือนมี 6 แถวเท่ากัน
+        const trailing = Math.max(0, 42 - totalCells);
+        for (let i = 0; i < trailing; i++) html += '<div class="planned-calendar-day-wrap" aria-hidden="true"></div>';
+        grid.innerHTML = html;
+
+        grid.querySelectorAll('[data-planned-day-wrap]').forEach(wrap => {
+            const button = wrap.querySelector('[data-planned-date]');
+            const dateIso = button?.dataset.plannedDate;
+            if (!button || !dateIso) return;
+            wrap.addEventListener('mouseenter', () => {
+                if (!plannedCalendarEditMode) showPlannedDatePopup(dateIso);
+            });
+            wrap.addEventListener('mouseleave', () => hidePlannedDatePopup(dateIso));
+            button.addEventListener('focus', () => {
+                if (!plannedCalendarEditMode) showPlannedDatePopup(dateIso);
+            });
+            button.addEventListener('blur', () => hidePlannedDatePopup(dateIso));
+            button.addEventListener('click', () => {
+                if (Date.now() < plannedSuppressClickUntil) return;
+                handlePlannedCalendarDateClick(dateIso);
+            });
+            button.addEventListener('touchstart', () => {
+                if (plannedDatePopupTimer) clearTimeout(plannedDatePopupTimer);
+                plannedDatePopupTimer = setTimeout(() => {
+                    if (!plannedCalendarEditMode) {
+                        showPlannedDatePopup(dateIso);
+                        plannedSuppressClickUntil = Date.now() + 650;
+                    }
+                }, 500);
+            }, { passive: true });
+            button.addEventListener('touchend', () => {
+                if (plannedDatePopupTimer) clearTimeout(plannedDatePopupTimer);
+                plannedDatePopupTimer = null;
+            }, { passive: true });
+            button.addEventListener('touchmove', () => {
+                if (plannedDatePopupTimer) clearTimeout(plannedDatePopupTimer);
+                plannedDatePopupTimer = null;
+            }, { passive: true });
+        });
+        updatePlannedCalendarEditButton();
+    }
+
+    function showPlannedDatePopup(dateIso) {
+        hidePlannedDatePopup();
+        const tooltip = document.querySelector(`[data-planned-tooltip="${dateIso}"]`);
+        if (tooltip) tooltip.classList.remove('hidden');
+    }
+
+    function hidePlannedDatePopup(dateIso = null) {
+        if (dateIso) {
+            const tooltip = document.querySelector(`[data-planned-tooltip="${dateIso}"]`);
+            tooltip?.classList.add('hidden');
+            return;
+        }
+        document.querySelectorAll('#planned-calendar-grid .planned-calendar-tooltip').forEach(el => el.classList.add('hidden'));
+    }
+
+    function handlePlannedCalendarDateClick(dateIso) {
+        if (plannedCalendarEditMode) {
+            if (dateIso < getTodayIso()) {
+                alert('วันที่ผ่านมาแล้วไม่สามารถแก้ไขแผนรายจ่ายได้');
+                return;
+            }
+            selectPlannedCalendarDate(dateIso);
+        } else {
+            // แตะวันที่หนึ่งครั้งเพื่อเปิดหน้าต่างรายละเอียดแบบเต็ม แทน tooltip ขนาดเล็ก
+            hidePlannedDatePopup();
+            openPlannedDayDetails(dateIso);
+        }
+    }
+
+    function openPlannedDayDetails(dateIso) {
+        const modal = document.getElementById('planned-day-details-modal');
+        const title = document.getElementById('planned-day-details-title');
+        const subtitle = document.getElementById('planned-day-details-subtitle');
+        const summary = document.getElementById('planned-day-details-summary');
+        const list = document.getElementById('planned-day-details-list');
+        if (!modal || !title || !summary || !list) return;
+
+        const date = parseIsoToLocalDate(dateIso);
+        const months = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+        const weekdays = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+        const isPastDate = dateIso < getTodayIso();
+        const entries = getPlannedExpensesForDate(dateIso); // แสดงจากรายการที่เพิ่มก่อน ไปหารายการที่เพิ่มทีหลัง
+        const expectedIncome = Number(plannedIncomeByDate?.[dateIso]) || 0;
+        const totalExpense = entries.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
+        modal.dataset.dateIso = dateIso;
+        title.textContent = `📅 ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear() + 543}`;
+        subtitle.textContent = `${weekdays[date.getDay()]} · ${isPastDate ? 'ข้อมูลย้อนหลัง (ดูได้อย่างเดียว)' : 'รายละเอียดแผนรายรับและรายจ่าย'}`;
+        summary.innerHTML = `
+            <div class="planned-day-details-stat expense"><span>รายจ่ายที่วางแผนไว้ · ${entries.length} รายการ</span><strong>−${formatMoney(totalExpense)} บาท</strong></div>
+            <div class="planned-day-details-stat income"><span>เงินที่คาดว่าจะได้รับ</span><strong>+${formatMoney(expectedIncome)} บาท</strong></div>`;
+
+        let html = '';
+        if (expectedIncome > 0) {
+            html += `<article class="planned-day-detail-income">
+                <div class="planned-day-detail-income-main">
+                    <span class="planned-day-detail-category" style="color:var(--info);">💰 เงินรับล่วงหน้า</span>
+                    <span class="planned-day-detail-name">เงินที่คาดว่าจะได้รับ</span>
+                    <span class="planned-day-detail-meta">ยังไม่รวมในเงินคงเหลือจริงจนกว่าจะบันทึกรายรับจริง</span>
+                </div>
+                <strong class="planned-day-detail-amount">+${formatMoney(expectedIncome)} บาท</strong>
+            </article>`;
+        }
+        if (entries.length) {
+            html += '<h4>รายการรายจ่าย · เรียงจากรายการที่เพิ่มก่อน</h4>';
+            html += entries.map((item, index) => {
+                const category = item.category || 'รายจ่าย';
+                const detail = item.detail || 'ไม่ระบุรายละเอียด';
+                const status = item.inBasket ? 'อยู่ในตะกร้าวันนี้ รอสรุปยอด' : (dateIso === getTodayIso() ? 'กำหนดวันนี้' : (isPastDate ? 'วันที่ผ่านมาแล้ว · ดูได้อย่างเดียว' : 'วางแผนไว้ล่วงหน้า'));
+                const createdAt = Number(item.createdAt);
+                const timeLabel = Number.isFinite(createdAt) && createdAt > 0
+                    ? `บันทึกเมื่อ ${new Date(createdAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}`
+                    : 'ลำดับตามข้อมูลที่บันทึกไว้เดิม';
+                return `<article class="planned-day-detail-item">
+                    <div class="planned-day-detail-main">
+                        <span class="planned-day-detail-category"><span class="planned-day-detail-order">${index + 1}</span>${escapeHtml(category)}</span>
+                        <span class="planned-day-detail-name">${escapeHtml(detail)}</span>
+                        <span class="planned-day-detail-meta">${escapeHtml(timeLabel)} · ${escapeHtml(status)}</span>
+                    </div>
+                    <strong class="planned-day-detail-amount">−${formatMoney(item.amount)} บาท</strong>
+                </article>`;
+            }).join('');
+        }
+        if (!html) {
+            html = '<div class="planned-day-details-empty">วันนี้ยังไม่มีแผนรายจ่ายหรือเงินรับล่วงหน้า</div>';
+        }
+        list.innerHTML = html;
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        list.scrollTop = 0;
+    }
+
+    function closePlannedDayDetails() {
+        const modal = document.getElementById('planned-day-details-modal');
+        if (!modal) return;
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function selectPlannedCalendarDate(dateIso) {
+        if (!dateIso || dateIso < getTodayIso()) {
+            alert('วันที่ผ่านมาแล้วไม่สามารถแก้ไขแผนรายจ่ายได้');
+            return;
+        }
+        plannedCalendarSelectedDate = dateIso;
+        plannedExpenseEditingId = null;
+        document.getElementById('planned-editor-date').value = dateIso;
+        document.getElementById('planned-date-editor')?.classList.remove('hidden');
+        document.getElementById('planned-calendar-modal')?.classList.add('is-date-editor-open');
+        resetPlannedExpenseForm(false);
+        renderPlannedCalendar();
+        renderPlannedExpenses();
+    }
+
+    function resetPlannedExpenseForm(resetDate = true) {
+        const dateInput = document.getElementById('planned-editor-date');
+        const amountInput = document.getElementById('planned-editor-amount');
+        const categoryInput = document.getElementById('planned-editor-category');
+        const detailInput = document.getElementById('planned-editor-detail');
+        if (dateInput) {
+            dateInput.min = getTodayIso();
+            if (resetDate || !dateInput.value) dateInput.value = plannedCalendarSelectedDate || getTodayIso();
+        }
+        if (amountInput) amountInput.value = '';
+        if (categoryInput) categoryInput.value = 'ค่าอาหาร';
+        if (detailInput) detailInput.value = '';
+        loadPlannedIncomeForDate();
+        const title = document.getElementById('planned-editor-title');
+        const saveBtn = document.getElementById('planned-editor-save-btn');
+        const cancelBtn = document.getElementById('planned-editor-cancel-btn');
+        if (title) title.textContent = 'เพิ่มรายจ่ายล่วงหน้า';
+        if (saveBtn) saveBtn.textContent = '➕ เพิ่มรายจ่ายล่วงหน้า';
+        cancelBtn?.classList.add('hidden');
+    }
+
+    function loadPlannedIncomeForDate() {
+        const dateInput = document.getElementById('planned-editor-date');
+        const incomeInput = document.getElementById('planned-editor-income');
+        const saveButton = document.getElementById('planned-income-save-btn');
+        const status = document.getElementById('planned-income-save-status');
+        const dateIso = dateInput?.value || plannedCalendarSelectedDate || getTodayIso();
+        const isPastDate = dateIso < getTodayIso();
+        if (incomeInput) incomeInput.value = Number(plannedIncomeByDate?.[dateIso]) > 0 ? String(plannedIncomeByDate[dateIso]) : '';
+        if (incomeInput) incomeInput.disabled = isPastDate;
+        if (saveButton) saveButton.disabled = isPastDate;
+        if (status) status.textContent = isPastDate ? 'วันที่ผ่านมาแล้ว ดูข้อมูลได้อย่างเดียว' : '';
+    }
+
+    function savePlannedIncomeForDate() {
+        const dateInput = document.getElementById('planned-editor-date');
+        const incomeInput = document.getElementById('planned-editor-income');
+        const status = document.getElementById('planned-income-save-status');
+        const dateIso = dateInput?.value || plannedCalendarSelectedDate || getTodayIso();
+        if (!dateIso || dateIso < getTodayIso()) {
+            alert('❌ วันที่ผ่านมาแล้วไม่สามารถแก้ไขข้อมูลได้');
+            return;
+        }
+        const rawAmount = String(incomeInput?.value ?? '').trim();
+        const amount = rawAmount === '' ? 0 : Number(rawAmount);
+        if (!Number.isFinite(amount) || amount < 0) {
+            alert('❌ กรุณากรอกยอดเงินที่คาดว่าจะได้รับเป็น 0 หรือมากกว่า');
+            incomeInput?.focus();
+            return;
+        }
+        if (amount > 0) {
+            plannedIncomeByDate[dateIso] = amount;
+        } else {
+            delete plannedIncomeByDate[dateIso];
+        }
+        plannedCalendarSelectedDate = dateIso;
+        // หลังบันทึกให้แสดงเดือนของวันที่บันทึก เพื่อให้เห็นยอดรับที่เพิ่งเพิ่มทันที
+        const selectedDate = parseIsoToLocalDate(dateIso);
+        plannedCalendarYear = selectedDate.getFullYear();
+        plannedCalendarMonth = selectedDate.getMonth();
+        saveDataToFirebase();
+        renderPlannedCalendar();
+        renderPlannedExpenses();
+        if (status) status.textContent = amount > 0 ? `บันทึกยอดเงินรับ ${formatMoney(amount)} บาทแล้ว` : 'ลบยอดเงินรับที่วางแผนไว้แล้ว';
+    }
+
+    function addPlannedExpense() {
+        const amountInput = document.getElementById('planned-editor-amount');
+        const dateInput = document.getElementById('planned-editor-date');
+        const categoryInput = document.getElementById('planned-editor-category');
+        const detailInput = document.getElementById('planned-editor-detail');
+        const amount = parseFloat(amountInput?.value);
+        const dateIso = dateInput?.value || plannedCalendarSelectedDate;
+        const todayIso = getTodayIso();
+
+        if (!Number.isFinite(amount) || amount <= 0) {
+            alert('❌ กรอกจำนวนเงินล่วงหน้าให้มากกว่า 0');
+            amountInput?.focus();
+            return;
+        }
+        if (!dateIso || dateIso < todayIso) {
+            alert('❌ เลือกวันที่วันนี้หรือวันในอนาคต');
+            dateInput?.focus();
+            return;
+        }
+        const category = categoryInput?.value || 'อื่นๆ';
+        const detail = detailInput?.value.trim() || 'ไม่ระบุรายละเอียด';
+
+        if (plannedExpenseEditingId) {
+            const index = plannedExpenses.findIndex(item => item.id === plannedExpenseEditingId);
+            if (index < 0) {
+                plannedExpenseEditingId = null;
+            } else {
+                if (plannedExpenses[index].inBasket) {
+                    alert('❌ รายการนี้อยู่ในตะกร้าวันนี้แล้ว กรุณาจัดการตะกร้าก่อนแก้ไข');
+                    return;
+                }
+                plannedExpenses[index] = { ...plannedExpenses[index], dateIso, amount, category, detail };
+                plannedCalendarSelectedDate = dateIso;
+                const selectedDate = parseIsoToLocalDate(dateIso);
+                plannedCalendarYear = selectedDate.getFullYear();
+                plannedCalendarMonth = selectedDate.getMonth();
+                plannedExpenseEditingId = null;
+                resetPlannedExpenseForm(false);
+                recalculateAllChain();
+                return;
+            }
+        }
+
+        plannedExpenses.push({
+            id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`,
+            dateIso,
+            amount,
+            category,
+            detail,
+            createdAt: Date.now(),
+            inBasket: false
+        });
+        plannedCalendarSelectedDate = dateIso;
+        const selectedDate = parseIsoToLocalDate(dateIso);
+        plannedCalendarYear = selectedDate.getFullYear();
+        plannedCalendarMonth = selectedDate.getMonth();
+        resetPlannedExpenseForm(false);
+        recalculateAllChain();
+    }
+
+    function editPlannedExpense(id) {
+        const planned = plannedExpenses.find(item => item.id === id);
+        if (!planned) return;
+        if (planned.dateIso && planned.dateIso < getTodayIso()) {
+            alert('วันที่ผ่านมาแล้วไม่สามารถแก้ไขแผนรายจ่ายได้');
+            return;
+        }
+        if (planned.inBasket) {
+            alert('❌ รายการนี้อยู่ในตะกร้าวันนี้แล้ว กรุณาจัดการตะกร้าก่อนแก้ไข');
+            return;
+        }
+        plannedCalendarEditMode = true;
+        plannedExpenseEditingId = id;
+        plannedCalendarSelectedDate = planned.dateIso || getTodayIso();
+        const selectedDate = parseIsoToLocalDate(plannedCalendarSelectedDate);
+        plannedCalendarYear = selectedDate.getFullYear();
+        plannedCalendarMonth = selectedDate.getMonth();
+        document.getElementById('planned-date-editor')?.classList.remove('hidden');
+        document.getElementById('planned-calendar-modal')?.classList.add('is-date-editor-open');
+        document.getElementById('planned-editor-date').value = planned.dateIso || getTodayIso();
+        document.getElementById('planned-editor-amount').value = planned.amount;
+        document.getElementById('planned-editor-category').value = planned.category || 'อื่นๆ';
+        document.getElementById('planned-editor-detail').value = planned.detail || '';
+        loadPlannedIncomeForDate();
+        document.getElementById('planned-editor-title').textContent = 'แก้ไขรายจ่ายล่วงหน้า';
+        document.getElementById('planned-editor-save-btn').textContent = '💾 บันทึกการแก้ไข';
+        document.getElementById('planned-editor-cancel-btn').classList.remove('hidden');
+        updatePlannedCalendarEditButton();
+        renderPlannedCalendar();
+        renderPlannedExpenses();
+    }
+
+    function hidePlannedExpenseEditor() {
+        plannedExpenseEditingId = null;
+        resetPlannedExpenseForm(false);
+        document.getElementById('planned-date-editor')?.classList.add('hidden');
+        document.getElementById('planned-calendar-modal')?.classList.remove('is-date-editor-open');
+        renderPlannedExpenses();
+    }
+
+    function cancelPlannedExpenseEdit() {
+        plannedExpenseEditingId = null;
+        resetPlannedExpenseForm(false);
+        const dateEditor = document.getElementById('planned-date-editor');
+        if (dateEditor) dateEditor.classList.toggle('hidden', !plannedCalendarEditMode);
+        const modal = document.getElementById('planned-calendar-modal');
+        if (modal) modal.classList.toggle('is-date-editor-open', !!plannedCalendarEditMode);
+        renderPlannedExpenses();
+    }
+
+    function removePlannedExpense(idx) {
+        const planned = plannedExpenses[idx];
+        if (!planned) return;
+        if (planned.dateIso && planned.dateIso < getTodayIso()) {
+            alert('วันที่ผ่านมาแล้วไม่สามารถแก้ไขหรือลบแผนรายจ่ายได้');
+            return;
+        }
+        if (!confirm(`ลบแผนรายจ่าย “${planned.detail || planned.category || 'รายการนี้'}” จำนวน ${formatMoney(planned.amount)} บาทหรือไม่?`)) return;
+        plannedExpenses.splice(idx, 1);
+        if (planned.id) {
+            currentDayBasket = currentDayBasket.filter(item => item.plannedExpenseId !== planned.id);
+            renderBasket();
+        }
+        if (plannedExpenseEditingId === planned.id) {
+            plannedExpenseEditingId = null;
+            resetPlannedExpenseForm(false);
+        }
+        recalculateAllChain();
+    }
+
+    function movePlannedExpenseToTodayBasket(idx) {
+        const planned = plannedExpenses[idx];
+        if (!planned || planned.dateIso !== getTodayIso() || planned.inBasket) return;
+        if (isEditMode) {
+            alert('❌ ออกจากโหมดแก้ไขก่อน จึงจะนำแผนเข้าตะกร้าวันนี้ได้');
+            return;
+        }
+        const combinedDetail = [planned.category, planned.detail].filter(Boolean).join(' · ');
+        currentDayBasket.push({
+            amount: parseFloat(planned.amount) || 0,
+            detail: combinedDetail || 'ไม่ระบุชื่อ',
+            plannedExpenseId: planned.id
+        });
+        planned.inBasket = true;
+        renderBasket();
+        renderPlannedExpenses();
+        renderPlannedCalendar();
+        saveDataToFirebase();
+    }
+
+    function getUpcomingPlannedExpenseTotal() {
+        const todayIso = getTodayIso();
+        return plannedExpenses.reduce((sum, item) => {
+            // เฉพาะแผนที่อยู่ตั้งแต่วันนี้จนถึงวันสิ้นสุดโครงการเท่านั้นที่มีผลต่องบเฉลี่ย
+            const isInProject = Boolean(endDateProjectIso) && item.dateIso <= endDateProjectIso;
+            if (item.dateIso >= todayIso && isInProject) {
+                return sum + (parseFloat(item.amount) || 0);
+            }
+            return sum;
+        }, 0);
+    }
+
+    // รวมเงินรับที่คาดว่าจะได้รับตั้งแต่วันนี้จนถึงวันสิ้นสุดโครงการ
+    // หากวันนั้นถูกบันทึกเป็นรายรับจริงในประวัติแล้ว จะไม่นับยอดคาดการณ์ซ้ำ
+    function getUpcomingPlannedIncomeTotal() {
+        const todayIso = getTodayIso();
+        const recordedDates = new Set(
+            historyData
+                .map(item => item && item.dateIso)
+                .filter(Boolean)
+        );
+
+        return Object.entries(plannedIncomeByDate || {}).reduce((sum, [dateIso, amount]) => {
+            const isUpcoming = dateIso >= todayIso;
+            // รายรับหลังวันสิ้นสุดโครงการไม่ควรเปลี่ยนค่าเฉลี่ยรายวัน
+            const isInProject = Boolean(endDateProjectIso) && dateIso <= endDateProjectIso;
+            const alreadyRecorded = recordedDates.has(dateIso);
+            const incomeAmount = Number(amount) || 0;
+
+            if (isUpcoming && isInProject && !alreadyRecorded && incomeAmount > 0) {
+                return sum + incomeAmount;
+            }
+            return sum;
+        }, 0);
+    }
+
+    function renderPlannedExpenses() {
+        const list = document.getElementById('planned-expense-list');
+        const summary = document.getElementById('planned-expense-summary');
+        const upcomingTotal = getUpcomingPlannedExpenseTotal();
+        if (summary) {
+            summary.innerHTML = `<strong>กันงบล่วงหน้ารวม: ${formatMoney(upcomingTotal)} บาท</strong><span>ยอดแผนตั้งแต่วันนี้ถึงวันสิ้นสุดโครงการ</span>`;
+        }
+        if (list) {
+            const selectedDate = plannedCalendarSelectedDate || getTodayIso();
+            const expenses = getPlannedExpensesForDate(selectedDate);
+            const expectedIncome = Number(plannedIncomeByDate?.[selectedDate]) || 0;
+            let html = '';
+            if (expectedIncome > 0) {
+                html += `<div class="planned-income-item">
+                    <strong>💰 เงินที่คาดว่าจะได้รับ</strong>
+                    <span>+${formatMoney(expectedIncome)} บาท${selectedDate < getTodayIso() ? ' · วันที่ผ่านมาแล้ว (ดูได้อย่างเดียว)' : ''}</span>
+                </div>`;
+            }
+            if (!expenses.length) {
+                if (expectedIncome <= 0) {
+                    html = `<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:16px 8px;">${selectedDate < getTodayIso() ? 'วันนี้ไม่มีรายการแผนใช้เงิน' : 'ยังไม่มีแผนใช้เงินหรือเงินรับในวันที่เลือก'}</div>`;
+                }
+            } else {
+                html += expenses.map(item => {
+                    const isDueToday = item.dateIso === getTodayIso();
+                    const isOverdue = item.dateIso < getTodayIso();
+                    const isPastDate = item.dateIso < getTodayIso();
+                    const status = item.inBasket ? 'อยู่ในตะกร้าวันนี้ รอสรุปยอด' : (isDueToday ? 'กำหนดวันนี้' : (isOverdue ? 'วันที่ผ่านมาแล้ว · ดูได้อย่างเดียว' : 'วางแผนไว้ล่วงหน้า'));
+                    const moveButton = isDueToday && !item.inBasket
+                        ? `<button type="button" class="planned-transfer-btn" onclick="movePlannedExpenseToTodayBasket(${item.originalIndex})">ใส่ตะกร้าวันนี้</button>` : '';
+                    const editButton = !item.inBasket && !isPastDate
+                        ? `<button type="button" class="planned-edit-btn" onclick="editPlannedExpense('${String(item.id).replace(/'/g, '&#39;')}')">แก้ไข</button>` : '';
+                    const deleteButton = !isPastDate
+                        ? `<button type="button" class="planned-remove-btn" onclick="removePlannedExpense(${item.originalIndex})">ลบ</button>` : '';
+                    return `<div class="planned-expense-item">
+                        <div class="planned-expense-main">
+                            <strong><span class="planned-expense-category">${escapeHtml(item.category || 'รายจ่าย')}</span>${escapeHtml(item.detail || 'ไม่ระบุรายละเอียด')}</strong>
+                            <span class="planned-expense-meta">−${formatMoney(item.amount)} บาท · ${escapeHtml(status)}</span>
+                        </div>
+                        <div class="planned-expense-actions">${moveButton}${editButton}${deleteButton}</div>
+                    </div>`;
+                }).join('');
+            }
+            list.innerHTML = html;
+        }
+        const modal = document.getElementById('planned-calendar-modal');
+        if (modal?.classList.contains('active')) renderPlannedCalendar();
     }
 
     function removeBasketItem(idx) {
@@ -1939,6 +4195,12 @@
                     itemsArray: [...itemsToSave],
                     remaining: 0
                 });
+            }
+
+            // นำแผนที่ย้ายเข้าตะกร้าออกเมื่อสรุปยอดจริงแล้ว เพื่อไม่ให้ถูกกันงบซ้ำ
+            const completedPlannedIds = new Set(itemsToSave.map(item => item.plannedExpenseId).filter(Boolean));
+            if (completedPlannedIds.size) {
+                plannedExpenses = plannedExpenses.filter(item => !completedPlannedIds.has(item.id));
             }
 
             // หลังบันทึกแล้ว เคลียร์ตะกร้าและช่องกรอก
@@ -2673,7 +4935,13 @@
 
         let futureDaysLeft = totalDays - recordedDays;
         if(futureDaysLeft < 1) futureDaysLeft = 1;
-        let futureAvgBudget = actualRemainingWallet / futureDaysLeft;
+        const upcomingPlannedTotal = getUpcomingPlannedExpenseTotal();
+        const upcomingPlannedIncomeTotal = getUpcomingPlannedIncomeTotal();
+        // งบเฉลี่ยคำนึงถึงรายจ่ายล่วงหน้าและรายรับที่คาดว่าจะได้รับ
+        // แต่เงินรับตามแผนจะยังไม่เพิ่มเงินคงเหลือจริงจนกว่าจะบันทึกรายรับจริง
+        const walletAfterPlannedNet = actualRemainingWallet - upcomingPlannedTotal + upcomingPlannedIncomeTotal;
+        let futureAvgBudget = walletAfterPlannedNet / futureDaysLeft;
+        renderPlannedExpenses();
         
         const avgEl = document.getElementById('stat-future-avg');
         avgEl.innerHTML = `${formatMoney(futureAvgBudget)} <span>/ วัน</span>`;
@@ -2685,14 +4953,14 @@
             let requiredMoneyForFuture = targetDailyBudget * futureDaysLeft;
             
             if (futureAvgBudget < targetDailyBudget - 0.01) { 
-                let moneyNeeded = requiredMoneyForFuture - actualRemainingWallet;
+                let moneyNeeded = requiredMoneyForFuture - walletAfterPlannedNet;
                 alertBox.style.display = 'block';
                 alertBox.style.backgroundColor = 'rgba(245, 158, 11, 0.1)';
                 alertBox.style.border = '1px solid rgba(245, 158, 11, 0.3)';
                 alertBox.style.color = '#fcd34d'; 
                 alertBox.innerHTML = `⚠️ งบเฉลี่ยลดต่ำกว่าเป้า<br>ต้องเติมเงินเพิ่ม <strong>${formatMoney(moneyNeeded)} ฿</strong> ถึงจะกลับมาใช้ได้ ${formatMoney(targetDailyBudget)}/วัน`;
             } else if (futureAvgBudget > targetDailyBudget + 5) {
-                let surplus = actualRemainingWallet - requiredMoneyForFuture;
+                let surplus = walletAfterPlannedNet - requiredMoneyForFuture;
                 alertBox.style.display = 'block';
                 alertBox.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
                 alertBox.style.border = '1px solid rgba(16, 185, 129, 0.3)';
@@ -2727,6 +4995,17 @@
         endDateProjectIso = data.endDateProjectIso || "";
         historyData = data.historyData || [];
         currentDayBasket = data.currentDayBasket || [];
+        plannedExpenses = Array.isArray(data.plannedExpenses)
+            ? data.plannedExpenses.map((item, index) => ({
+                ...item,
+                id: item.id || `legacy-${index}-${Date.now().toString(36)}`,
+                category: item.category || '',
+                inBasket: Boolean(item.inBasket)
+            }))
+            : [];
+        plannedIncomeByDate = data.plannedIncomeByDate && typeof data.plannedIncomeByDate === 'object' && !Array.isArray(data.plannedIncomeByDate)
+            ? Object.fromEntries(Object.entries(data.plannedIncomeByDate).map(([date, amount]) => [date, Number(amount)]).filter(([date, amount]) => /^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(amount) && amount > 0))
+            : {};
         
         targetDailyBudget = data.targetDailyBudget || 0;
         trashData = data.trashData || null;
@@ -2758,6 +5037,8 @@
             endDateProjectIso: endDateProjectIso,
             historyData: historyData,
             currentDayBasket: currentDayBasket,
+            plannedExpenses: plannedExpenses,
+            plannedIncomeByDate: plannedIncomeByDate,
             draftIncome: draftIncome,
             isEditMode: isEditMode,
             editTargetIndex: editTargetIndex,
@@ -2807,6 +5088,8 @@
                 // ยังไม่มีข้อมูลบน Firebase: เริ่มเป็นบัญชีใหม่จริง ๆ
                 historyData = [];
                 currentDayBasket = [];
+                plannedExpenses = [];
+                plannedIncomeByDate = {};
             }
         } catch (err) {
             console.error("Firebase Fetch Error:", err);
@@ -2941,6 +5224,8 @@
             endDateProjectIso,
             historyData: Array.isArray(historyData) ? historyData : [],
             currentDayBasket: Array.isArray(currentDayBasket) ? currentDayBasket : [],
+            plannedExpenses: Array.isArray(plannedExpenses) ? plannedExpenses : [],
+            plannedIncomeByDate: plannedIncomeByDate || {},
             trashData: trashData || null
         };
         const blob = new Blob([JSON.stringify(backup, null, 2)], {type:'application/json'});
@@ -2974,6 +5259,8 @@
             endDateProjectIso = backup.endDateProjectIso || '';
             historyData = backup.historyData;
             currentDayBasket = Array.isArray(backup.currentDayBasket) ? backup.currentDayBasket : [];
+            plannedExpenses = Array.isArray(backup.plannedExpenses) ? backup.plannedExpenses : [];
+            plannedIncomeByDate = backup.plannedIncomeByDate && typeof backup.plannedIncomeByDate === 'object' ? backup.plannedIncomeByDate : {};
             trashData = backup.trashData || null;
             recalculateAllChain();
             await saveDataToFirebase();
@@ -3172,6 +5459,8 @@
             endDateProjectIso,
             historyData: JSON.parse(JSON.stringify(historyData || [])),
             currentDayBasket: JSON.parse(JSON.stringify(currentDayBasket || [])),
+            plannedExpenses: JSON.parse(JSON.stringify(plannedExpenses || [])),
+            plannedIncomeByDate: JSON.parse(JSON.stringify(plannedIncomeByDate || {})),
             draftIncome: parseFloat(document.getElementById('daily-income')?.value || 0),
             isEditMode: false,
             editTargetIndex: null,
@@ -3232,6 +5521,8 @@
         endDateProjectIso = '';
         historyData = [];
         currentDayBasket = [];
+        plannedExpenses = [];
+        plannedIncomeByDate = {};
         isEditMode = false;
         editTargetIndex = null;
 
@@ -3255,6 +5546,8 @@
         endDateProjectIso = restored.endDateProjectIso || '';
         historyData = restored.historyData || [];
         currentDayBasket = restored.currentDayBasket || [];
+        plannedExpenses = Array.isArray(restored.plannedExpenses) ? restored.plannedExpenses : [];
+        plannedIncomeByDate = restored.plannedIncomeByDate && typeof restored.plannedIncomeByDate === 'object' ? restored.plannedIncomeByDate : {};
         targetDailyBudget = restored.targetDailyBudget || 0;
         isEditMode = false;
         editTargetIndex = null;
@@ -3293,9 +5586,112 @@
 
     updateTrashUI();
     setInterval(updateTrashUI, 60 * 1000);
+    const plannedEditorDateInput = document.getElementById('planned-editor-date');
+    if (plannedEditorDateInput) {
+        plannedEditorDateInput.min = getTodayIso();
+        plannedEditorDateInput.addEventListener('change', () => {
+            if (!plannedEditorDateInput.value) return;
+            plannedCalendarSelectedDate = plannedEditorDateInput.value;
+            const selectedDate = parseIsoToLocalDate(plannedCalendarSelectedDate);
+            plannedCalendarYear = selectedDate.getFullYear();
+            plannedCalendarMonth = selectedDate.getMonth();
+            renderPlannedCalendar();
+            renderPlannedExpenses();
+        });
+    }
     setupEnterToSubmit();
 
     setInterval(updateFormDateTitle, 30000);
 </script>
+
+<script>
+(function () {
+    const style = document.createElement('style');
+
+    style.textContent = `
+        .planned-date-editor-header {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 12px !important;
+            width: 100% !important;
+        }
+
+        #planned-editor-close-btn {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex: 0 0 36px !important;
+            width: 36px !important;
+            min-width: 36px !important;
+            height: 36px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: 50% !important;
+            background: var(--bg-input) !important;
+            color: var(--text-main) !important;
+            font-size: 25px !important;
+            font-weight: 400 !important;
+            line-height: 1 !important;
+            box-shadow: none !important;
+            transform: none !important;
+            cursor: pointer;
+        }
+
+        #planned-editor-close-btn:hover {
+            background: rgba(239, 68, 68, 0.12) !important;
+            border-color: var(--danger) !important;
+            color: #fca5a5 !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        @media (max-width: 600px) {
+            #planned-editor-close-btn {
+                flex-basis: 32px !important;
+                width: 32px !important;
+                min-width: 32px !important;
+                height: 32px !important;
+                font-size: 23px !important;
+            }
+        }
+    `;
+
+    document.head.appendChild(style);
+
+    function setupPlannedEditorCloseButton() {
+        const button = document.getElementById(
+            'planned-editor-close-btn'
+        );
+
+        if (!button) return;
+
+        // เปลี่ยนข้อความเดิมเป็นปุ่มกากบาท
+        button.textContent = '×';
+        button.setAttribute('aria-label', 'กลับไปหน้าปฏิทิน');
+        button.setAttribute('title', 'กลับไปหน้าปฏิทิน');
+
+        // เรียกฟังก์ชันเดิมของ BearWallet
+        // เพื่อกลับไปหน้าปฏิทินโดยคงเดือนที่กำลังเปิดอยู่
+        button.onclick = function () {
+            if (typeof window.hidePlannedExpenseEditor === 'function') {
+                window.hidePlannedExpenseEditor();
+            }
+        };
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener(
+            'DOMContentLoaded',
+            setupPlannedEditorCloseButton,
+            { once: true }
+        );
+    } else {
+        setupPlannedEditorCloseButton();
+    }
+})();
+</script>
+
 </body>
 </html>
