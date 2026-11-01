@@ -7,6 +7,9 @@
     
     <meta name="description" content="เว็บแอปพลิเคชันสำหรับคำนวณและบันทึกงบประมาณรายวันอัตโนมัติ ช่วยวางแผนการเงินได้อย่างมีประสิทธิภาพ">
     <meta name="keywords" content="บันทึกรายรับรายจ่าย, คำนวณรายวัน, BearWallet, กระเป๋าคิดหมี, วางแผนการเงิน">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         /* 🎨 Theme Colors: Dark, Grey, Green, White */
@@ -2544,7 +2547,1084 @@
             .planned-day-detail-amount { text-align: left; }
         }
 
+    
+
+        /* ============================================================
+           BearWallet — Figma reference implementation
+           Palette sampled from the supplied Figma screenshots.
+           ============================================================ */
+        :root {
+            --bw-screen: #0a0f1a;
+            --bw-black: #000000;
+            --bw-hero: #172c48;
+            --bw-balance: #111e2f;
+            --bw-panel: #304057;
+            --bw-history: #546788;
+            --bw-green: #46be7b;
+            --bw-lime: #9adf53;
+            --bw-cyan: #9fd8e8;
+            --bw-blue: #698fd2;
+            --bw-positive: #a9dd68;
+            --bw-negative: #ed8481;
+            --bw-edit: #ffff95;
+            --bw-text: #f5f5f5;
+        }
+
+        html, body {
+            min-height: 100%;
+            background: #2c2c2c;
+        }
+        body {
+            display: block;
+            overflow-x: hidden;
+            color: var(--bw-text);
+            font-family: 'Kanit', Tahoma, sans-serif;
+            font-weight: 400;
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        button, input, select, textarea { font-family: inherit; }
+        button, button:hover, button:focus, button:active {
+            transition: none !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Desktop deliberately presents the mobile artboard as a phone frame. */
+        .container {
+            position: relative;
+            width: 426px;
+            max-width: calc(100vw - 32px);
+            height: min(850px, calc(100vh - 40px));
+            min-height: 620px;
+            margin: 20px auto;
+            padding: 0;
+            overflow: hidden;
+            border: 11px solid var(--bw-black);
+            border-radius: 58px;
+            background: var(--bw-screen);
+            box-shadow: none;
+        }
+        .container::before {
+            content: '';
+            position: absolute;
+            z-index: 30;
+            top: 20px;
+            left: 50%;
+            width: 145px;
+            height: 39px;
+            transform: translateX(-50%);
+            border-radius: 24px;
+            background: #000;
+            pointer-events: none;
+        }
+        #app-zone {
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 82px 21px 24px;
+            scrollbar-width: none;
+            background: var(--bw-screen);
+        }
+        #app-zone::-webkit-scrollbar { display: none; }
+        #auth-zone {
+            height: 100%;
+            max-width: none;
+            margin: 0;
+            padding: 112px 28px 30px;
+            overflow-y: auto;
+            border: 0;
+            border-radius: 0;
+            background: var(--bw-screen);
+            text-align: center;
+        }
+        #auth-zone h1 { font-family: 'Kanit', sans-serif; font-size: 28px; }
+        #auth-zone h3 { font-family: 'Kanit', sans-serif; }
+
+        .top-nav {
+            position: relative;
+            min-height: 66px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 58px;
+            column-gap: 10px;
+            align-items: center;
+            width: 100%;
+            padding: 0 2px 12px;
+            margin: 0 0 14px;
+            border-bottom: 1px solid #26384c;
+        }
+        .logo-text {
+            color: var(--bw-text);
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 0;
+            line-height: 1.1;
+        }
+        .logo-text span { color: inherit; }
+        .user-widget { position: relative; justify-self: end; width: 58px; max-width: none; margin: 0; }
+        .profile-btn {
+            width: 58px;
+            height: 58px;
+            border: 0;
+            background: #e1e1e1;
+            color: #31445f;
+            box-shadow: none;
+        }
+        .profile-btn svg { width: 31px; height: 31px; fill: #31445f; }
+        .profile-btn:hover { border: 0; transform: none; }
+        .profile-menu {
+            color: var(--bw-text);
+            background: var(--bw-panel);
+            border: 1px solid #405570;
+            border-radius: 16px;
+            box-shadow: none;
+        }
+
+        .hero-section {
+            display: block;
+            margin: 0 0 12px;
+        }
+        .hero-wallet-card {
+            display: block;
+            padding: 16px;
+            margin: 0;
+            border: 0;
+            border-radius: 32px;
+            background: var(--bw-hero);
+            box-shadow: none;
+        }
+        .hero-balance-panel {
+            min-height: 116px;
+            padding: 16px 20px 14px;
+            border-radius: 31px;
+            background: var(--bw-balance);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .hero-balance-panel p,
+        .hero-daily-card p,
+        .hero-target-card p {
+            margin: 0 0 3px;
+            color: var(--bw-text);
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: 0;
+            text-transform: none;
+            line-height: 1.3;
+        }
+        .hero-balance {
+            margin: 0;
+            color: var(--bw-text) !important;
+            font-size: 40px;
+            font-weight: 700;
+            line-height: 1.12;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
+        .hero-balance span {
+            color: var(--bw-text);
+            font-size: 19px;
+            font-weight: 500;
+        }
+        .hero-metric-grid {
+            display: grid;
+            grid-template-columns: 1.58fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .hero-daily-card,
+        .hero-target-card {
+            position: relative;
+            min-width: 0;
+            min-height: 94px;
+            padding: 14px 16px 12px;
+            border: 0;
+            border-radius: 27px;
+            box-shadow: none;
+        }
+        .hero-daily-card { background: var(--bw-green); }
+        .hero-target-card { background: var(--bw-lime); padding-right: 12px; }
+        .hero-daily-card p,
+        .hero-target-card p { font-size: 14px; font-weight: 600; }
+        .hero-daily-amount {
+            margin: 0;
+            color: #fff !important;
+            font-size: 29px;
+            font-weight: 700;
+            line-height: 1.15;
+            white-space: nowrap;
+        }
+        .hero-daily-amount span { color: #fff; font-size: 14px; font-weight: 600; }
+        .hero-target-heading { display: flex; justify-content: space-between; align-items: center; gap: 3px; }
+        .hero-target-heading p { white-space: nowrap; font-size: 12px; }
+        .hero-target-edit {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 18px;
+            width: 18px;
+            height: 18px;
+            min-width: 18px;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: transparent;
+            color: #25354a;
+        }
+        .hero-target-edit svg { width: 15px; height: 15px; fill: currentColor; }
+        #stat-base-budget {
+            margin: 2px 0 0;
+            color: #fff;
+            font-size: 28px;
+            line-height: 1.1;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+        #target-budget-alert {
+            position: absolute;
+            z-index: 6;
+            top: -8px;
+            right: -8px;
+            display: none;
+            width: 20px;
+            height: 20px;
+            min-height: 20px;
+            overflow: hidden;
+            padding: 0 !important;
+            border: 0 !important;
+            border-radius: 50%;
+            background: #ff7777 !important;
+            color: #102034 !important;
+            font-size: 0 !important;
+            line-height: 1.35;
+            cursor: help;
+        }
+        #target-budget-alert::before {
+            content: '!';
+            display: block;
+            color: #102034;
+            font-size: 15px;
+            line-height: 20px;
+            font-weight: 800;
+            text-align: center;
+        }
+        #target-budget-alert[data-alert-type="success"] { background: #46be7b !important; }
+        #target-budget-alert:hover {
+            width: min(245px, calc(100vw - 60px));
+            height: auto;
+            max-height: 110px;
+            padding: 10px 12px !important;
+            border-radius: 12px;
+            background: #102034 !important;
+            border: 1px solid #526d8f !important;
+            color: #fff !important;
+            font-size: 11px !important;
+            overflow: auto;
+        }
+        #target-budget-alert:hover::before { display: none; }
+
+        .dashboard-layout { display: block; margin: 0; }
+        #daily-form-card {
+            position: relative;
+            margin: 0 !important;
+            padding: 15px 16px 14px !important;
+            border: 0 !important;
+            border-radius: 30px;
+            background: var(--bw-panel);
+            box-shadow: none;
+        }
+        #current-day-title {
+            margin: 0 0 7px !important;
+            padding: 0 5px 7px !important;
+            border: 0 !important;
+            border-bottom: 2px solid var(--bw-green) !important;
+            color: var(--bw-text);
+            font-size: 18px;
+            line-height: 1.3;
+            font-weight: 700;
+        }
+        .date-accent { color: var(--bw-green); }
+        .daily-input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            align-items: start;
+            margin-top: 6px;
+        }
+        #daily-form-card .form-group { min-width: 0; margin: 0; }
+        #daily-form-card label {
+            margin: 0 0 4px;
+            padding-left: 10px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+        #daily-form-card input {
+            width: 100%;
+            height: 37px;
+            padding: 7px 13px;
+            border: 0;
+            border-radius: 18px;
+            outline: none;
+            background: #d9d9d9;
+            color: #1d2b40;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: none;
+        }
+        #daily-form-card input::placeholder { color: #8b8b8b; opacity: 1; }
+        #daily-form-card input:focus { outline: 2px solid rgba(159,216,232,.85); box-shadow: none; }
+        .quick-category-row { display: none !important; }
+        .form-bottom-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            align-items: end;
+            margin-top: 8px;
+        }
+        .basket-controls {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-width: 0;
+            min-height: 43px;
+        }
+        .basket-icon-button {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 43px;
+            width: 43px;
+            height: 43px;
+            min-width: 43px;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #31445f;
+            box-shadow: none;
+            transform: none;
+        }
+        .basket-icon-emoji {
+            display: block;
+            font-size: 21px;
+            line-height: 1;
+            pointer-events: none;
+        }
+        .basket-icon-button::before,
+        .basket-icon-button::after { content: none !important; display: none !important; }
+        .basket-icon-button.is-open,
+        .basket-icon-button.is-open:hover,
+        .basket-icon-button.is-open:focus-visible {
+            background: var(--bw-green) !important;
+            color: #06281c !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+        .basket-icon-button:hover,
+        .basket-icon-button:focus-visible {
+            box-shadow: none;
+            transform: none;
+        }
+        .basket-count {
+            position: absolute;
+            top: -3px;
+            right: -2px;
+            display: grid;
+            place-items: center;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 3px;
+            border-radius: 10px;
+            background: #24bd79;
+            color: #08221a;
+            font-size: 9px;
+            font-weight: 700;
+        }
+        .btn-add-basket {
+            width: auto;
+            min-width: 0;
+            padding: 9px 12px;
+            border: 0;
+            border-radius: 18px;
+            background: var(--bw-green);
+            color: #06281c;
+            font-size: 11px;
+            line-height: 1.2;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .basket-zone {
+            display: none;
+            position: absolute;
+            z-index: 25;
+            left: 0;
+            bottom: calc(100% + 10px);
+            width: min(275px, calc(100vw - 90px));
+            max-height: 240px;
+            overflow: auto;
+            margin: 0;
+            padding: 13px;
+            border: 0;
+            border-radius: 24px;
+            background: #122136;
+            box-shadow: none;
+        }
+        .basket-zone.is-open { display: block; }
+        .basket-zone-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 10px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .basket-zone-heading span:last-child { color: var(--bw-negative); white-space: nowrap; }
+        .basket-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 9px 10px;
+            margin: 0 0 7px;
+            border: 0;
+            border-radius: 15px;
+            background: #1d2c42;
+            color: #fff;
+            font-size: 11px;
+        }
+        .basket-empty { padding: 9px; color: #bdc8d6; text-align: center; font-size: 12px; }
+        .btn-delete-item { width: auto; padding: 0; color: #ff6666; background: transparent; font-size: 11px; }
+        .income-group label { padding-left: 10px !important; }
+        .btn-submit-finance {
+            width: 100%;
+            min-height: 40px;
+            margin-top: 8px;
+            padding: 8px 14px;
+            border: 0;
+            border-radius: 18px;
+            background: var(--bw-green);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        #btn-cancel-edit { margin-top: 8px !important; border-radius: 18px; }
+
+        .project-details-disclosure {
+            margin-top: 12px;
+            border: 1px solid #293c53;
+            border-radius: 16px;
+            background: #111e2f;
+            color: #d8e0ea;
+            font-size: 12px;
+        }
+        .project-details-disclosure summary { padding: 11px 14px; cursor: pointer; font-weight: 600; }
+        .project-details-content { padding: 0 14px 14px; }
+        .project-details-content h3 { margin: 4px 0 8px; font-size: 17px; }
+        .project-details-content #stat-days-rich-details { padding: 10px; border-radius: 9px; background: #1b2a3f; line-height: 1.8; }
+        .project-details-content label { margin-top: 12px; font-size: 11px; }
+        .project-details-content input { padding: 8px 10px; background: #d9d9d9; color: #1d2b40; }
+        .project-edit-target { margin-top: 10px; padding: 8px 12px; background: var(--bw-green); color: #08251b; border-radius: 14px; font-size: 12px; }
+        .history-open-card {
+            display: block;
+            width: 100%;
+            min-height: 105px;
+            margin: 16px 0 18px;
+            padding: 18px;
+            border: 0;
+            border-radius: 34px;
+            background: #4f688b;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        /* History view matches the muted-blue card and capsule controls. */
+        #history-section {
+            display: block;
+            margin: 0 0 22px !important;
+            padding: 18px 13px 16px !important;
+            border: 0 !important;
+            border-radius: 30px;
+            background: var(--bw-history);
+            box-shadow: none;
+        }
+        .history-title {
+            margin: 0 6px 12px;
+            color: #fff;
+            font-size: 21px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+        .history-toolbar { display: block; margin: 0 0 12px; }
+        .history-list-actions {
+            display: grid;
+            grid-template-columns: 1.34fr 1.1fr .65fr;
+            align-items: center;
+            gap: 7px;
+            margin: 0;
+        }
+        .history-list-toggle-btn,
+        .history-secondary-btn,
+        .history-more-btn {
+            width: 100%;
+            min-width: 0;
+            min-height: 40px;
+            padding: 8px 8px;
+            border: 0;
+            border-radius: 24px;
+            color: #06111d;
+            font-size: 11px;
+            line-height: 1.15;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .history-list-toggle-btn { background: var(--bw-lime); }
+        .history-secondary-btn { background: var(--bw-cyan); }
+        .history-more-wrap { position: relative; min-width: 0; }
+        .history-more-btn { background: var(--bw-blue); }
+        .history-more-menu {
+            position: absolute;
+            z-index: 30;
+            top: calc(100% + 7px);
+            right: 0;
+            width: 176px;
+            padding: 10px;
+            border-radius: 20px;
+            background: #122136;
+            box-shadow: none;
+        }
+        .history-menu-item {
+            display: block;
+            width: 100%;
+            min-height: 33px;
+            margin: 0 0 6px;
+            padding: 8px 10px;
+            border: 0;
+            border-radius: 17px;
+            background: var(--bw-cyan);
+            color: #06111d;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+        }
+        .history-menu-item.active { background: var(--bw-lime); }
+        .history-menu-divider { height: 1px; margin: 4px 2px 8px; background: rgba(255,255,255,.12); }
+        .history-actions { display: block; margin: 0; }
+        .history-actions.hidden { display: none !important; }
+        .history-actions .history-menu-item:first-child { background: var(--bw-lime); }
+        .history-actions .history-menu-item:last-child { margin-bottom: 0; background: var(--bw-green); color: #fff; }
+        #history-table-view { min-width: 0; }
+        #history-table-view .table-responsive {
+            width: 100%;
+            overflow: hidden;
+            border: 0;
+            border-radius: 21px;
+            background: #334055;
+        }
+        #history-table-view table {
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+            text-align: center;
+            color: #f5f5f5;
+            font-size: 9px;
+        }
+        #history-table-view th,
+        #history-table-view td {
+            padding: 8px 3px;
+            border: 0;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: normal;
+            vertical-align: middle;
+            line-height: 1.2;
+            text-align: center;
+        }
+        #history-table-view th {
+            height: 39px;
+            background: #334055;
+            color: #f5f5f5;
+            border-bottom: 2px solid var(--bw-cyan);
+            font-size: 9px;
+            font-weight: 600;
+        }
+        #history-table-view td {
+            height: 54px;
+            background: #334055;
+            font-size: 9px;
+            font-weight: 500;
+        }
+        #history-table-view tbody tr:hover td { background: #334055; }
+        #history-table-view .history-date-label {
+            display: block;
+            color: #fff;
+            font-size: 9px;
+            font-weight: 600;
+            line-height: 1.25;
+            white-space: normal;
+        }
+        #history-table-view .btn-spent-detail {
+            width: 100%;
+            min-width: 0;
+            padding: 6px 2px;
+            border: 0;
+            border-radius: 7px;
+            background: #389865;
+            color: #aaff00;
+            font-size: 9px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        #history-table-view .btn-spent-detail.has-income { background: #506b91; color: #aaff00; }
+        #history-table-view .text-success { color: var(--bw-positive) !important; }
+        #history-table-view .text-danger { color: #ed6666 !important; }
+        #history-table-view .history-remaining-cell { font-size: 9px; font-weight: 700; }
+        .history-row-actions { display: flex; flex-direction: column; gap: 4px; align-items: stretch; }
+        #history-table-view .btn-edit,
+        #history-table-view .btn-delete-row {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            min-height: 17px;
+            margin: 0;
+            padding: 2px 3px;
+            border: 0;
+            border-radius: 8px;
+            color: #000;
+            font-size: 9px;
+            line-height: 1.1;
+            font-weight: 700;
+        }
+        #history-table-view .btn-edit { background: var(--bw-edit); }
+        #history-table-view .btn-delete-row { background: #f37d82; }
+        .history-standby-badge { display: block; margin: 3px auto 0; font-size: 7px; }
+
+        #history-chart-view { margin-top: 10px; }
+        .history-chart-modebar { grid-template-columns: 1fr 1fr; }
+        .history-chart-mode-btn {
+            min-height: 36px;
+            border: 0;
+            border-radius: 20px;
+            background: var(--bw-cyan);
+            color: #06111d;
+        }
+        .history-chart-mode-btn.active { background: var(--bw-lime); color: #06111d; }
+        #history-chart-all-btn.is-all-open { background: var(--bw-green) !important; color: #fff !important; }
+        .history-chart-wrap { background: #334055; border: 0; border-radius: 15px; }
+
+        /* Keep the phone layout intact on narrow devices; remove only the mock frame. */
+        @media (max-width: 520px) {
+            html, body { min-height: 100%; background: var(--bw-screen); }
+            body { margin: 0; }
+            .container {
+                width: 100%;
+                max-width: 100%;
+                height: 100dvh;
+                min-height: 100dvh;
+                margin: 0;
+                padding: 0;
+                border: 0;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            .container::before { top: max(10px, env(safe-area-inset-top)); width: 128px; height: 34px; }
+            #app-zone {
+                padding: calc(56px + env(safe-area-inset-top)) 14px calc(22px + env(safe-area-inset-bottom));
+            }
+            #auth-zone { padding-top: calc(90px + env(safe-area-inset-top)); }
+            .top-nav { min-height: 57px; margin-bottom: 12px; padding-bottom: 9px; }
+            .logo-text { font-size: 29px; }
+            .profile-btn { width: 52px; height: 52px; }
+            .hero-wallet-card { padding: 14px; border-radius: 29px; }
+            .hero-balance-panel { min-height: 105px; padding: 13px 17px; }
+            .hero-balance-panel p { font-size: 16px; }
+            .hero-balance { font-size: clamp(32px, 9.2vw, 39px); }
+            .hero-balance span { font-size: 17px; }
+            .hero-metric-grid { gap: 9px; margin-top: 13px; grid-template-columns: 1.58fr 1fr; }
+            .hero-daily-card, .hero-target-card { min-height: 86px; padding: 12px 12px 10px; border-radius: 25px; }
+            .hero-daily-card p { font-size: 12px; }
+            .hero-target-heading p { font-size: 10px; }
+            .hero-daily-amount { font-size: clamp(24px, 7vw, 29px); }
+            .hero-daily-amount span { font-size: 12px; }
+            #stat-base-budget { font-size: clamp(23px, 6.4vw, 27px); }
+            #daily-form-card { padding: 17px 15px 15px !important; border-radius: 27px; }
+            #current-day-title { font-size: 17px; }
+            .daily-input-grid, .form-bottom-row { gap: 11px; grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+            #daily-form-card label { font-size: 11px; }
+            #daily-form-card input { height: 38px; padding: 8px 11px; font-size: 12px; }
+            .basket-controls { gap: 7px; }
+            .basket-icon-button { width: 40px; height: 40px; min-width: 40px; flex-basis: 40px; }
+            .btn-add-basket { padding: 9px 9px; font-size: 10px; }
+            .history-open-card { min-height: 94px; border-radius: 31px; font-size: 19px; }
+            #history-section { padding: 16px 11px 14px !important; border-radius: 27px; }
+            .history-title { font-size: 19px; }
+            .history-list-actions { gap: 5px; grid-template-columns: 1.34fr 1.1fr .65fr; }
+            .history-list-toggle-btn, .history-secondary-btn, .history-more-btn { min-height: 37px; padding: 7px 5px; font-size: 10px; }
+            #history-table-view th { font-size: 8px; padding: 7px 2px; }
+            #history-table-view td { font-size: 8px; padding: 7px 2px; }
+            #history-table-view .history-date-label { font-size: 8px; }
+            #history-table-view .btn-spent-detail { font-size: 8px; }
+            #history-table-view .history-remaining-cell { font-size: 8px; }
+            #history-table-view .btn-edit, #history-table-view .btn-delete-row { font-size: 8px; }
+        }
+        @media (max-width: 360px) {
+            #app-zone { padding-left: 10px; padding-right: 10px; }
+            .hero-balance { font-size: 31px; }
+            .hero-metric-grid { gap: 7px; }
+            .hero-daily-card, .hero-target-card { padding-left: 9px; padding-right: 9px; }
+            .history-list-toggle-btn, .history-secondary-btn, .history-more-btn { font-size: 9px; }
+            #history-table-view th { font-size: 7px; }
+            #history-table-view td, #history-table-view .history-date-label { font-size: 7px; }
+        }
+
     </style>
+
+    <style id="bearwallet-latest-adjustments">
+        /* เว็บไซต์จริง: ถอดกรอบมือถือและรอยบากของ artboard ตัวอย่างออก */
+        html, body {
+            min-height: 100%;
+            background: var(--bw-screen) !important;
+        }
+        body {
+            display: block;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        .container {
+            position: relative;
+            display: block;
+            width: 100%;
+            max-width: 1040px;
+            height: auto;
+            min-height: 100vh;
+            margin: 0 auto;
+            padding: 24px;
+            overflow: visible;
+            border: 0;
+            border-radius: 0;
+            background: var(--bw-screen);
+            box-shadow: none;
+        }
+        .container::before { display: none !important; content: none !important; }
+        #app-zone {
+            width: 100%;
+            height: auto;
+            min-height: calc(100vh - 48px);
+            overflow: visible;
+            padding: 0;
+            background: var(--bw-screen);
+        }
+        #auth-zone {
+            width: 100%;
+            max-width: 420px;
+            height: auto;
+            min-height: 0;
+            margin: 50px auto;
+            padding: 28px;
+            overflow: visible;
+            border: 0;
+            border-radius: 24px;
+            background: var(--bw-panel);
+        }
+
+        /* เว้นระยะระหว่างกล่องบันทึกรายวันกับประวัติเงินรายวัน */
+        .dashboard-layout {
+            margin: 0 0 26px !important;
+        }
+
+        /* โหมดแก้ไขประวัติ: ใช้หน้าตาตามกรอบ Figma แทนฟอร์มปกติ */
+        .history-edit-panel {
+            width: 100%;
+            margin: 0;
+            padding: 20px 18px 18px;
+            border-radius: 30px;
+            background: var(--bw-history);
+            color: var(--bw-text);
+        }
+        .history-edit-title {
+            margin: 0 0 16px;
+            color: #fff;
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.25;
+            text-align: center;
+        }
+        .history-edit-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: min(48vh, 390px);
+            overflow-y: auto;
+            padding: 0 1px 2px;
+        }
+        .history-edit-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-height: 52px;
+            padding: 11px 15px;
+            border-radius: 21px;
+            background: #1b2a40;
+            color: #f5f5f5;
+            font-size: 15px;
+            font-weight: 650;
+            line-height: 1.35;
+        }
+        .history-edit-row.is-income {
+            background: var(--bw-lime);
+            color: #fff;
+        }
+        .history-edit-row-label {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+        .history-edit-remove {
+            flex: 0 0 auto;
+            width: auto;
+            min-width: 35px;
+            min-height: 30px;
+            margin: 0;
+            padding: 3px 5px;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            color: #ff2424;
+            font-size: 14px;
+            font-weight: 800;
+            box-shadow: none;
+            transform: none;
+        }
+        .history-edit-remove:hover,
+        .history-edit-remove:focus-visible {
+            background: rgba(255, 36, 36, .10);
+            color: #d90000;
+            box-shadow: none;
+            transform: none;
+        }
+        .history-edit-row.is-income .history-edit-remove { color: #e51e28; }
+        .history-edit-empty {
+            padding: 15px 10px;
+            border-radius: 18px;
+            background: rgba(17, 30, 47, .5);
+            color: #e1e8f0;
+            text-align: center;
+            font-size: 13px;
+        }
+        .history-edit-save,
+        .history-edit-cancel {
+            display: block;
+            width: 100%;
+            min-height: 48px;
+            margin: 14px 0 0;
+            padding: 11px 16px;
+            border: 0;
+            border-radius: 21px;
+            font-size: 16px;
+            font-weight: 750;
+            box-shadow: none;
+            transform: none;
+        }
+        .history-edit-save {
+            background: var(--bw-green);
+            color: #fff;
+        }
+        .history-edit-save:hover,
+        .history-edit-save:focus-visible {
+            background: #39ad6c;
+            box-shadow: none;
+            transform: none;
+        }
+        .history-edit-cancel {
+            margin-top: 9px;
+            background: #f37d82;
+            color: #111827;
+        }
+        .history-edit-cancel:hover,
+        .history-edit-cancel:focus-visible {
+            background: #ed666d;
+            box-shadow: none;
+            transform: none;
+        }
+        #daily-form-card.is-editing #current-day-title,
+        #daily-form-card.is-editing #daily-input-grid,
+        #daily-form-card.is-editing #form-bottom-row,
+        #daily-form-card.is-editing #btn-submit-finance {
+            display: none !important;
+        }
+        #daily-form-card.is-editing {
+            padding: 0 !important;
+            background: transparent !important;
+        }
+
+        @media (max-width: 600px) {
+            .dashboard-layout { margin-bottom: 20px !important; }
+            .history-edit-panel { padding: 18px 14px 15px; border-radius: 27px; }
+            .history-edit-title { margin-bottom: 13px; font-size: 19px; }
+            .history-edit-items { max-height: 45vh; gap: 8px; }
+            .history-edit-row { min-height: 46px; padding: 9px 12px; border-radius: 18px; font-size: 12px; }
+            .history-edit-remove { min-height: 28px; font-size: 12px; }
+            .history-edit-save, .history-edit-cancel { min-height: 43px; margin-top: 11px; font-size: 14px; }
+            .history-edit-cancel { margin-top: 8px; }
+        }
+
+        /* ปุ่มแก้ไขงบต่อวันตามภาพ Figma */
+        .hero-target-card {
+            min-height: 122px;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        .hero-target-heading {
+            justify-content: center;
+        }
+        .hero-target-heading p {
+            width: 100%;
+            text-align: center;
+            white-space: nowrap;
+        }
+        #stat-base-budget {
+            text-align: center;
+        }
+        .hero-target-edit {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 78px;
+            min-width: 78px;
+            height: 30px;
+            min-height: 30px;
+            margin: 7px auto 0;
+            padding: 0 12px;
+            border: 0;
+            border-radius: 18px;
+            background: rgba(190, 145, 75, .48);
+            color: #ffd0d0;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1;
+        }
+        .hero-target-edit:hover,
+        .hero-target-edit:focus-visible {
+            background: rgba(190, 145, 75, .62);
+            color: #fff;
+            outline: 2px solid rgba(255,255,255,.35);
+            outline-offset: 2px;
+        }
+
+        /* ปุ่มการ์ดประวัติแบบว่างถูกถอดออก เหลือส่วนประวัติจริงด้านล่าง */
+        .history-open-card { display: none !important; }
+
+        @media (max-width: 768px) {
+            .container { padding: 18px; }
+        }
+        @media (max-width: 600px) {
+            .container {
+                width: 100%;
+                max-width: 100%;
+                min-height: 100dvh;
+                margin: 0;
+                padding: 12px;
+                border: 0;
+                border-radius: 0;
+            }
+            .container::before { display: none !important; content: none !important; }
+            #app-zone {
+                min-height: calc(100dvh - 24px);
+                padding: 0 0 calc(18px + env(safe-area-inset-bottom));
+            }
+            #auth-zone {
+                width: 100%;
+                max-width: 420px;
+                margin: 20px auto;
+                padding: 20px;
+            }
+            .hero-target-card { min-height: 118px; }
+            .hero-target-heading p { font-size: 10px; }
+            #stat-base-budget { font-size: clamp(22px, 6.4vw, 27px); }
+            .hero-target-edit {
+                width: 72px;
+                min-width: 72px;
+                height: 27px;
+                min-height: 27px;
+                margin-top: 6px;
+                font-size: 12px;
+            }
+        }
+    </style>
+
+
+    <style id="bearwallet-v4-basket-and-balance">
+        /* ป๊อปอัพตะกร้า: คลิกพื้นที่มืดรอบกล่องเพื่อปิดได้ */
+        .basket-popup-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(3, 9, 18, .62);
+        }
+        .basket-popup-overlay.is-open { display: flex; }
+        .basket-popup-overlay .basket-zone {
+            display: block !important;
+            position: relative;
+            inset: auto;
+            width: min(390px, calc(100vw - 36px));
+            max-width: 100%;
+            max-height: min(72vh, 480px);
+            overflow: auto;
+            margin: 0;
+            padding: 18px;
+            border: 1px solid rgba(148, 163, 184, .18);
+            border-radius: 24px;
+            background: #122136;
+            box-shadow: 0 18px 55px rgba(0, 0, 0, .34);
+        }
+        .basket-popup-overlay .basket-zone-heading { font-size: 15px; margin-bottom: 12px; }
+        .basket-popup-overlay .basket-item { min-height: 42px; font-size: 13px; }
+        .basket-popup-overlay .btn-delete-item { font-size: 12px; }
+        .basket-popup-overlay .basket-empty { padding: 18px 8px; font-size: 13px; }
+        .basket-popup-open { overflow: hidden; }
+
+        /* ขยายข้อความและตัวเลขในการ์ดเงินคงเหลือและค่าเฉลี่ยต่อวัน */
+        .hero-balance-panel p { font-size: 20px !important; }
+        .hero-balance { font-size: clamp(44px, 4vw, 50px) !important; }
+        .hero-balance span { font-size: 21px !important; }
+        .hero-daily-card p { font-size: 17px !important; }
+        .hero-daily-amount { font-size: clamp(32px, 3vw, 37px) !important; }
+        .hero-daily-amount span { font-size: 16px !important; }
+
+        @media (max-width: 600px) {
+            .basket-popup-overlay { padding: 16px; }
+            .basket-popup-overlay .basket-zone {
+                width: min(360px, calc(100vw - 32px));
+                max-height: 72dvh;
+                padding: 15px;
+                border-radius: 22px;
+            }
+            .basket-icon-emoji { font-size: 20px; }
+            .hero-balance-panel p { font-size: 18px !important; }
+            .hero-balance { font-size: clamp(35px, 9.3vw, 42px) !important; }
+            .hero-balance span { font-size: 18px !important; }
+            .hero-daily-card p { font-size: 14px !important; }
+            .hero-daily-amount { font-size: clamp(27px, 7.5vw, 32px) !important; }
+            .hero-daily-amount span { font-size: 13px !important; }
+        }
+        @media (max-width: 360px) {
+            .hero-balance { font-size: 34px !important; }
+            .hero-daily-amount { font-size: 26px !important; }
+        }
+    </style>
+
 </head>
 <body>
 
@@ -2572,9 +3652,11 @@
     <div id="app-zone" class="hidden">
         
         <div class="top-nav">
-            <div class="logo-text">🐻 <span>BearWallet</span></div>
+            <div class="logo-text">BearWallet</div>
             <div class="user-widget">
-                <button class="profile-btn" id="profile-btn" type="button" aria-label="เปิดเมนูโปรไฟล์" onclick="toggleProfileMenu()">👤</button>
+                <button class="profile-btn" id="profile-btn" type="button" aria-label="เปิดเมนูโปรไฟล์" onclick="toggleProfileMenu()">
+                    <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="9" r="5"/><rect x="8" y="16" width="16" height="14" rx="3"/></svg>
+                </button>
                 <div class="profile-menu hidden" id="profile-menu">
                     <div class="profile-email" id="user-display-email">-</div>
                     <button class="profile-trash-btn" type="button" onclick="openBackupModal(); document.getElementById('profile-menu').classList.add('hidden')">💾 สำรอง/กู้คืนข้อมูล</button>
@@ -2613,14 +3695,26 @@
             <div id="alert-zone" class="alert"></div>
 
             <div class="hero-section">
-                <div class="hero-card">
-                    <p>💰 เงินคงเหลือจริงในกระเป๋า</p>
-                    <h1 id="stat-wallet-remaining" class="hero-balance number-rolling">0.00 <span>บาท</span></h1>
-                </div>
-                <div class="hero-card hero-daily-card">
-                    <p>วันต่อไปเฉลี่ยแล้วใช้ได้</p>
-                    <h2 id="stat-future-avg" class="hero-daily-amount number-rolling">0.00 <span>/ วัน</span></h2>
-                </div>
+                <section class="hero-card hero-wallet-card" aria-label="สรุปงบประมาณ">
+                    <div class="hero-balance-panel">
+                        <p>เงินทั้งหมดเหลือ</p>
+                        <h1 id="stat-wallet-remaining" class="hero-balance number-rolling">0.00 <span>บาท</span></h1>
+                    </div>
+                    <div class="hero-metric-grid">
+                        <div class="hero-daily-card">
+                            <p>เฉลี่ยแล้วใช้ได้</p>
+                            <h2 id="stat-future-avg" class="hero-daily-amount number-rolling">0.00 <span>/ วัน</span></h2>
+                        </div>
+                        <div class="hero-target-card">
+                            <div class="hero-target-heading">
+                                <p>เป้าหมายงบต่อวัน</p>
+                            </div>
+                            <h3 id="stat-base-budget">0.00</h3>
+                            <button type="button" class="hero-target-edit" onclick="editTargetBudget()" aria-label="แก้ไขเป้าหมายงบต่อวัน" title="แก้ไขเป้าหมายงบต่อวัน">แก้ไข</button>
+                            <div id="target-budget-alert" role="status" aria-live="polite"></div>
+                        </div>
+                    </div>
+                </section>
             </div>
 
             <div class="history-jump-row" id="history-jump-row" aria-hidden="true">
@@ -2628,140 +3722,142 @@
             </div>
 
             <div class="dashboard-layout">
-                
-                <!-- Left: Form Zone -->
-                <div class="card" id="daily-form-card" style="margin-bottom: 0;">
-                    <h3 id="current-day-title" style="margin-top:0; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">บันทึกรายจ่ายวันนี้</h3>
-                    
-                    <div style="margin-top: 16px;">
-                        <div class="grid-2">
-                            <div class="form-group">
-                                <label for="draft-spent-amount" style="color: #fca5a5;">💸 ยอดใช้จ่าย (บาท)</label>
-                                <input type="number" id="draft-spent-amount" placeholder="เช่น 60" min="0" step="any">
+                <section class="card" id="daily-form-card">
+                    <h3 id="current-day-title">บันทึกรายจ่ายวันนี้</h3>
+
+                    <div class="daily-input-grid" id="daily-input-grid">
+                        <div class="form-group">
+                            <label for="draft-spent-amount">รายจ่าย</label>
+                            <input type="number" id="draft-spent-amount" placeholder="เช่น 20" min="0" step="any">
+                        </div>
+                        <div class="form-group">
+                            <label for="draft-spent-detail">ชื่อรายการ</label>
+                            <input type="text" id="draft-spent-detail" list="expense-detail-options" placeholder="เช่น ข้าวมันไก่">
+                            <datalist id="expense-detail-options">
+                                <option value="อาหาร"></option>
+                                <option value="ค่าเดินทาง"></option>
+                            </datalist>
+                            <div class="quick-category-row">
+                                <div class="quick-category-label">เลือกเร็ว</div>
+                                <button type="button" class="btn-quick-category" onclick="selectExpenseCategory('อาหาร')">อาหาร</button>
+                                <button type="button" class="btn-quick-category" onclick="selectExpenseCategory('ค่าเดินทาง')">ค่าเดินทาง</button>
                             </div>
-                            <div class="form-group">
-                                <label for="draft-spent-detail">💬 ชื่อรายการ</label>
-                                <input type="text" id="draft-spent-detail" list="expense-detail-options" placeholder="เช่น ข้าวมันไก่">
-                                <datalist id="expense-detail-options">
-                                    <option value="อาหาร"></option>
-                                    <option value="ค่าเดินทาง"></option>
-                                </datalist>
-                                <div class="quick-category-row">
-                                    <div class="quick-category-label">เลือกเร็ว</div>
-                                    <button type="button" class="btn-quick-category" onclick="selectExpenseCategory('อาหาร')">🍚 อาหาร</button>
-                                    <button type="button" class="btn-quick-category" onclick="selectExpenseCategory('ค่าเดินทาง')">🚗 ค่าเดินทาง</button>
+                        </div>
+                    </div>
+
+                    <div class="form-bottom-row" id="form-bottom-row">
+                        <div class="basket-controls">
+                            <button id="basket-toggle-btn" class="basket-icon-button" type="button" onclick="toggleBasketPanel()" aria-label="เปิดรายการในตะกร้า" title="รายการในตะกร้า" aria-controls="basket-zone" aria-expanded="false">
+                                <span class="basket-icon-emoji" aria-hidden="true">🗑️</span>
+                                <span id="basket-count" class="basket-count">0</span>
+                            </button>
+                            <button type="button" class="btn-add-basket" onclick="addExpenseToBasket()">เพิ่มใส่ตะกร้า</button>
+                            <div class="basket-zone" id="basket-zone">
+                                <div class="basket-zone-heading">
+                                    <span>รายการในตะกร้า</span>
+                                    <span id="basket-total-summary">0.00 บาท</span>
+                                </div>
+                                <div id="basket-items-list">
+                                    <div class="basket-empty">ยังไม่มีรายการ</div>
                                 </div>
                             </div>
                         </div>
-
-                        <button type="button" onclick="addExpenseToBasket()" style="margin-top: 4px; background: var(--bg-input); border: 1px solid var(--border-color); color: white;">➕ ใส่ตะกร้าพักไว้</button>
-                    </div>
-
-                    <div class="basket-zone">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                            <span style="font-weight: 600; font-size: 14px;">📋 ในตะกร้าชั่วคราว</span>
-                            <span id="basket-total-summary" style="color: var(--danger); font-size: 14px; font-weight:bold;">0.00 บาท</span>
-                        </div>
-                        <div id="basket-items-list">
-                            <div style="color: var(--text-muted); font-size: 13px; text-align: center;">ยังไม่มีรายการ</div>
+                        <div class="form-group income-group">
+                            <label for="daily-income">รายรับ</label>
+                            <input type="number" id="daily-income" placeholder="0" min="0" value="0" step="any" oninput="saveDataToFirebase()">
                         </div>
                     </div>
 
-                    <div class="form-group" style="margin-top: 20px;">
-                        <label for="daily-income" style="color: var(--success);">➕ มีรายได้เข้ามาเพิ่มวันนี้ไหม?</label>
-                        <input type="number" id="daily-income" placeholder="ไม่มีให้ป้อน 0" min="0" value="0" step="any" oninput="saveDataToFirebase()">
-                    </div>
+                    <button id="btn-submit-finance" class="btn-submit-finance" onclick="submitDailySummary()">บันทึกรายการ</button>
 
-                    <button id="btn-submit-finance" onclick="submitDailySummary()" style="margin-top: 10px;">💾 สรุปยอดและบันทึกตะกร้าทั้งหมดของวันนี้</button>
-                    <button id="btn-cancel-edit" onclick="cancelEditMode()" style="background: #4b5563; margin-top: 10px;" class="hidden">ยกเลิกการแก้ไข</button>
-                </div>
-
-                <!-- Right: Secondary Stats -->
-                <div style="display: flex; flex-direction: column; gap: 16px;">
-                    <div class="card" style="padding: 20px; margin: 0;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                            <p style="margin:0; font-size:13px; color:var(--text-muted);">🎯 เป้าหมายงบต่อวัน</p>
-                            <button onclick="editTargetBudget()" style="background: none; border: 1px solid var(--border-color); color: var(--info); font-size: 11px; padding: 4px 8px; border-radius: 6px; width: auto; box-shadow: none; cursor: pointer;">✏️ แก้ไข</button>
-                        </div>
-                        <h3 id="stat-base-budget" style="margin:0; font-size:24px; color: white;">0.00</h3>
-                        
-                        <!-- กล่องแจ้งเตือนคำนวณเงินเติม -->
-                        <div id="target-budget-alert" style="margin-top: 12px; font-size: 13px; display: none; padding: 10px; border-radius: 8px; line-height: 1.5;"></div>
+                    <!-- โหมดแก้ไขประวัติ: แทนที่ช่องกรอก ตะกร้า และปุ่มบันทึกปกติ -->
+                    <div id="history-edit-panel" class="history-edit-panel hidden" aria-live="polite">
+                        <h3 class="history-edit-title">แก้ไขรายการ</h3>
+                        <div id="history-edit-items" class="history-edit-items"></div>
+                        <div id="history-edit-empty" class="history-edit-empty hidden">ไม่มีรายการในวันนี้</div>
+                        <button id="btn-save-history-edit" type="button" class="history-edit-save" onclick="submitDailySummary()">บันทึกรายการ</button>
+                        <button id="btn-cancel-edit" type="button" onclick="cancelEditMode()" class="history-edit-cancel">ยกเลิกการแก้ไข</button>
                     </div>
-                    
-                    <div class="card" style="padding: 20px; margin: 0; flex-grow: 1;">
-                        <p style="margin:0 0 10px 0; font-size:13px; color:var(--text-muted);">สถานะและภาพรวมโครงการ</p>
-                        <h3 id="stat-days-status" style="margin:0 0 15px 0; font-size: 20px;">0 / 0 วัน</h3>
-                        <div id="stat-days-rich-details" style="font-size: 13px; color: var(--text-muted); line-height: 1.8; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
-                            -
-                        </div>
-                        
-                        <div style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 16px;">
-                            <label for="end-date-runtime" style="font-size: 12px;">เปลี่ยนวันสิ้นสุดกลางคัน:</label>
-                            <input type="date" id="end-date-runtime" onchange="updateEndDateFromRuntime(this.value)" style="padding: 8px; font-size: 13px; margin-top: 6px;">
-                        </div>
-                    </div>
-                </div>
-
+                </section>
             </div>
 
             <!-- History -->
-            <div class="card" id="history-section" style="margin-top: 24px; scroll-margin-top: 18px;">
-                <h3 style="margin-top:0;">📋 ประวัติการเงินรายวัน</h3>
+            <section class="card" id="history-section" style="scroll-margin-top: 18px;">
+                <h3 class="history-title">ประวัติเงินรายวัน</h3>
 
                 <div class="history-toolbar">
-                    <div class="history-view-toggle">
-                        <button id="history-table-view-btn" class="history-view-btn active" onclick="setHistoryView('table')">📋 แบบรายการ</button>
-                        <button id="history-chart-view-btn" class="history-view-btn" onclick="setHistoryView('chart')">📊 แบบกราฟ</button>
-                    </div>
-
-                    <div class="history-actions" id="history-table-actions">
-                        <button class="history-action-btn history-action-summary" onclick="openSummaryModal()">📄 ใบสรุปผล</button>
-                        <button class="history-action-btn history-action-planned" onclick="openPlannedCalendarModal()">🗓️ การใช้จ่ายล่วงหน้า</button>
+                    <div class="history-list-actions">
+                        <button type="button" id="history-table-toggle-btn" class="history-list-toggle-btn" onclick="toggleHistoryTable(); return false;" aria-expanded="false">▼ ดูประวัติทั้งหมด</button>
+                        <button type="button" class="history-secondary-btn" onclick="openTransactionSearchModal()">ค้นหารายการ</button>
+                        <div class="history-more-wrap">
+                            <button type="button" class="history-more-btn" id="history-more-btn" onclick="toggleHistoryMore()" aria-expanded="false">อื่นๆ</button>
+                            <div class="history-more-menu hidden" id="history-more-menu">
+                                <button type="button" id="history-table-view-btn" class="history-menu-item hidden" onclick="setHistoryView('table'); closeHistoryMore()">แบบรายการ</button>
+                                <button type="button" id="history-chart-view-btn" class="history-menu-item" onclick="setHistoryView('chart'); closeHistoryMore()">แบบกราฟ</button>
+                                <div class="history-menu-divider"></div>
+                                <div class="history-actions" id="history-table-actions">
+                                    <button class="history-menu-item" onclick="openPlannedCalendarModal(); closeHistoryMore()">การใช้จ่ายล่วงหน้า</button>
+                                    <button class="history-menu-item" onclick="openSummaryModal(); closeHistoryMore()">ใบสรุปผล</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div id="history-table-view">
-                    <div class="history-list-actions">
-                        <button type="button" id="history-table-toggle-btn" class="history-list-toggle-btn" onclick="toggleHistoryTable(); return false;" aria-expanded="false">⌄ ดูประวัติทั้งหมด</button>
-                        <button type="button" class="history-secondary-btn" onclick="openTransactionSearchModal()">🔎 ค้นหารายการ</button>
-                    </div>
                     <div class="table-responsive">
                         <table>
+                            <colgroup>
+                                <col style="width:17%">
+                                <col style="width:19%">
+                                <col style="width:22%">
+                                <col style="width:20%">
+                                <col style="width:22%">
+                            </colgroup>
                             <thead>
                                 <tr>
-                                    <th style="width: 14%;">วันที่</th>
-                                    <th style="width: 15%;">งบสะสมต้นวัน</th>
-                                    <th style="width: 25%;">ใช้จริงรวม</th>
-                                    <th style="width: 18%;">สถานะสิ้นวัน</th>
-                                    <th style="width: 20%;">จัดการ</th>
+                                    <th>วันที่</th>
+                                    <th>งบต้นวัน</th>
+                                    <th>ใช้จริงรวม</th>
+                                    <th>เงินเหลือ</th>
+                                    <th>จัดการ</th>
                                 </tr>
                             </thead>
-                            <tbody id="history-table-body">
-                            </tbody>
+                            <tbody id="history-table-body"></tbody>
                         </table>
                     </div>
                 </div>
 
                 <div id="history-chart-view" class="hidden">
                     <div class="history-chart-modebar">
-                        <button id="history-chart-balance-btn" class="history-chart-mode-btn active" onclick="setHistoryChartMode('balance')">📈 เงินคงเหลือ</button>
-                        <button id="history-chart-overview-btn" class="history-chart-mode-btn" onclick="setHistoryChartMode('overview')">📊 ภาพรวม 3 เส้น</button>
+                        <button id="history-chart-balance-btn" class="history-chart-mode-btn active" onclick="setHistoryChartMode('balance')">เงินคงเหลือ</button>
+                        <button id="history-chart-overview-btn" class="history-chart-mode-btn" onclick="setHistoryChartMode('overview')">ภาพรวม 3 เส้น</button>
                         <button id="history-chart-all-btn" class="history-chart-mode-btn" onclick="setHistoryChartDisplay('all')">เปิดดูกราฟทั้งหมด</button>
                     </div>
-<div id="history-chart-search" class="history-chart-search hidden" aria-label="ค้นหาวันที่ในกราฟ">
-                        <label for="history-chart-date-search">🔎 ค้นหาวันที่</label>
+                    <div id="history-chart-search" class="history-chart-search hidden" aria-label="ค้นหาวันที่ในกราฟ">
+                        <label for="history-chart-date-search">ค้นหาวันที่</label>
                         <input id="history-chart-date-search" type="date" aria-label="เลือกวันที่เพื่อค้นหา">
                         <button type="button" class="history-chart-search-btn" onclick="searchHistoryChartDate()">ไปที่วันนั้น</button>
                     </div>
-                                        <div class="history-chart-wrap chart-scroll-mode">
+                    <div class="history-chart-wrap chart-scroll-mode">
                         <div id="history-chart-track" class="history-chart-canvas-track">
                             <canvas id="history-chart"></canvas>
                         </div>
                         <div id="history-chart-empty" class="history-chart-empty hidden">ยังไม่มีข้อมูลสำหรับสร้างกราฟ</div>
                     </div>
                 </div>
-            </div>
+            </section>
+
+            <details class="project-details-disclosure">
+                <summary>สถานะและภาพรวมโครงการ</summary>
+                <div class="project-details-content">
+                    <h3 id="stat-days-status">0 / 0 วัน</h3>
+                    <div id="stat-days-rich-details">-</div>
+                    <label for="end-date-runtime">เปลี่ยนวันสิ้นสุดกลางคัน:</label>
+                    <input type="date" id="end-date-runtime" onchange="updateEndDateFromRuntime(this.value)">
+                    <button type="button" class="project-edit-target" onclick="editTargetBudget()">แก้ไขเป้าหมายงบต่อวัน</button>
+                </div>
+            </details>
 
         </div>
     </div>
@@ -3037,6 +4133,7 @@
     window.logoutUser = logoutUser;
     window.startTracker = startTracker;
     window.addExpenseToBasket = addExpenseToBasket;
+    window.toggleBasketPanel = toggleBasketPanel;
     window.removeBasketItem = removeBasketItem;
     window.submitDailySummary = submitDailySummary;
     window.openDetailModal = openDetailModal;
@@ -3044,6 +4141,8 @@
     window.deleteHistoryRow = deleteHistoryRow;
     window.enterEditMode = enterEditMode;
     window.cancelEditMode = cancelEditMode;
+    window.removeHistoryEditExpense = removeHistoryEditExpense;
+    window.removeHistoryEditIncome = removeHistoryEditIncome;
     window.updateEndDateFromRuntime = updateEndDateFromRuntime;
     window.resetTracker = resetTracker;
     window.saveDataToFirebase = saveDataToFirebase;
@@ -3070,6 +4169,8 @@
     window.closePlannedDayDetails = closePlannedDayDetails;
     window.setHistoryView = setHistoryView;
     window.toggleHistoryTable = toggleHistoryTable;
+    window.toggleHistoryMore = toggleHistoryMore;
+    window.closeHistoryMore = closeHistoryMore;
     window.openTransactionSearchModal = openTransactionSearchModal;
     window.closeTransactionSearchModal = closeTransactionSearchModal;
     window.searchTransactions = searchTransactions;
@@ -3138,6 +4239,8 @@
     // เลื่อนหน้าเมื่อใด ให้ปิดกล่องโปรไฟล์ทันที เหมือนการกดพื้นที่อื่นของเว็บ
     document.addEventListener('keydown', (event) => {
         if (event.key !== 'Escape') return;
+        const basketOverlay = document.getElementById('basket-popup-overlay');
+        if (basketOverlay?.classList.contains('is-open')) closeBasketPanel();
         const detailsModal = document.getElementById('planned-day-details-modal');
         if (detailsModal?.classList.contains('active')) closePlannedDayDetails();
     });
@@ -3214,7 +4317,7 @@
     function updateFormDateTitle() {
         if (isEditMode) return;
         const t = document.getElementById('current-day-title');
-        if (t) t.innerText = `บันทึกรายจ่าย วันนี้ ${getTodayLocaleDateStr()}`;
+        if (t) t.innerHTML = `บันทึกรายจ่ายวันนี้ <span class="date-accent">${getTodayLocaleDateStr()}</span>`;
     }
 
     function startTracker() {
@@ -3247,12 +4350,21 @@
     }
     
     function editTargetBudget() {
-        let newVal = prompt("🎯 ตั้งเป้าหมายงบใช้จ่ายต่อวันใหม่ (บาท):", targetDailyBudget);
-        if (newVal !== null && !isNaN(newVal) && newVal.trim() !== "") {
-            targetDailyBudget = parseFloat(newVal);
-            recalculateAllChain();
-            saveDataToFirebase();
+        const newVal = prompt(
+            "ตั้งเป้าหมายงบต่อวันใหม่ (บาท):\nกรอก 0 เพื่อกลับไปใช้ค่าเฉลี่ยอัตโนมัติ",
+            String(targetDailyBudget || 0)
+        );
+        if (newVal === null) return;
+
+        const parsed = Number(String(newVal).trim());
+        if (!Number.isFinite(parsed) || parsed < 0 || String(newVal).trim() === '') {
+            alert('กรุณากรอกงบต่อวันเป็นตัวเลขตั้งแต่ 0 บาทขึ้นไป');
+            return;
         }
+
+        targetDailyBudget = parsed;
+        // recalculateAllChain() จะอัปเดตตัวเลขบนหน้าจอและบันทึกข้อมูลให้เอง
+        recalculateAllChain();
     }
 
     function prepareNextDay() {
@@ -3943,12 +5055,71 @@
         saveDataToFirebase();
     }
 
+    function setupBasketPopupOverlay() {
+        const basket = document.getElementById('basket-zone');
+        if (!basket) return;
+
+        let overlay = document.getElementById('basket-popup-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'basket-popup-overlay';
+            overlay.className = 'basket-popup-overlay';
+            overlay.setAttribute('role', 'presentation');
+            overlay.setAttribute('aria-hidden', 'true');
+            document.body.appendChild(overlay);
+        }
+
+        // ย้ายป๊อปอัพไปไว้ใต้ body เพื่อไม่ให้ถูกตัดโดยกล่องฟอร์มหรือ container
+        if (basket.parentElement !== overlay) overlay.appendChild(basket);
+
+        if (!overlay.dataset.bound) {
+            overlay.addEventListener('click', (event) => {
+                // แตะ/คลิกเฉพาะพื้นที่รอบกล่องเท่านั้นจึงปิดป๊อปอัพ
+                if (event.target === overlay) closeBasketPanel();
+            });
+            overlay.dataset.bound = 'true';
+        }
+    }
+
+    function setBasketPopupOpen(isOpen) {
+        const overlay = document.getElementById('basket-popup-overlay');
+        const button = document.getElementById('basket-toggle-btn');
+        if (!overlay || !button) return;
+
+        overlay.classList.toggle('is-open', Boolean(isOpen));
+        overlay.setAttribute('aria-hidden', String(!isOpen));
+        button.classList.toggle('is-open', Boolean(isOpen));
+        button.setAttribute('aria-expanded', String(Boolean(isOpen)));
+        document.body.classList.toggle('basket-popup-open', Boolean(isOpen));
+    }
+
+    function closeBasketPanel() {
+        setBasketPopupOpen(false);
+    }
+
+    function toggleBasketPanel() {
+        const overlay = document.getElementById('basket-popup-overlay');
+        if (!overlay) setupBasketPopupOverlay();
+        const isOpen = document.getElementById('basket-popup-overlay')?.classList.contains('is-open');
+        if (isOpen) {
+            closeBasketPanel();
+        } else {
+            renderBasket();
+            setBasketPopupOpen(true);
+        }
+    }
+
+    // สร้างป๊อปอัพแบบ overlay ก่อนเปิดให้ผู้ใช้กดปุ่มตะกร้า
+    setupBasketPopupOverlay();
+
     function renderBasket() {
         const listContainer = document.getElementById('basket-items-list');
         const summaryText = document.getElementById('basket-total-summary');
+        const countBadge = document.getElementById('basket-count');
+        if (countBadge) countBadge.textContent = String(currentDayBasket.length);
         
         if(currentDayBasket.length === 0) {
-            listContainer.innerHTML = `<div style="color:var(--text-muted); font-size:13px; text-align:center;">ยังไม่มีรายการในตะกร้า</div>`;
+            listContainer.innerHTML = `<div class="basket-empty">ยังไม่มีรายการในตะกร้า</div>`;
             summaryText.innerText = "0.00 บาท"; return;
         }
 
@@ -4269,7 +5440,8 @@
                 document.getElementById('daily-income').value = '0';
                 document.getElementById('draft-spent-amount').value = '';
                 document.getElementById('draft-spent-detail').value = '';
-                document.getElementById('btn-cancel-edit').classList.add('hidden');
+                setHistoryEditLayout(false);
+                prepareNextDay();
             } else if (editTargetIndex > index) {
                 // เมื่อรายการก่อนหน้าถูกลบ index ของรายการที่กำลังแก้ต้องเลื่อนลง 1
                 editTargetIndex--;
@@ -4283,39 +5455,103 @@
         saveDataToFirebase();
     }
 
+    function setHistoryEditLayout(editing) {
+        const card = document.getElementById('daily-form-card');
+        const panel = document.getElementById('history-edit-panel');
+        if (!card || !panel) return;
+
+        card.classList.toggle('is-editing', Boolean(editing));
+        panel.classList.toggle('hidden', !editing);
+
+        // คืนฟอร์มปกติเมื่อออกจากโหมดแก้ไข
+        if (!editing) {
+            document.getElementById('current-day-title')?.classList.remove('hidden');
+            document.getElementById('daily-input-grid')?.classList.remove('hidden');
+            document.getElementById('form-bottom-row')?.classList.remove('hidden');
+            document.getElementById('btn-submit-finance')?.classList.remove('hidden');
+        }
+    }
+
+    function renderHistoryEditList() {
+        const list = document.getElementById('history-edit-items');
+        const empty = document.getElementById('history-edit-empty');
+        if (!list || !empty) return;
+
+        const income = Math.max(0, Number(document.getElementById('daily-income')?.value || 0));
+        let rows = '';
+
+        currentDayBasket.forEach((item, index) => {
+            const detail = escapeHtml(item?.detail || item?.name || item?.item || 'ไม่ระบุชื่อ');
+            const amount = Number(item?.amount) || 0;
+            rows += `<div class="history-edit-row">
+                <span class="history-edit-row-label">• ${detail} - ${formatMoney(amount)} บาท</span>
+                <button type="button" class="history-edit-remove" onclick="removeHistoryEditExpense(${index})" aria-label="ลบ ${detail}">ลบ</button>
+            </div>`;
+        });
+
+        if (income > 0) {
+            rows += `<div class="history-edit-row is-income">
+                <span class="history-edit-row-label">• รายรับ +${formatMoney(income)} บาท</span>
+                <button type="button" class="history-edit-remove" onclick="removeHistoryEditIncome()" aria-label="ลบรายการรายรับ">ลบ</button>
+            </div>`;
+        }
+
+        list.innerHTML = rows;
+        empty.classList.toggle('hidden', Boolean(rows));
+    }
+
+    function removeHistoryEditExpense(index) {
+        if (!isEditMode || !Number.isInteger(index) || index < 0 || index >= currentDayBasket.length) return;
+        currentDayBasket.splice(index, 1);
+        renderHistoryEditList();
+        saveDataToFirebase();
+    }
+
+    function removeHistoryEditIncome() {
+        if (!isEditMode) return;
+        const incomeInput = document.getElementById('daily-income');
+        if (incomeInput) incomeInput.value = '0';
+        renderHistoryEditList();
+        saveDataToFirebase();
+    }
+
     function restoreEditModeUI(dateStr) {
-        document.getElementById('btn-cancel-edit').classList.remove('hidden');
-        document.getElementById('current-day-title').innerHTML = `✏️ แก้ไขข้อมูล: <span style="color:var(--warning)">${dateStr}</span>`;
-        let btn = document.getElementById('btn-submit-finance');
-        btn.innerText = "ยืนยันการบันทึกแก้ไข"; 
-        btn.style.backgroundColor = "var(--warning)"; 
-        btn.style.color = "#000";
+        setHistoryEditLayout(true);
+        renderHistoryEditList();
+        const panel = document.getElementById('history-edit-panel');
+        if (panel) panel.setAttribute('aria-label', `แก้ไขรายการวันที่ ${dateStr || ''}`);
     }
 
     function enterEditMode(index) {
-        if(currentDayBasket.length > 0 && !confirm('⚠️ ตะกร้าชั่วคราวจะถูกลบ ดำเนินการต่อไหม?')) return;
-        isEditMode = true; 
+        if (!Number.isInteger(index) || !historyData[index]) return;
+        if (currentDayBasket.length > 0 && !isEditMode && !confirm('⚠️ ตะกร้าชั่วคราวจะถูกลบ ดำเนินการต่อไหม?')) return;
+
+        isEditMode = true;
         editTargetIndex = index;
         const targetData = historyData[index];
-        document.getElementById('daily-income').value = targetData.income;
-        currentDayBasket = targetData.itemsArray ? [...targetData.itemsArray] : [];
-        
+
+        // คัดลอกรายการเดิมมาแก้ในพื้นที่ชั่วคราว ข้อมูลจริงจะเปลี่ยนเมื่อกดบันทึกเท่านั้น
+        currentDayBasket = Array.isArray(targetData.itemsArray)
+            ? targetData.itemsArray.map(item => ({ ...item }))
+            : [];
+        document.getElementById('daily-income').value = String(Number(targetData.income) || 0);
+        document.getElementById('draft-spent-amount').value = '';
+        document.getElementById('draft-spent-detail').value = '';
+        closeBasketPanel();
+
         restoreEditModeUI(targetData.dateStr);
-        renderBasket();
         saveDataToFirebase();
-        document.getElementById('daily-form-card').scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('daily-form-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     function cancelEditMode() {
-        isEditMode = false; 
-        editTargetIndex = null; 
+        isEditMode = false;
+        editTargetIndex = null;
         currentDayBasket = [];
         document.getElementById('daily-income').value = '0';
-        document.getElementById('btn-cancel-edit').classList.add('hidden');
-        let btn = document.getElementById('btn-submit-finance');
-        btn.innerText = "💾 สรุปยอดและบันทึกตะกร้าทั้งหมดของวันนี้"; 
-        btn.style.backgroundColor = "var(--success)"; 
-        btn.style.color = "white";
+        document.getElementById('draft-spent-amount').value = '';
+        document.getElementById('draft-spent-detail').value = '';
+        setHistoryEditLayout(false);
         prepareNextDay();
         saveDataToFirebase();
     }
@@ -4457,7 +5693,7 @@
         const toggle = document.getElementById('history-table-toggle-btn');
         if (toggle) {
             toggle.setAttribute('aria-expanded', String(historyTableExpanded));
-            toggle.innerHTML = historyTableExpanded ? '⌃ ซ่อนประวัติ' : '⌄ ดูประวัติทั้งหมด';
+            toggle.innerHTML = historyTableExpanded ? '▲ ซ่อนประวัติ' : '▼ ดูประวัติทั้งหมด';
         }
     }
 
@@ -4483,7 +5719,7 @@
 
         const toggle = document.getElementById('history-table-toggle-btn');
         if (toggle) {
-            toggle.innerHTML = historyTableExpanded ? '⌃ ซ่อนประวัติ' : '⌄ ดูประวัติทั้งหมด';
+            toggle.innerHTML = historyTableExpanded ? '▲ ซ่อนประวัติ' : '▼ ดูประวัติทั้งหมด';
             toggle.setAttribute('aria-expanded', String(historyTableExpanded));
         }
 
@@ -4497,14 +5733,14 @@
             const actualIndex = historyData.findIndex(x => x === item || (x.dateIso === item.dateIso && !item.isStandby));
             const row = document.createElement('tr');
             const statusClass = item.remaining >= 0 ? 'text-success' : 'text-danger';
-            const statusText = item.remaining >= 0 ? `+${formatMoney(item.remaining)}` : `เกินงบ ${formatMoney(Math.abs(item.remaining))}`;
+            const statusText = item.remaining >= 0 ? `+${formatMoney(item.remaining)}` : `-${formatMoney(Math.abs(item.remaining))}`;
             const itemsCount = item.itemsArray ? item.itemsArray.length : 0;
             const hasIncome = (parseFloat(item.income) || 0) > 0;
             const dateLabel = `<strong class="history-date-label">${getHistoryDateLabel(item.dateIso, item.dateStr)}</strong>`;
             const actionButtons = item.isStandby
                 ? ``
-                : `<button class="btn-edit" onclick="enterEditMode(${actualIndex})">แก้</button>
-                   <button class="btn-delete-row" onclick="deleteHistoryRow(${actualIndex})">ลบ</button>`;
+                : `<div class="history-row-actions"><button class="btn-edit" onclick="enterEditMode(${actualIndex})">แก้</button>
+                   <button class="btn-delete-row" onclick="deleteHistoryRow(${actualIndex})">ลบ</button></div>`;
             row.innerHTML = `
                 <td>${dateLabel}</td>
                 <td>${formatMoney(item.budget)}</td>
@@ -4513,12 +5749,27 @@
                         ${formatMoney(item.spent)}
                     </button>
                 </td>
-                <td class="${statusClass}" style="font-weight:bold;">${statusText}</td>
+                <td class="${statusClass} history-remaining-cell">${statusText}</td>
                 <td>${actionButtons}</td>`;
             tbody.appendChild(row);
         });
 
         renderHistoryChart();
+    }
+
+    function toggleHistoryMore() {
+        const menu = document.getElementById('history-more-menu');
+        const button = document.getElementById('history-more-btn');
+        if (!menu || !button) return;
+        const isOpen = menu.classList.toggle('hidden') === false;
+        button.setAttribute('aria-expanded', String(isOpen));
+    }
+
+    function closeHistoryMore() {
+        const menu = document.getElementById('history-more-menu');
+        const button = document.getElementById('history-more-btn');
+        menu?.classList.add('hidden');
+        button?.setAttribute('aria-expanded', 'false');
     }
 
     function setHistoryView(mode) {
@@ -4536,6 +5787,8 @@
         chartView.classList.toggle('hidden', historyViewMode !== 'chart');
         tableBtn?.classList.toggle('active', historyViewMode === 'table');
         chartBtn?.classList.toggle('active', historyViewMode === 'chart');
+        tableBtn?.classList.toggle('hidden', historyViewMode !== 'chart');
+        chartBtn?.classList.toggle('hidden', historyViewMode === 'chart');
         tableActions?.classList.toggle('hidden', historyViewMode !== 'table');
 
         if (historyViewMode === 'chart') {
@@ -4899,7 +6152,7 @@
     });
 
     function updateDashboard() {
-        document.getElementById('stat-base-budget').innerText = `${formatMoney(targetDailyBudget)} ฿`;
+        document.getElementById('stat-base-budget').innerText = `${formatMoney(targetDailyBudget)}`;
         
         let actualRemainingWallet = totalMoney - totalSpent;
         const walletEl = document.getElementById('stat-wallet-remaining');
@@ -4954,23 +6207,27 @@
             
             if (futureAvgBudget < targetDailyBudget - 0.01) { 
                 let moneyNeeded = requiredMoneyForFuture - walletAfterPlannedNet;
+                alertBox.dataset.alertType = 'warning';
                 alertBox.style.display = 'block';
                 alertBox.style.backgroundColor = 'rgba(245, 158, 11, 0.1)';
                 alertBox.style.border = '1px solid rgba(245, 158, 11, 0.3)';
                 alertBox.style.color = '#fcd34d'; 
-                alertBox.innerHTML = `⚠️ งบเฉลี่ยลดต่ำกว่าเป้า<br>ต้องเติมเงินเพิ่ม <strong>${formatMoney(moneyNeeded)} ฿</strong> ถึงจะกลับมาใช้ได้ ${formatMoney(targetDailyBudget)}/วัน`;
+                alertBox.innerHTML = `งบเฉลี่ยลดต่ำกว่าเป้า<br>ต้องเติมเงินเพิ่ม <strong>${formatMoney(moneyNeeded)} ฿</strong> ถึงจะกลับมาใช้ได้ ${formatMoney(targetDailyBudget)}/วัน`;
             } else if (futureAvgBudget > targetDailyBudget + 5) {
                 let surplus = walletAfterPlannedNet - requiredMoneyForFuture;
+                alertBox.dataset.alertType = 'success';
                 alertBox.style.display = 'block';
                 alertBox.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
                 alertBox.style.border = '1px solid rgba(16, 185, 129, 0.3)';
                 alertBox.style.color = 'var(--success)';
-                alertBox.innerHTML = `✅ เงินเหลือเฟือตามเป้าหมาย<br>สามารถดึงไปเป็นเงินเก็บได้ <strong>${formatMoney(surplus)} ฿</strong>`;
+                alertBox.innerHTML = `เงินเหลือเฟือตามเป้าหมาย<br>สามารถดึงไปเป็นเงินเก็บได้ <strong>${formatMoney(surplus)} ฿</strong>`;
             } else {
                 alertBox.style.display = 'none';
+                delete alertBox.dataset.alertType;
             }
         } else {
             alertBox.style.display = 'none';
+            delete alertBox.dataset.alertType;
         }
     }
 
@@ -5692,6 +6949,7 @@
     }
 })();
 </script>
+
 
 </body>
 </html>
