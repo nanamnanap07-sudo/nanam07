@@ -2875,7 +2875,19 @@
         }
         #daily-form-card input::placeholder { color: #8b8b8b; opacity: 1; }
         #daily-form-card input:focus { outline: 2px solid rgba(159,216,232,.85); box-shadow: none; }
-        .quick-category-row { display: none !important; }
+        .quick-category-row {
+            display: flex !important;
+            align-items: center;
+            flex-wrap: nowrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        #daily-form-card .quick-category-row .btn-quick-category {
+            flex: 0 0 auto;
+            min-height: 28px;
+            padding: 6px 13px;
+            margin: 0;
+        }
         .form-bottom-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -3015,21 +3027,100 @@
         }
         #btn-cancel-edit { margin-top: 8px !important; border-radius: 18px; }
 
-        .project-details-disclosure {
-            margin-top: 12px;
-            border: 1px solid #293c53;
-            border-radius: 16px;
-            background: #111e2f;
-            color: #d8e0ea;
-            font-size: 12px;
+        /* Project overview popup opened from the "อื่นๆ" menu. */
+        .project-overview-overlay { z-index: 1450; }
+        .project-overview-card {
+            width: min(92vw, 470px);
+            max-width: 470px;
+            padding: 24px;
+            border: 1px solid #526176;
+            border-radius: 22px;
+            background: #334155;
+            color: #f8fafc;
+            box-shadow: 0 16px 38px rgba(0, 0, 0, .28);
         }
-        .project-details-disclosure summary { padding: 11px 14px; cursor: pointer; font-weight: 600; }
-        .project-details-content { padding: 0 14px 14px; }
-        .project-details-content h3 { margin: 4px 0 8px; font-size: 17px; }
-        .project-details-content #stat-days-rich-details { padding: 10px; border-radius: 9px; background: #1b2a3f; line-height: 1.8; }
-        .project-details-content label { margin-top: 12px; font-size: 11px; }
-        .project-details-content input { padding: 8px 10px; background: #d9d9d9; color: #1d2b40; }
-        .project-edit-target { margin-top: 10px; padding: 8px 12px; background: var(--bw-green); color: #08251b; border-radius: 14px; font-size: 12px; }
+        .project-overview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .project-overview-badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 34px;
+            padding: 7px 15px;
+            border-radius: 999px;
+            background: #6574ad;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: .1px;
+        }
+        .project-overview-close {
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            border: 1px solid rgba(255,255,255,.16);
+            border-radius: 50%;
+            background: rgba(15, 23, 42, .3);
+            color: #e2e8f0;
+            font-size: 16px;
+            line-height: 1;
+            box-shadow: none;
+        }
+        .project-overview-close:hover { background: rgba(15, 23, 42, .55); transform: none; box-shadow: none; }
+        .project-overview-list {
+            display: grid;
+            gap: 17px;
+            margin: 0 0 22px;
+            padding: 0 0 0 23px;
+            color: #f8fafc;
+            font-size: 15px;
+            line-height: 1.55;
+        }
+        .project-overview-list li { padding-left: 2px; }
+        .project-overview-list li::marker { color: #cbd5e1; font-size: 1.05em; }
+        .project-overview-total { color: #4ade80; font-weight: 800; white-space: nowrap; }
+        .project-overview-date { color: #facc15; font-weight: 800; }
+        .project-overview-countdown { color: #f87171; font-weight: 800; }
+        .project-overview-change-date {
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 18px;
+            border: 0;
+            border-radius: 999px;
+            background: #22c55e;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 800;
+            box-shadow: none;
+        }
+        .project-overview-change-date:hover { background: #16a34a; transform: none; box-shadow: none; }
+        .project-overview-date-editor {
+            margin-top: 13px;
+            padding: 13px;
+            border: 1px solid rgba(203, 213, 225, .2);
+            border-radius: 14px;
+            background: #26364b;
+        }
+        .project-overview-date-editor label { margin: 0 0 7px; color: #dbeafe; font-size: 12px; }
+        .project-overview-date-editor input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #64748b;
+            border-radius: 9px;
+            background: #e2e8f0;
+            color: #172033;
+            color-scheme: light;
+        }
+        .project-overview-date-editor p { margin: 8px 0 0; color: #b8c5d6; font-size: 11px; line-height: 1.5; }
+        @media (max-width: 480px) {
+            .project-overview-card { width: calc(100% - 28px); padding: 19px; border-radius: 19px; }
+            .project-overview-badge { font-size: 13px; }
+            .project-overview-list { gap: 14px; font-size: 14px; }
+        }
         .history-open-card {
             display: block;
             width: 100%;
@@ -3602,6 +3693,15 @@
         .hero-daily-card p { font-size: 17px !important; }
         .hero-daily-amount { font-size: clamp(32px, 3vw, 37px) !important; }
         .hero-daily-amount span { font-size: 16px !important; }
+        .hero-daily-planned-note {
+            margin: 5px 0 0;
+            color: rgba(255, 255, 255, .88);
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.35;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
 
         @media (max-width: 600px) {
             .basket-popup-overlay { padding: 16px; }
@@ -3618,6 +3718,7 @@
             .hero-daily-card p { font-size: 14px !important; }
             .hero-daily-amount { font-size: clamp(27px, 7.5vw, 32px) !important; }
             .hero-daily-amount span { font-size: 13px !important; }
+            .hero-daily-planned-note { font-size: 10px; line-height: 1.3; margin-top: 4px; }
         }
         @media (max-width: 360px) {
             .hero-balance { font-size: 34px !important; }
@@ -3682,87 +3783,6 @@
             font-size: 9px;
             line-height: 1.1;
             white-space: nowrap;
-        }
-
-        /* ช่องชื่อรายการมีลูกศรตลอดเวลาและเปิดเมนูประเภทได้ด้วยการคลิก */
-        .expense-detail-field {
-            position: relative;
-            width: 100%;
-        }
-        #daily-form-card .expense-detail-field > input {
-            padding-right: 38px;
-        }
-        #daily-form-card .expense-category-trigger {
-            position: absolute;
-            top: 50%;
-            right: 5px;
-            z-index: 2;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 29px;
-            min-width: 29px;
-            height: 29px;
-            min-height: 29px;
-            margin: 0;
-            padding: 0;
-            border: 0;
-            border-radius: 50%;
-            background: transparent;
-            color: rgba(29, 43, 64, .56);
-            box-shadow: none;
-            transform: translateY(-50%);
-            cursor: pointer;
-        }
-        #daily-form-card .expense-category-trigger svg {
-            display: block;
-            width: 15px;
-            height: 15px;
-        }
-        #daily-form-card .expense-category-trigger:hover,
-        #daily-form-card .expense-category-trigger:focus-visible {
-            background: rgba(29, 43, 64, .08);
-            color: rgba(29, 43, 64, .82);
-            box-shadow: none;
-            transform: translateY(-50%);
-            outline: none;
-        }
-        .expense-category-menu {
-            position: absolute;
-            top: calc(100% + 7px);
-            right: 0;
-            z-index: 40;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            width: 100%;
-            padding: 7px;
-            border: 1px solid rgba(148, 163, 184, .22);
-            border-radius: 15px;
-            background: #122136;
-            box-shadow: 0 12px 28px rgba(0, 0, 0, .24);
-        }
-        .expense-category-menu button {
-            width: 100%;
-            min-height: 35px;
-            margin: 0;
-            padding: 8px 11px;
-            border: 0;
-            border-radius: 10px;
-            background: #1d2c42;
-            color: #f5f7fa;
-            font-size: 12px;
-            font-weight: 600;
-            text-align: left;
-            box-shadow: none;
-            transform: none;
-        }
-        .expense-category-menu button:hover,
-        .expense-category-menu button:focus-visible {
-            background: #2c405b;
-            color: #fff;
-            box-shadow: none;
-            transform: none;
         }
 
         /* ค่าเฉลี่ยอยู่กึ่งกลางแนวตั้งทางซ้าย และใช้พื้นที่การ์ดได้เด่นขึ้น */
@@ -3896,6 +3916,7 @@
                         <div class="hero-daily-card">
                             <p>เฉลี่ยแล้วใช้ได้</p>
                             <h2 id="stat-future-avg" class="hero-daily-amount number-rolling">0.00 <span>/ วัน</span></h2>
+                            <div id="stat-future-avg-planned" class="hero-daily-planned-note">ใช้ได้ 0.00/วัน สำหรับการใช้จ่ายล่วงหน้า</div>
                         </div>
                         <div class="hero-target-card">
                             <div class="hero-target-heading">
@@ -3924,22 +3945,8 @@
                         </div>
                         <div class="form-group">
                             <label for="draft-spent-detail">ชื่อรายการ</label>
-                            <div class="expense-detail-field">
-                                <input type="text" id="draft-spent-detail" list="expense-detail-options" placeholder="เช่น ข้าวมันไก่" autocomplete="off" aria-haspopup="listbox" aria-controls="expense-category-menu">
-                                <!-- <button type="button" class="expense-category-trigger" id="expense-category-trigger" onclick="toggleExpenseCategoryMenu(event)" aria-label="เลือกประเภทรายการ" aria-expanded="false" aria-controls="expense-category-menu">
-                                    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3 6 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                </button> -->
-                                <!-- <div class="expense-category-menu hidden" id="expense-category-menu" role="listbox" aria-label="ประเภทของรายการ">
-                                    <button type="button" role="option" onclick="selectExpenseCategory('อาหาร')">อาหาร</button>
-                                    <button type="button" role="option" onclick="selectExpenseCategory('ค่าเดินทาง')">ค่าเดินทาง</button>
-                                </div> -->
-                            </div>
-                            <datalist id="expense-detail-options">
-                                <option value="อาหาร"></option>
-                                <option value="ค่าเดินทาง"></option>
-                            </datalist>
-                            <div class="quick-category-row">
-                                <div class="quick-category-label">เลือกเร็ว</div>
+                            <input type="text" id="draft-spent-detail" placeholder="เช่น ข้าวมันไก่" autocomplete="off">
+                            <div class="quick-category-row" aria-label="เลือกประเภทรายการด่วน">
                                 <button type="button" class="btn-quick-category" onclick="selectExpenseCategory('อาหาร')">อาหาร</button>
                                 <button type="button" class="btn-quick-category" onclick="selectExpenseCategory('ค่าเดินทาง')">ค่าเดินทาง</button>
                             </div>
@@ -3996,6 +4003,7 @@
                                 <button type="button" id="history-table-view-btn" class="history-menu-item hidden" onclick="setHistoryView('table'); closeHistoryMore()">แบบรายการ</button>
                                 <button type="button" id="history-chart-view-btn" class="history-menu-item" onclick="setHistoryView('chart'); closeHistoryMore()">แบบกราฟ</button>
                                 <div class="history-menu-divider"></div>
+                                <button type="button" class="history-menu-item project-overview-menu-item" onclick="openProjectOverviewModal(); closeHistoryMore()">สถานภาพรวมโครงการ</button>
                                 <div class="history-actions" id="history-table-actions">
                                     <button class="history-menu-item" onclick="openPlannedCalendarModal(); closeHistoryMore()">การใช้จ่ายล่วงหน้า</button>
                                     <button class="history-menu-item" onclick="openSummaryModal(); closeHistoryMore()">ใบสรุปผล</button>
@@ -4049,16 +4057,27 @@
                 </div>
             </section>
 
-            <details class="project-details-disclosure">
-                <summary>สถานะและภาพรวมโครงการ</summary>
-                <div class="project-details-content">
-                    <h3 id="stat-days-status">0 / 0 วัน</h3>
-                    <div id="stat-days-rich-details">-</div>
-                    <label for="end-date-runtime">เปลี่ยนวันสิ้นสุดกลางคัน:</label>
-                    <input type="date" id="end-date-runtime" onchange="updateEndDateFromRuntime(this.value)">
-                    <button type="button" class="project-edit-target" onclick="editTargetBudget()">แก้ไขเป้าหมายงบต่อวัน</button>
-                </div>
-            </details>
+            <!-- Project overview: เปิดจากเมนู "อื่นๆ" เท่านั้น -->
+            <div id="project-overview-modal" class="modal-overlay project-overview-overlay" onclick="closeProjectOverviewModal()" aria-hidden="true">
+                <section class="modal-card project-overview-card" role="dialog" aria-modal="true" aria-labelledby="project-overview-heading" onclick="event.stopPropagation()">
+                    <header class="project-overview-header">
+                        <span id="project-overview-heading" class="project-overview-badge">สถานภาพรวมโครงการ</span>
+                        <button type="button" class="project-overview-close" onclick="closeProjectOverviewModal()" aria-label="ปิดหน้าต่าง">✕</button>
+                    </header>
+                    <h3 id="stat-days-status" class="hidden">0 / 0 วัน</h3>
+                    <ul id="stat-days-rich-details" class="project-overview-list" aria-live="polite">
+                        <li>ใช้รวมไปแล้ว: <strong class="project-overview-total">0.00 บาท</strong></li>
+                        <li>เป้าหมายสิ้นสุดวันที่ <strong class="project-overview-date">-</strong></li>
+                        <li>อีก <strong class="project-overview-countdown">0</strong> วันถึงวันสิ้นสุด</li>
+                    </ul>
+                    <button type="button" id="project-change-end-date-btn" class="project-overview-change-date" onclick="toggleProjectEndDateEditor()" aria-expanded="false">เปลี่ยนวันสิ้นสุด</button>
+                    <div id="project-overview-date-editor" class="project-overview-date-editor hidden">
+                        <label for="end-date-runtime">เลือกวันสิ้นสุดใหม่</label>
+                        <input type="date" id="end-date-runtime" onchange="updateEndDateFromRuntime(this.value)">
+                        <p>เมื่อเลือกวันที่ใหม่ ระบบจะคำนวณจำนวนวันและงบประมาณให้อัตโนมัติ</p>
+                    </div>
+                </section>
+            </div>
 
         </div>
     </div>
@@ -4314,6 +4333,14 @@
         return d.toLocaleDateString(userLocale, { day: 'numeric', month: 'short', year: 'numeric' });
     }
 
+    // รูปแบบวันที่ในป๊อปอัพภาพรวมโครงการ ใช้เดือนภาษาไทยและปี ค.ศ. ตามวันที่จริง
+    function formatProjectOverviewDate(isoStr) {
+        if (!isoStr) return '-';
+        const date = parseIsoToLocalDate(isoStr);
+        const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+        return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+    }
+
     // รูปแบบวันที่ในประวัติ: 21ก.ย. / 2569(อา)
     function getHistoryDateLabel(isoStr, fallbackDateStr = '-') {
         if (!isoStr) return fallbackDateStr;
@@ -4355,8 +4382,6 @@
     window.closeSummaryModal = closeSummaryModal;
     window.downloadSummaryImage = downloadSummaryImage;
     window.selectExpenseCategory = selectExpenseCategory;
-    window.toggleExpenseCategoryMenu = toggleExpenseCategoryMenu;
-    window.closeExpenseCategoryMenu = closeExpenseCategoryMenu;
     window.openPlannedCalendarModal = openPlannedCalendarModal;
     window.closePlannedCalendarModal = closePlannedCalendarModal;
     window.changePlannedCalendarMonth = changePlannedCalendarMonth;
@@ -4374,6 +4399,9 @@
     window.toggleHistoryTable = toggleHistoryTable;
     window.toggleHistoryMore = toggleHistoryMore;
     window.closeHistoryMore = closeHistoryMore;
+    window.openProjectOverviewModal = openProjectOverviewModal;
+    window.closeProjectOverviewModal = closeProjectOverviewModal;
+    window.toggleProjectEndDateEditor = toggleProjectEndDateEditor;
     window.openTransactionSearchModal = openTransactionSearchModal;
     window.closeTransactionSearchModal = closeTransactionSearchModal;
     window.searchTransactions = searchTransactions;
@@ -4439,21 +4467,15 @@
         }
     });
 
-    document.addEventListener('click', (event) => {
-        const categoryField = document.querySelector('.expense-detail-field');
-        if (categoryField && !categoryField.contains(event.target)) {
-            closeExpenseCategoryMenu();
-        }
-    });
-
     // เลื่อนหน้าเมื่อใด ให้ปิดกล่องโปรไฟล์ทันที เหมือนการกดพื้นที่อื่นของเว็บ
     document.addEventListener('keydown', (event) => {
         if (event.key !== 'Escape') return;
-        closeExpenseCategoryMenu();
         const basketOverlay = document.getElementById('basket-popup-overlay');
         if (basketOverlay?.classList.contains('is-open')) closeBasketPanel();
         const detailsModal = document.getElementById('planned-day-details-modal');
         if (detailsModal?.classList.contains('active')) closePlannedDayDetails();
+        const projectOverviewModal = document.getElementById('project-overview-modal');
+        if (projectOverviewModal?.classList.contains('active')) closeProjectOverviewModal();
     });
 
     window.addEventListener('scroll', () => {
@@ -4586,28 +4608,10 @@
         renderBasket();
     }
 
-    function toggleExpenseCategoryMenu(event) {
-        if (event) event.stopPropagation();
-        const menu = document.getElementById('expense-category-menu');
-        const trigger = document.getElementById('expense-category-trigger');
-        if (!menu || !trigger) return;
-        const willOpen = menu.classList.contains('hidden');
-        menu.classList.toggle('hidden', !willOpen);
-        trigger.setAttribute('aria-expanded', String(willOpen));
-    }
-
-    function closeExpenseCategoryMenu() {
-        const menu = document.getElementById('expense-category-menu');
-        const trigger = document.getElementById('expense-category-trigger');
-        if (menu) menu.classList.add('hidden');
-        if (trigger) trigger.setAttribute('aria-expanded', 'false');
-    }
-
     function selectExpenseCategory(category) {
         const detailInput = document.getElementById('draft-spent-detail');
         if (!detailInput) return;
         detailInput.value = category;
-        closeExpenseCategoryMenu();
         detailInput.focus();
     }
 
@@ -6001,6 +6005,48 @@
         button?.setAttribute('aria-expanded', 'false');
     }
 
+    function openProjectOverviewModal() {
+        closeHistoryMore();
+        const modal = document.getElementById('project-overview-modal');
+        const dateEditor = document.getElementById('project-overview-date-editor');
+        const dateButton = document.getElementById('project-change-end-date-btn');
+        const dateInput = document.getElementById('end-date-runtime');
+        if (!modal) return;
+
+        dateEditor?.classList.add('hidden');
+        dateButton?.setAttribute('aria-expanded', 'false');
+        if (dateButton) dateButton.textContent = 'เปลี่ยนวันสิ้นสุด';
+        if (dateInput) dateInput.value = endDateProjectIso || '';
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeProjectOverviewModal() {
+        const modal = document.getElementById('project-overview-modal');
+        const dateEditor = document.getElementById('project-overview-date-editor');
+        const dateButton = document.getElementById('project-change-end-date-btn');
+        modal?.classList.remove('active');
+        modal?.setAttribute('aria-hidden', 'true');
+        dateEditor?.classList.add('hidden');
+        dateButton?.setAttribute('aria-expanded', 'false');
+        if (dateButton) dateButton.textContent = 'เปลี่ยนวันสิ้นสุด';
+    }
+
+    function toggleProjectEndDateEditor() {
+        const editor = document.getElementById('project-overview-date-editor');
+        const button = document.getElementById('project-change-end-date-btn');
+        const input = document.getElementById('end-date-runtime');
+        if (!editor || !button) return;
+
+        const isOpening = editor.classList.toggle('hidden') === false;
+        button.setAttribute('aria-expanded', String(isOpening));
+        button.textContent = isOpening ? 'ซ่อนตัวเลือกวันสิ้นสุด' : 'เปลี่ยนวันสิ้นสุด';
+        if (isOpening && input) {
+            input.value = endDateProjectIso || '';
+            input.focus();
+        }
+    }
+
     function setHistoryView(mode) {
         historyViewMode = mode === 'chart' ? 'chart' : 'table';
 
@@ -6380,10 +6426,34 @@
         }, 120);
     });
 
+    // ใช้ชุดคำนวณเดียวกันทั้งหน้าหลักและใบสรุปผล เพื่อให้ตัวเลขตรงกัน
+    function getRemainingBudgetMetrics() {
+        const actualRemainingWallet = totalMoney - totalSpent;
+        const recordedDays = Array.isArray(historyData) ? historyData.length : 0;
+        // นับจำนวนวันตั้งแต่วันนี้จนถึงวันสิ้นสุดโครงการ รวมวันนี้ด้วย
+        const remainingDays = Math.max(1, (Number(totalDays) || 1) - recordedDays);
+        const upcomingPlannedTotal = getUpcomingPlannedExpenseTotal();
+        const upcomingPlannedIncomeTotal = getUpcomingPlannedIncomeTotal();
+        const walletAfterPlannedNet = actualRemainingWallet - upcomingPlannedTotal + upcomingPlannedIncomeTotal;
+
+        return {
+            actualRemainingWallet,
+            remainingDays,
+            upcomingPlannedTotal,
+            upcomingPlannedIncomeTotal,
+            walletAfterPlannedNet,
+            // ค่าเฉลี่ยหลักคำนวณจากเงินคงเหลือจริงเท่านั้น
+            averageFromActual: actualRemainingWallet / remainingDays,
+            // ค่าเฉลี่ยรองคำนึงถึงรายจ่าย/รายรับที่วางแผนล่วงหน้า
+            averageForPlanned: walletAfterPlannedNet / remainingDays
+        };
+    }
+
     function updateDashboard() {
         document.getElementById('stat-base-budget').innerText = `${formatMoney(targetDailyBudget)}`;
         
-        let actualRemainingWallet = totalMoney - totalSpent;
+        const budgetMetrics = getRemainingBudgetMetrics();
+        let actualRemainingWallet = budgetMetrics.actualRemainingWallet;
         const walletEl = document.getElementById('stat-wallet-remaining');
         walletEl.innerHTML = `${formatMoney(actualRemainingWallet)} <span>บาท</span>`;
         walletEl.style.color = actualRemainingWallet < 0 ? 'var(--danger)' : 'white';
@@ -6391,8 +6461,8 @@
         let recordedDays = historyData.length;
         document.getElementById('stat-days-status').innerText = `${recordedDays} / ${totalDays} วัน`;
 
-        // แสดงจำนวนวันที่เหลือจนถึงวันสิ้นสุดโครงการ
-        let countdownText = '';
+        // ข้อมูลสถานภาพรวมโครงการในป๊อปอัพ: ยอดใช้สะสม, วันสิ้นสุด และวันนับถอยหลัง
+        let countdownMarkup = 'ยังไม่ได้กำหนดวันสิ้นสุด';
         if (endDateProjectIso) {
             const today = parseIsoToLocalDate(getTodayIso());
             const endDate = parseIsoToLocalDate(endDateProjectIso);
@@ -6400,34 +6470,35 @@
             const daysUntilEnd = Math.round((endDate - today) / msPerDay);
 
             if (daysUntilEnd > 0) {
-                countdownText = `⏳ อีก ${daysUntilEnd} วันถึงวันสิ้นสุด`;
+                countdownMarkup = `อีก <strong class="project-overview-countdown">${daysUntilEnd}</strong> วันถึงวันสิ้นสุด`;
             } else if (daysUntilEnd === 0) {
-                countdownText = '⏳ วันนี้คือวันสิ้นสุดโครงการ';
+                countdownMarkup = 'วันนี้คือวันสิ้นสุดโครงการ';
             } else {
-                countdownText = `🏁 โครงการสิ้นสุดแล้ว ${Math.abs(daysUntilEnd)} วัน`;
+                countdownMarkup = `สิ้นสุดมาแล้ว <strong class="project-overview-countdown">${Math.abs(daysUntilEnd)}</strong> วัน`;
             }
         }
 
         document.getElementById('stat-days-rich-details').innerHTML = `
-            📌 เริ่ม: ${getLocaleDateStrFromIso(startDateProjectIso)}<br>
-            ${countdownText}<br>
-            🏁 สิ้นสุด: ${getLocaleDateStrFromIso(endDateProjectIso)}<br>
-            💸 ใช้รวมไปแล้ว: <span style="color:white; font-weight:bold;">${formatMoney(totalSpent)} บาท</span>
+            <li>ใช้รวมไปแล้ว: <strong class="project-overview-total">${formatMoney(totalSpent)} บาท</strong></li>
+            <li>เป้าหมายสิ้นสุดวันที่ <strong class="project-overview-date">${formatProjectOverviewDate(endDateProjectIso)}</strong></li>
+            <li>${countdownMarkup}</li>
         `;
 
-        let futureDaysLeft = totalDays - recordedDays;
-        if(futureDaysLeft < 1) futureDaysLeft = 1;
-        const upcomingPlannedTotal = getUpcomingPlannedExpenseTotal();
-        const upcomingPlannedIncomeTotal = getUpcomingPlannedIncomeTotal();
-        // งบเฉลี่ยคำนึงถึงรายจ่ายล่วงหน้าและรายรับที่คาดว่าจะได้รับ
-        // แต่เงินรับตามแผนจะยังไม่เพิ่มเงินคงเหลือจริงจนกว่าจะบันทึกรายรับจริง
-        const walletAfterPlannedNet = actualRemainingWallet - upcomingPlannedTotal + upcomingPlannedIncomeTotal;
-        let futureAvgBudget = walletAfterPlannedNet / futureDaysLeft;
+        const futureDaysLeft = budgetMetrics.remainingDays;
+        // ค่าเฉลี่ยหลัก = เงินคงเหลือจริง ÷ จำนวนวันที่เหลือถึงวันสิ้นสุดโครงการ
+        // ค่าเฉลี่ยรอง = เงินคงเหลือหลังคำนึงถึงแผนรายจ่าย/รายรับ ÷ จำนวนวันเดียวกัน
+        const walletAfterPlannedNet = budgetMetrics.walletAfterPlannedNet;
+        const futureAvgBudget = budgetMetrics.averageForPlanned;
         renderPlannedExpenses();
         
         const avgEl = document.getElementById('stat-future-avg');
-        avgEl.innerHTML = `${formatMoney(futureAvgBudget)} <span>/ วัน</span>`;
-        avgEl.style.color = futureAvgBudget < 0 ? 'var(--danger)' : 'var(--success)';
+        avgEl.innerHTML = `${formatMoney(budgetMetrics.averageFromActual)} <span>/ วัน</span>`;
+        avgEl.style.color = budgetMetrics.averageFromActual < 0 ? 'var(--danger)' : 'var(--success)';
+
+        const plannedAvgEl = document.getElementById('stat-future-avg-planned');
+        if (plannedAvgEl) {
+            plannedAvgEl.textContent = `ใช้ได้ ${formatMoney(futureAvgBudget)}/วัน สำหรับการใช้จ่ายล่วงหน้า`;
+        }
         
         // ตรวจสอบและแจ้งเตือนงบเป้าหมาย
         const alertBox = document.getElementById('target-budget-alert');
@@ -6596,32 +6667,18 @@
 
     // 📄 ใบสรุปผล: สร้างรายงานจากข้อมูลปัจจุบันของ BearWallet
     function getSummaryValues() {
-        const actualRemainingWallet = totalMoney - totalSpent;
+        const budgetMetrics = getRemainingBudgetMetrics();
+        const actualRemainingWallet = budgetMetrics.actualRemainingWallet;
         const todayIso = getTodayIso();
-
-        let remainingDays = 0;
-        if (endDateProjectIso) {
-            const today = parseIsoToLocalDate(todayIso);
-            const end = parseIsoToLocalDate(endDateProjectIso);
-            remainingDays = Math.floor((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-            remainingDays = Math.max(0, remainingDays);
-        }
-
-        // ถ้าวันนี้ยังไม่ได้บันทึก ให้รวมวันนี้เป็นวันที่ยังใช้ได้
-        // ถ้าบันทึกวันนี้แล้ว ให้ใช้จำนวนวันตั้งแต่พรุ่งนี้ถึงวันสิ้นสุด
-        const todayRecorded = historyData.some(item => item.dateIso === todayIso);
-        let daysForAverage = remainingDays;
-        if (todayRecorded) daysForAverage = Math.max(remainingDays - 1, 0);
-
-        // เพื่อให้สอดคล้องกับหน้า Dashboard หากโครงการจบแล้วจะไม่หารด้วยศูนย์
-        const averageUsable = daysForAverage > 0
-            ? actualRemainingWallet / daysForAverage
-            : actualRemainingWallet;
+        const daysForAverage = budgetMetrics.remainingDays;
+        const averageUsable = budgetMetrics.averageFromActual;
+        const averageForPlanned = budgetMetrics.averageForPlanned;
 
         const target = parseFloat(targetDailyBudget) || 0;
         const requiredForRemaining = target * daysForAverage;
+        // ใช้ยอดหลังหักรายจ่ายล่วงหน้าและบวกรายรับตามแผนเหมือนหน้าหลัก
         const shortage = target > 0
-            ? Math.max(0, requiredForRemaining - actualRemainingWallet)
+            ? Math.max(0, requiredForRemaining - budgetMetrics.walletAfterPlannedNet)
             : 0;
 
         const todayForCountdown = parseIsoToLocalDate(todayIso);
@@ -6634,6 +6691,7 @@
             remainingDays: daysForAverage,
             daysUntilEnd,
             averageUsable,
+            averageForPlanned,
             target,
             shortage,
             totalSpent,
