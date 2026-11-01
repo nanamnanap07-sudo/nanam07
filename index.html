@@ -3625,6 +3625,198 @@
         }
     </style>
 
+
+    <style id="bearwallet-v5-ui-adjustments">
+        /* แจ้งเตือนเป้าหมาย: แยกข้อความเป็นบรรทัดและกำหนดสีแต่ละส่วน */
+        #target-budget-alert:hover {
+            width: min(285px, calc(100vw - 34px));
+            max-height: none;
+            min-height: 0;
+            padding: 11px 13px !important;
+            overflow: visible;
+            text-align: left;
+            line-height: 1.5;
+            white-space: normal;
+        }
+        #target-budget-alert .target-alert-heading,
+        #target-budget-alert .target-alert-line {
+            display: block;
+        }
+        #target-budget-alert .target-alert-heading {
+            margin-bottom: 2px;
+            color: #fff !important;
+            font-weight: 700;
+        }
+        #target-budget-alert .target-alert-line {
+            color: #fff !important;
+            font-weight: 500;
+        }
+        #target-budget-alert .target-alert-money {
+            color: #ff666f !important;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        #target-budget-alert .target-alert-available,
+        #target-budget-alert .target-alert-savings {
+            color: #48d18b !important;
+            font-weight: 800;
+        }
+
+        /* ปุ่มแก้/ลบในตารางให้พอดีกับข้อความ ไม่ยืดเต็มความกว้างคอลัมน์ */
+        #history-table-view .history-row-actions {
+            align-items: center;
+            gap: 3px;
+        }
+        #history-table-view .history-row-actions .btn-edit,
+        #history-table-view .history-row-actions .btn-delete-row {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            align-self: center;
+            width: auto !important;
+            min-width: 37px !important;
+            max-width: 46px;
+            min-height: 19px;
+            padding: 3px 7px !important;
+            margin: 0;
+            font-size: 9px;
+            line-height: 1.1;
+            white-space: nowrap;
+        }
+
+        /* ช่องชื่อรายการมีลูกศรตลอดเวลาและเปิดเมนูประเภทได้ด้วยการคลิก */
+        .expense-detail-field {
+            position: relative;
+            width: 100%;
+        }
+        #daily-form-card .expense-detail-field > input {
+            padding-right: 38px;
+        }
+        #daily-form-card .expense-category-trigger {
+            position: absolute;
+            top: 50%;
+            right: 5px;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 29px;
+            min-width: 29px;
+            height: 29px;
+            min-height: 29px;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: transparent;
+            color: rgba(29, 43, 64, .56);
+            box-shadow: none;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+        #daily-form-card .expense-category-trigger svg {
+            display: block;
+            width: 15px;
+            height: 15px;
+        }
+        #daily-form-card .expense-category-trigger:hover,
+        #daily-form-card .expense-category-trigger:focus-visible {
+            background: rgba(29, 43, 64, .08);
+            color: rgba(29, 43, 64, .82);
+            box-shadow: none;
+            transform: translateY(-50%);
+            outline: none;
+        }
+        .expense-category-menu {
+            position: absolute;
+            top: calc(100% + 7px);
+            right: 0;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 100%;
+            padding: 7px;
+            border: 1px solid rgba(148, 163, 184, .22);
+            border-radius: 15px;
+            background: #122136;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .24);
+        }
+        .expense-category-menu button {
+            width: 100%;
+            min-height: 35px;
+            margin: 0;
+            padding: 8px 11px;
+            border: 0;
+            border-radius: 10px;
+            background: #1d2c42;
+            color: #f5f7fa;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: left;
+            box-shadow: none;
+            transform: none;
+        }
+        .expense-category-menu button:hover,
+        .expense-category-menu button:focus-visible {
+            background: #2c405b;
+            color: #fff;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* ค่าเฉลี่ยอยู่กึ่งกลางแนวตั้งทางซ้าย และใช้พื้นที่การ์ดได้เด่นขึ้น */
+        .hero-daily-card {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            text-align: left;
+            padding: 14px 18px 14px 20px;
+            overflow: hidden;
+        }
+        .hero-daily-card p {
+            margin: 0 0 4px;
+            font-size: 18px !important;
+            line-height: 1.2;
+        }
+        .hero-daily-amount {
+            font-size: clamp(34px, 3vw, 39px) !important;
+            line-height: 1.12;
+            letter-spacing: -.35px;
+            max-width: 100%;
+        }
+        .hero-daily-amount span { font-size: 16px !important; }
+
+        @media (max-width: 600px) {
+            #target-budget-alert:hover {
+                width: min(275px, calc(100vw - 28px));
+                padding: 10px 11px !important;
+                font-size: 11px !important;
+            }
+            #history-table-view .history-row-actions .btn-edit,
+            #history-table-view .history-row-actions .btn-delete-row {
+                min-width: 34px !important;
+                max-width: 42px;
+                min-height: 18px;
+                padding: 3px 6px !important;
+                font-size: 8px !important;
+            }
+            .hero-daily-card {
+                padding: 11px 10px 11px 13px;
+            }
+            .hero-daily-card p { font-size: 15px !important; }
+            .hero-daily-amount { font-size: clamp(30px, 7.4vw, 35px) !important; }
+            .hero-daily-amount span { font-size: 13px !important; }
+        }
+        @media (max-width: 360px) {
+            .hero-daily-card { padding-left: 10px; padding-right: 7px; }
+            .hero-daily-card p { font-size: 13px !important; }
+            .hero-daily-amount { font-size: 28px !important; }
+            .hero-daily-amount span { font-size: 12px !important; }
+        }
+    </style>
+
 </head>
 <body>
 
@@ -3732,7 +3924,16 @@
                         </div>
                         <div class="form-group">
                             <label for="draft-spent-detail">ชื่อรายการ</label>
-                            <input type="text" id="draft-spent-detail" list="expense-detail-options" placeholder="เช่น ข้าวมันไก่">
+                            <div class="expense-detail-field">
+                                <input type="text" id="draft-spent-detail" list="expense-detail-options" placeholder="เช่น ข้าวมันไก่" autocomplete="off" aria-haspopup="listbox" aria-controls="expense-category-menu">
+                                <!-- <button type="button" class="expense-category-trigger" id="expense-category-trigger" onclick="toggleExpenseCategoryMenu(event)" aria-label="เลือกประเภทรายการ" aria-expanded="false" aria-controls="expense-category-menu">
+                                    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3 6 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </button> -->
+                                <!-- <div class="expense-category-menu hidden" id="expense-category-menu" role="listbox" aria-label="ประเภทของรายการ">
+                                    <button type="button" role="option" onclick="selectExpenseCategory('อาหาร')">อาหาร</button>
+                                    <button type="button" role="option" onclick="selectExpenseCategory('ค่าเดินทาง')">ค่าเดินทาง</button>
+                                </div> -->
+                            </div>
                             <datalist id="expense-detail-options">
                                 <option value="อาหาร"></option>
                                 <option value="ค่าเดินทาง"></option>
@@ -4154,6 +4355,8 @@
     window.closeSummaryModal = closeSummaryModal;
     window.downloadSummaryImage = downloadSummaryImage;
     window.selectExpenseCategory = selectExpenseCategory;
+    window.toggleExpenseCategoryMenu = toggleExpenseCategoryMenu;
+    window.closeExpenseCategoryMenu = closeExpenseCategoryMenu;
     window.openPlannedCalendarModal = openPlannedCalendarModal;
     window.closePlannedCalendarModal = closePlannedCalendarModal;
     window.changePlannedCalendarMonth = changePlannedCalendarMonth;
@@ -4236,9 +4439,17 @@
         }
     });
 
+    document.addEventListener('click', (event) => {
+        const categoryField = document.querySelector('.expense-detail-field');
+        if (categoryField && !categoryField.contains(event.target)) {
+            closeExpenseCategoryMenu();
+        }
+    });
+
     // เลื่อนหน้าเมื่อใด ให้ปิดกล่องโปรไฟล์ทันที เหมือนการกดพื้นที่อื่นของเว็บ
     document.addEventListener('keydown', (event) => {
         if (event.key !== 'Escape') return;
+        closeExpenseCategoryMenu();
         const basketOverlay = document.getElementById('basket-popup-overlay');
         if (basketOverlay?.classList.contains('is-open')) closeBasketPanel();
         const detailsModal = document.getElementById('planned-day-details-modal');
@@ -4375,10 +4586,28 @@
         renderBasket();
     }
 
+    function toggleExpenseCategoryMenu(event) {
+        if (event) event.stopPropagation();
+        const menu = document.getElementById('expense-category-menu');
+        const trigger = document.getElementById('expense-category-trigger');
+        if (!menu || !trigger) return;
+        const willOpen = menu.classList.contains('hidden');
+        menu.classList.toggle('hidden', !willOpen);
+        trigger.setAttribute('aria-expanded', String(willOpen));
+    }
+
+    function closeExpenseCategoryMenu() {
+        const menu = document.getElementById('expense-category-menu');
+        const trigger = document.getElementById('expense-category-trigger');
+        if (menu) menu.classList.add('hidden');
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+    }
+
     function selectExpenseCategory(category) {
         const detailInput = document.getElementById('draft-spent-detail');
         if (!detailInput) return;
         detailInput.value = category;
+        closeExpenseCategoryMenu();
         detailInput.focus();
     }
 
@@ -6212,7 +6441,11 @@
                 alertBox.style.backgroundColor = 'rgba(245, 158, 11, 0.1)';
                 alertBox.style.border = '1px solid rgba(245, 158, 11, 0.3)';
                 alertBox.style.color = '#fcd34d'; 
-                alertBox.innerHTML = `งบเฉลี่ยลดต่ำกว่าเป้า<br>ต้องเติมเงินเพิ่ม <strong>${formatMoney(moneyNeeded)} ฿</strong> ถึงจะกลับมาใช้ได้ ${formatMoney(targetDailyBudget)}/วัน`;
+                alertBox.innerHTML = `
+                    <span class="target-alert-heading">งบเฉลี่ยลดต่ำกว่าเป้า</span>
+                    <span class="target-alert-line">ต้องเติมเงินเพิ่ม <strong class="target-alert-money">${formatMoney(moneyNeeded)} ฿</strong></span>
+                    <span class="target-alert-line"><strong class="target-alert-available">ถึงจะกลับมาใช้ได้ ${formatMoney(targetDailyBudget)}/วัน</strong></span>
+                `;
             } else if (futureAvgBudget > targetDailyBudget + 5) {
                 let surplus = walletAfterPlannedNet - requiredMoneyForFuture;
                 alertBox.dataset.alertType = 'success';
@@ -6220,7 +6453,11 @@
                 alertBox.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
                 alertBox.style.border = '1px solid rgba(16, 185, 129, 0.3)';
                 alertBox.style.color = 'var(--success)';
-                alertBox.innerHTML = `เงินเหลือเฟือตามเป้าหมาย<br>สามารถดึงไปเป็นเงินเก็บได้ <strong>${formatMoney(surplus)} ฿</strong>`;
+                alertBox.innerHTML = `
+                    <span class="target-alert-heading">งบเหลือเฟือตามเป้าหมาย</span>
+                    <span class="target-alert-line">สามารถดึงไปเป็นเงินเก็บได้</span>
+                    <span class="target-alert-line"><strong class="target-alert-savings">${formatMoney(surplus)} บาท</strong></span>
+                `;
             } else {
                 alertBox.style.display = 'none';
                 delete alertBox.dataset.alertType;
