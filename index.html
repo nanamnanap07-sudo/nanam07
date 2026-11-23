@@ -5672,6 +5672,95 @@
 }
 </style>
 
+
+<style id="bearwallet-planned-transfer-and-calendar-states">
+    /* วันนี้เด่นด้วยพื้นหลังสีเขียว ส่วนวันอื่นมีแผนจะแสดงเพียงกรอบสีเขียว */
+    #planned-calendar-modal:not(.is-date-editor-open) .planned-calendar-day.is-today,
+    #planned-calendar-modal:not(.is-date-editor-open) .planned-calendar-day.is-today:hover,
+    #planned-calendar-modal:not(.is-date-editor-open) .planned-calendar-day.is-today:focus-visible {
+        border: 2px solid #91ed00 !important;
+        background: #36996d !important;
+        color: #ffffff !important;
+    }
+    #planned-calendar-modal:not(.is-date-editor-open) .planned-calendar-day.is-today .planned-calendar-day-number::after {
+        color: #e8fff4 !important;
+        font-weight: 800 !important;
+    }
+    #planned-calendar-modal:not(.is-date-editor-open) .planned-calendar-day.has-expenses:not(.is-today),
+    #planned-calendar-modal:not(.is-date-editor-open) .planned-calendar-day.has-planned-income:not(.is-today),
+    #planned-calendar-modal:not(.is-date-editor-open) .planned-calendar-day.has-expenses.has-planned-income:not(.is-today),
+    #planned-calendar-modal:not(.is-date-editor-open) .planned-calendar-day.has-expenses:not(.is-today).is-selected,
+    #planned-calendar-modal:not(.is-date-editor-open) .planned-calendar-day.has-planned-income:not(.is-today).is-selected {
+        border: 2px solid #91ed00 !important;
+        background: #506a8e !important;
+        color: #ffffff !important;
+    }
+
+    .basket-popup-overlay .basket-item.is-income {
+        background: rgba(16, 185, 129, .13) !important;
+        border: 1px solid rgba(52, 211, 153, .35) !important;
+    }
+    .basket-popup-overlay .basket-item.is-income > span { color: #a7f3d0 !important; }
+
+    .planned-transfer-notice { z-index: 5200 !important; padding: 18px !important; }
+    .planned-transfer-notice-card {
+        width: min(440px, calc(100% - 20px));
+        max-width: 440px;
+        max-height: min(82vh, 650px);
+        overflow: auto;
+        border: 1px solid rgba(52, 211, 153, .32);
+        background: #1b2b40;
+        box-shadow: 0 20px 55px rgba(0,0,0,.38);
+    }
+    .planned-transfer-notice-header {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgba(148,163,184,.2);
+    }
+    .planned-transfer-notice-icon {
+        display: grid;
+        place-items: center;
+        flex: 0 0 48px;
+        width: 48px;
+        height: 48px;
+        border-radius: 15px;
+        background: rgba(16,185,129,.16);
+        font-size: 25px;
+    }
+    .planned-transfer-notice-header h3 { margin: 0 0 4px; color: #f8fafc; font-size: 18px; }
+    .planned-transfer-notice-header p { margin: 0; color: #aebdd0; font-size: 12px; line-height: 1.5; }
+    .planned-transfer-notice-list { display: flex; flex-direction: column; gap: 8px; max-height: 42vh; overflow: auto; }
+    .planned-transfer-notice-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 11px 12px;
+        border: 1px solid rgba(145,237,0,.28);
+        border-radius: 12px;
+        background: rgba(80,106,142,.36);
+    }
+    .planned-transfer-notice-item > span { display: flex; flex-direction: column; min-width: 0; gap: 3px; }
+    .planned-transfer-notice-item small { color: #aebdd0; font-size: 10px; }
+    .planned-transfer-notice-item strong { color: #f8fafc; font-size: 13px; overflow-wrap: anywhere; }
+    .planned-transfer-notice-item b { flex: 0 0 auto; color: #d9ff9b; font-size: 12px; white-space: nowrap; }
+    .planned-transfer-notice-item.is-income { border-color: rgba(52,211,153,.35); background: rgba(16,185,129,.1); }
+    .planned-transfer-notice-item.is-income b { color: #6ee7b7; }
+    .planned-transfer-notice-actions { display: flex; gap: 9px; margin-top: 18px; }
+    .planned-transfer-notice-actions button { flex: 1; min-height: 42px; padding: 10px 12px; border-radius: 11px; font-size: 13px; }
+    .planned-transfer-notice-primary { background: #34d399; color: #073b2b; }
+    .planned-transfer-notice-secondary { background: #334155; color: #f8fafc; border: 1px solid rgba(148,163,184,.3); }
+    @media (max-width: 480px) {
+        .planned-transfer-notice-card { padding: 18px; border-radius: 17px; }
+        .planned-transfer-notice-header h3 { font-size: 16px; }
+        .planned-transfer-notice-item { align-items: flex-start; }
+        .planned-transfer-notice-actions { flex-direction: column; }
+    }
+</style>
+
 </head>
 <body>
 
@@ -6047,6 +6136,24 @@
     </section>
 </div>
 
+<!-- Notice shown once when planned entries are automatically moved to today's basket -->
+<div id="planned-transfer-notice" class="modal-overlay planned-transfer-notice" onclick="closePlannedTransferNotice()" aria-hidden="true">
+    <section class="modal-card planned-transfer-notice-card" role="dialog" aria-modal="true" aria-labelledby="planned-transfer-notice-title" onclick="event.stopPropagation()">
+        <div class="planned-transfer-notice-header">
+            <span class="planned-transfer-notice-icon" aria-hidden="true">🧺</span>
+            <div>
+                <h3 id="planned-transfer-notice-title">มีรายการล่วงหน้าในตะกร้าวันนี้</h3>
+                <p>รายการที่วางแผนไว้ถูกย้ายมาเป็นรายการรอบันทึกแล้ว</p>
+            </div>
+        </div>
+        <div id="planned-transfer-notice-list" class="planned-transfer-notice-list"></div>
+        <div class="planned-transfer-notice-actions">
+            <button type="button" class="planned-transfer-notice-primary" onclick="openBasketFromPlannedTransferNotice()">ดูตะกร้า</button>
+            <button type="button" class="planned-transfer-notice-secondary" onclick="closePlannedTransferNotice()">รับทราบ</button>
+        </div>
+    </section>
+</div>
+
 <!-- Summary Report Modal -->
 <div id="summary-modal" class="modal-overlay" onclick="closeSummaryModal()">
     <div class="modal-card summary-modal-card" onclick="event.stopPropagation()">
@@ -6106,6 +6213,9 @@
     let currentDayBasket = []; 
     let plannedExpenses = [];
     let plannedIncomeByDate = {};
+    // วันที่แจ้งเตือนการย้ายรายการล่วงหน้าเข้าตะกร้าครั้งล่าสุด
+    let plannedTransferNoticeDate = '';
+    let isProcessingPlannedTransfers = false;
     // ติดตามว่ามีการลบแผนของวันที่ผ่านมาแล้วและต้องซิงก์กลับ Firebase หรือไม่
     let pastPlannedCleanupPending = false;
     let plannedCalendarYear = new Date().getFullYear();
@@ -6239,6 +6349,8 @@
     window.removePlannedExpense = removePlannedExpense;
     window.movePlannedExpenseToTodayBasket = movePlannedExpenseToTodayBasket;
     window.closePlannedDayDetails = closePlannedDayDetails;
+    window.closePlannedTransferNotice = closePlannedTransferNotice;
+    window.openBasketFromPlannedTransferNotice = openBasketFromPlannedTransferNotice;
     window.setHistoryView = setHistoryView;
     window.toggleHistoryTable = toggleHistoryTable;
     window.toggleHistoryMore = toggleHistoryMore;
@@ -6466,6 +6578,7 @@
         }
 
         historyData = []; currentDayBasket = []; plannedExpenses = []; plannedIncomeByDate = {};
+        plannedTransferNoticeDate = '';
         document.getElementById('setup-card').classList.add('hidden');
         document.getElementById('main-tracker').classList.remove('hidden');
         recalculateAllChain(); 
@@ -7097,6 +7210,7 @@
         updatePlannedCalendarEditButton();
         recalculateAllChain();
         renderPlannedCalendar();
+        if (dateIso === getTodayIso()) processDuePlannedEntries();
     }
 
     function editPlannedExpense(id) {
@@ -7155,6 +7269,110 @@
         renderPlannedExpenses();
         renderPlannedCalendar();
         saveDataToFirebase();
+    }
+
+    // ย้ายแผนที่ถึงกำหนดวันนี้เข้าตะกร้าเป็นรายการรอการบันทึกจริง
+    // รายจ่ายและรายรับจะถูกนำออกจากปฏิทินทันที และไม่ถูกนับซ้ำในแผนล่วงหน้า
+    function processDuePlannedEntries() {
+        if (!currentUserId || isLoadingFromFirebase || isProcessingPlannedTransfers || isEditMode) return false;
+        const todayIso = getTodayIso();
+        const dueExpenses = (Array.isArray(plannedExpenses) ? plannedExpenses : [])
+            .filter(item => item && item.dateIso === todayIso);
+        const plannedIncome = Number(plannedIncomeByDate?.[todayIso]) || 0;
+        if (!dueExpenses.length && plannedIncome <= 0) return false;
+
+        isProcessingPlannedTransfers = true;
+        const newlyMoved = [];
+        try {
+            const alreadyInBasketIds = new Set(
+                currentDayBasket.map(item => item?.plannedExpenseId).filter(Boolean).map(String)
+            );
+
+            dueExpenses.forEach(planned => {
+                const plannedId = String(planned.id || '');
+                if (!planned.inBasket && (!plannedId || !alreadyInBasketIds.has(plannedId))) {
+                    const combinedDetail = [planned.category, planned.detail].filter(Boolean).join(' · ');
+                    const basketItem = {
+                        amount: Number(planned.amount) || 0,
+                        detail: combinedDetail || 'ไม่ระบุชื่อ',
+                        type: 'expense',
+                        plannedExpenseId: planned.id || null,
+                        plannedDate: todayIso
+                    };
+                    currentDayBasket.push(basketItem);
+                    newlyMoved.push(basketItem);
+                }
+            });
+
+            // หากรายการรายจ่ายถูกย้ายเข้าตะกร้าไว้ก่อนแล้ว จะไม่เพิ่มซ้ำ แต่เอาแผนออกจากปฏิทิน
+            plannedExpenses = plannedExpenses.filter(item => !item || item.dateIso !== todayIso);
+
+            if (plannedIncome > 0) {
+                const existingIncome = currentDayBasket.some(item =>
+                    item && item.type === 'income' && item.plannedIncomeDate === todayIso
+                );
+                if (!existingIncome) {
+                    const incomeItem = {
+                        amount: plannedIncome,
+                        detail: 'รายรับล่วงหน้า',
+                        type: 'income',
+                        plannedIncomeDate: todayIso
+                    };
+                    currentDayBasket.push(incomeItem);
+                    newlyMoved.push(incomeItem);
+                }
+                delete plannedIncomeByDate[todayIso];
+            }
+
+            // แจ้งเตือนเพียงครั้งเดียวต่อวัน และเก็บสถานะไว้ในข้อมูลบัญชีเพื่อไม่ให้เด้งซ้ำเมื่อเปิดเว็บใหม่
+            const shouldShowNotice = newlyMoved.length > 0 && plannedTransferNoticeDate !== todayIso;
+            if (shouldShowNotice) plannedTransferNoticeDate = todayIso;
+
+            renderBasket();
+            if (document.getElementById('planned-calendar-modal')?.classList.contains('active')) {
+                renderPlannedCalendar();
+                renderPlannedExpenses();
+            }
+
+            // คำนวณใหม่และบันทึกทั้งตะกร้ากับการลบแผนออกจากปฏิทิน
+            recalculateAllChain();
+
+            if (shouldShowNotice) showPlannedTransferNotice(newlyMoved);
+            return newlyMoved.length > 0;
+        } finally {
+            isProcessingPlannedTransfers = false;
+        }
+    }
+
+    function showPlannedTransferNotice(items) {
+        const modal = document.getElementById('planned-transfer-notice');
+        const list = document.getElementById('planned-transfer-notice-list');
+        if (!modal || !list) return;
+        list.innerHTML = (items || []).map(item => {
+            const isIncome = item.type === 'income';
+            const sign = isIncome ? '+' : '−';
+            const label = isIncome ? 'รายรับ' : 'รายจ่าย';
+            const detail = escapeHtml(item.detail || (isIncome ? 'รายรับล่วงหน้า' : 'ไม่ระบุชื่อ'));
+            return `<div class="planned-transfer-notice-item ${isIncome ? 'is-income' : ''}">
+                <span><small>${label}</small><strong>${detail}</strong></span>
+                <b>${sign}${formatMoney(item.amount)} บาท</b>
+            </div>`;
+        }).join('');
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closePlannedTransferNotice() {
+        const modal = document.getElementById('planned-transfer-notice');
+        if (!modal) return;
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function openBasketFromPlannedTransferNotice() {
+        closePlannedTransferNotice();
+        renderBasket();
+        setBasketPopupOpen(true);
     }
 
     function removePlannedExpense(idx) {
@@ -7220,9 +7438,18 @@
     }
 
     function removeBasketItem(idx) {
-        currentDayBasket.splice(idx, 1); 
-        renderBasket(); 
-        saveDataToFirebase();
+        const removed = currentDayBasket[idx];
+        if (!removed) return;
+        currentDayBasket.splice(idx, 1);
+        let removedSourcePlan = false;
+        if (removed.plannedExpenseId) {
+            const before = plannedExpenses.length;
+            plannedExpenses = plannedExpenses.filter(item => item.id !== removed.plannedExpenseId);
+            removedSourcePlan = before !== plannedExpenses.length;
+        }
+        renderBasket();
+        if (removedSourcePlan) recalculateAllChain();
+        else saveDataToFirebase();
     }
 
     function setupBasketPopupOverlay() {
@@ -7295,15 +7522,20 @@
 
         listContainer.innerHTML = '';
         let totalDraftSpent = 0;
+        let totalDraftIncome = 0;
         currentDayBasket.forEach((item, index) => {
-            totalDraftSpent += item.amount;
+            const isIncome = item?.type === 'income';
+            const amount = Number(item?.amount) || 0;
+            if (isIncome) totalDraftIncome += amount;
+            else totalDraftSpent += amount;
             const div = document.createElement('div');
-            div.className = 'basket-item';
-            div.innerHTML = `<span>- <strong>${item.detail}</strong> - ${formatMoney(item.amount)} บาท</span>
-                <button class="btn-delete-item" onclick="removeBasketItem(${index})">ลบ</button>`;
+            div.className = `basket-item${isIncome ? ' is-income' : ''}`;
+            const detail = escapeHtml(item?.detail || (isIncome ? 'รายรับล่วงหน้า' : 'ไม่ระบุชื่อ'));
+            div.innerHTML = `<span>${isIncome ? '+' : '−'} <strong>${detail}</strong> - ${formatMoney(amount)} บาท</span>
+                <button class="btn-delete-item" onclick="removeBasketItem(${index})" aria-label="ลบ${isIncome ? 'รายรับ' : 'รายจ่าย'}รายการนี้">ลบ</button>`;
             listContainer.appendChild(div);
         });
-        summaryText.innerText = `${formatMoney(totalDraftSpent)} บาท`;
+        summaryText.innerText = `รายจ่าย −${formatMoney(totalDraftSpent)} / รายรับ +${formatMoney(totalDraftIncome)} บาท`;
     }
 
     // ⌨️ การทำงานปุ่ม Enter แบบเป็นลำดับ
@@ -7493,9 +7725,14 @@
             });
         }
 
-        // รวมรายการที่พิมพ์ไว้ + รายการที่อยู่ในตะกร้า
+        // แยกรายการรายรับล่วงหน้าที่อยู่ในตะกร้าออกจากรายการรายจ่าย
         const itemsToSave = [...currentDayBasket];
-        const totalSpentToday = itemsToSave.reduce((sum, item) => {
+        const basketIncomeToday = itemsToSave.reduce((sum, item) => {
+            return sum + (item?.type === 'income' ? (Number(item.amount) || 0) : 0);
+        }, 0);
+        const incomeToSave = income + basketIncomeToday;
+        const expenseItemsToSave = itemsToSave.filter(item => item?.type !== 'income');
+        const totalSpentToday = expenseItemsToSave.reduce((sum, item) => {
             return sum + (parseFloat(item.amount) || 0);
         }, 0);
 
@@ -7509,9 +7746,9 @@
 
             // โหมดแก้ไขต้อง "แทนที่" ข้อมูลเดิมด้วยข้อมูลที่อยู่ในตะกร้าปัจจุบัน
             // ไม่ใช่บวก/concat ซ้ำ เพราะตะกร้าถูกโหลดรายการเดิมมาให้แก้ไขตั้งแต่ตอนกด "แก้"
-            target.income = income;
+            target.income = incomeToSave;
             target.spent = totalSpentToday;
-            target.itemsArray = [...itemsToSave];
+            target.itemsArray = [...expenseItemsToSave];
 
             // ล้างข้อมูลชั่วคราวก่อนออกจากโหมดแก้ไข
             currentDayBasket = [];
@@ -7529,19 +7766,19 @@
             if (existingDayIdx !== -1) {
                 const todayData = historyData[existingDayIdx];
 
-                todayData.income = (parseFloat(todayData.income) || 0) + income;
+                todayData.income = (parseFloat(todayData.income) || 0) + incomeToSave;
                 todayData.spent = (parseFloat(todayData.spent) || 0) + totalSpentToday;
 
                 if (!todayData.itemsArray) todayData.itemsArray = [];
-                todayData.itemsArray = todayData.itemsArray.concat(itemsToSave);
+                todayData.itemsArray = todayData.itemsArray.concat(expenseItemsToSave);
             } else {
                 historyData.push({
                     dateStr: todayStr,
                     dateIso: currentDayIso,
                     budget: 0,
-                    income: income,
+                    income: incomeToSave,
                     spent: totalSpentToday,
-                    itemsArray: [...itemsToSave],
+                    itemsArray: [...expenseItemsToSave],
                     remaining: 0
                 });
             }
@@ -7908,12 +8145,15 @@
         const diff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
         const daysRemaining = Math.max(1, diff - historyData.length);
         const budget = walletAtStartOfToday / daysRemaining;
-        const income = parseFloat(document.getElementById('daily-income')?.value || 0) || 0;
-        const spent = currentDayBasket.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+        const typedIncome = parseFloat(document.getElementById('daily-income')?.value || 0) || 0;
+        const basketIncome = currentDayBasket.reduce((sum, item) => sum + (item?.type === 'income' ? (Number(item.amount) || 0) : 0), 0);
+        const income = typedIncome + basketIncome;
+        const spent = currentDayBasket.reduce((sum, item) => sum + (item?.type === 'income' ? 0 : (parseFloat(item.amount) || 0)), 0);
+        const expenseItems = currentDayBasket.filter(item => item?.type !== 'income');
 
         return {
             dateStr: getTodayLocaleDateStr(), dateIso: todayIso, budget, income, spent,
-            itemsArray: currentDayBasket, remaining: budget + income - spent, isStandby: true
+            itemsArray: expenseItems, remaining: budget + income - spent, isStandby: true
         };
     }
 
@@ -8627,6 +8867,7 @@ function getUpcomingPlannedIncomeTotal() {
         plannedIncomeByDate = data.plannedIncomeByDate && typeof data.plannedIncomeByDate === 'object' && !Array.isArray(data.plannedIncomeByDate)
             ? Object.fromEntries(Object.entries(data.plannedIncomeByDate).map(([date, amount]) => [date, Number(amount)]).filter(([date, amount]) => /^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(amount) && amount > 0))
             : {};
+        plannedTransferNoticeDate = /^\d{4}-\d{2}-\d{2}$/.test(String(data.plannedTransferNoticeDate || '')) ? data.plannedTransferNoticeDate : '';
         prunePastPlannedData();
         
         targetDailyBudget = data.targetDailyBudget || 0;
@@ -8661,6 +8902,7 @@ function getUpcomingPlannedIncomeTotal() {
             currentDayBasket: currentDayBasket,
             plannedExpenses: plannedExpenses,
             plannedIncomeByDate: plannedIncomeByDate,
+            plannedTransferNoticeDate: plannedTransferNoticeDate,
             draftIncome: draftIncome,
             isEditMode: isEditMode,
             editTargetIndex: editTargetIndex,
@@ -8720,6 +8962,7 @@ function getUpcomingPlannedIncomeTotal() {
                 currentDayBasket = [];
                 plannedExpenses = [];
                 plannedIncomeByDate = {};
+                plannedTransferNoticeDate = '';
             }
         } catch (err) {
             console.error("Firebase Data Processing Error:", err);
@@ -8728,6 +8971,8 @@ function getUpcomingPlannedIncomeTotal() {
         } finally {
             isLoadingFromFirebase = false;
         }
+        // เมื่อโหลดข้อมูลครบแล้ว ย้ายรายการที่ตรงกับวันที่ปัจจุบันเข้าตะกร้าโดยอัตโนมัติ
+        if (totalMoneyInitial > 0) processDuePlannedEntries();
         // บันทึกการลบแผนย้อนหลังกลับ Firebase หลังอ่าน/ประมวลผลข้อมูลครบแล้ว
         persistPastPlannedCleanup();
     }
@@ -9226,6 +9471,15 @@ function getUpcomingPlannedIncomeTotal() {
     setupEnterToSubmit();
 
     setInterval(updateFormDateTitle, 30000);
+    setInterval(() => {
+        if (currentUserId && !isLoadingFromFirebase) processDuePlannedEntries();
+    }, 60000);
+    window.addEventListener('focus', () => {
+        if (currentUserId && !isLoadingFromFirebase) processDuePlannedEntries();
+    });
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && currentUserId && !isLoadingFromFirebase) processDuePlannedEntries();
+    });
 </script>
 
 <script>
